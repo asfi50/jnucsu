@@ -1,10 +1,10 @@
-import Header from '@/app/components/layout/Header';
-import Footer from '@/app/components/layout/Footer';
-import LeaderCard from '@/app/components/features/LeaderCard';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
+import LeaderCard from '@/components/home/LeaderCard';
 import { dummyLeaders } from '@/lib/data';
 import { Users, Search } from 'lucide-react';
 
-export default function LeadersPage() {
+export default function CandidatesPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -14,10 +14,10 @@ export default function LeadersPage() {
         <div className="mb-8">
           <div className="flex items-center space-x-2 mb-4">
             <Users className="w-8 h-8 text-orange-500" />
-            <h1 className="text-3xl font-bold text-gray-900">Student Leaders</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Student Candidates</h1>
           </div>
           <p className="text-gray-600 max-w-2xl">
-            Meet the student leaders who are shaping the future of Jagannath University. 
+            Meet the student candidates running for positions at Jagannath University. 
             Vote for your favorites and engage with their profiles.
           </p>
         </div>
@@ -29,7 +29,7 @@ export default function LeadersPage() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
-                placeholder="Search leaders..."
+                placeholder="Search candidates..."
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
               />
             </div>
@@ -51,7 +51,7 @@ export default function LeadersPage() {
           </div>
         </div>
 
-        {/* Leaders Grid */}
+        {/* Candidates Grid */}
         <div className="space-y-4">
           {dummyLeaders.map((leader) => (
             <LeaderCard key={leader.id} leader={leader} />
@@ -61,7 +61,7 @@ export default function LeadersPage() {
         {/* Load More */}
         <div className="text-center mt-8">
           <button className="bg-white border border-gray-300 hover:border-gray-400 text-gray-700 px-6 py-2 rounded-lg transition-colors">
-            Load More Leaders
+            Load More Candidates
           </button>
         </div>
       </div>

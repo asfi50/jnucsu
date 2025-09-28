@@ -2,9 +2,9 @@
 
 import { useState, use } from 'react';
 import Image from 'next/image';
-import Header from '@/app/components/layout/Header';
-import QRCode from '@/app/components/features/QRCode';
-import Footer from '@/app/components/layout/Footer';
+import Header from '@/components/layout/Header';
+import QRCode from '@/components/candidates/QRCode';
+import Footer from '@/components/layout/Footer';
 import { dummyLeaders } from '@/lib/data';
 import { formatRelativeTime } from '@/lib/utils';
 import { 
@@ -21,13 +21,13 @@ import {
   ImageIcon
 } from 'lucide-react';
 
-interface LeaderProfilePageProps {
+interface CandidateProfilePageProps {
   params: Promise<{
     id: string;
   }>;
 }
 
-export default function LeaderProfilePage({ params }: LeaderProfilePageProps) {
+export default function CandidateProfilePage({ params }: CandidateProfilePageProps) {
   const { id } = use(params);
   const leader = dummyLeaders.find(l => l.id === id);
   const [votes, setVotes] = useState(leader?.votes || 0);
@@ -41,8 +41,8 @@ export default function LeaderProfilePage({ params }: LeaderProfilePageProps) {
         <Header />
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900">Leader not found</h1>
-            <p className="text-gray-600 mt-2">The leader you&apos;re looking for doesn&apos;t exist.</p>
+            <h1 className="text-2xl font-bold text-gray-900">Candidate not found</h1>
+            <p className="text-gray-600 mt-2">The candidate you&apos;re looking for doesn&apos;t exist.</p>
           </div>
         </div>
       </div>
@@ -84,7 +84,7 @@ export default function LeaderProfilePage({ params }: LeaderProfilePageProps) {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-3 space-y-8">
-            {/* Leader Header */}
+            {/* Candidate Header */}
             <div className="bg-white rounded-lg border border-gray-200 p-8">
               <div className="flex items-start space-x-6">
                 {/* Vote Section */}
@@ -104,7 +104,7 @@ export default function LeaderProfilePage({ params }: LeaderProfilePageProps) {
                   </button>
                 </div>
 
-                {/* Leader Info */}
+                {/* Candidate Info */}
                 <div className="flex-1">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-start space-x-4">
@@ -231,7 +231,7 @@ export default function LeaderProfilePage({ params }: LeaderProfilePageProps) {
                     <textarea
                       value={newComment}
                       onChange={(e) => setNewComment(e.target.value)}
-                      placeholder="Share your thoughts about this leader..."
+                      placeholder="Share your thoughts about this candidate..."
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none resize-none"
                       rows={3}
                     />
