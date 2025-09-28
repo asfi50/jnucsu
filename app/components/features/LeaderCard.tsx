@@ -2,9 +2,8 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { ChevronUp, MessageCircle, ExternalLink, Clock } from 'lucide-react';
+import { ChevronUp, MessageCircle } from 'lucide-react';
 import { StudentLeader } from '@/lib/types';
-import { formatRelativeTime } from '@/lib/utils';
 import { useState } from 'react';
 
 interface LeaderCardProps {
@@ -23,96 +22,82 @@ export default function LeaderCard({ leader }: LeaderCardProps) {
   };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-all duration-200 hover:shadow-sm">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 overflow-hidden">
       <div className="p-6">
-        <div className="flex items-start space-x-4">
-          {/* Vote Section */}
-          <div className="flex flex-col items-center space-y-1">
-            <button
-              onClick={handleVote}
-              className={`flex flex-col items-center p-2 rounded-lg transition-colors ${
-                hasVoted 
-                  ? 'bg-orange-100 text-orange-600' 
-                  : 'hover:bg-gray-100 text-gray-600'
-              }`}
-              disabled={hasVoted}
-            >
-              <ChevronUp className="w-5 h-5" />
-              <span className="text-sm font-medium">{votes}</span>
-            </button>
+        <div className="flex flex-col items-center text-center">
+          {/* Circular Avatar */}
+          <div className="relative mb-4">
+            <div className="w-24 h-24 rounded-full overflow-hidden ring-4 ring-gray-100">
+              <Image
+                src={leader.avatar}
+                alt={leader.name}
+                width={96}
+                height={96}
+                className="w-full h-full object-cover"
+              />
+            </div>
           </div>
 
           {/* Leader Info */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between">
-              <div className="flex items-start space-x-3">
-                <Image
-                  src={leader.avatar}
-                  alt={leader.name}
-                  width={48}
-                  height={48}
-                  className="rounded-full"
-                />
-                <div className="min-w-0 flex-1">
-                  <Link 
-                    href={`/leaders/${leader.id}`}
-                    className="group"
-                  >
-                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-orange-600 transition-colors">
-                      {leader.name}
-                    </h3>
-                  </Link>
-                  <p className="text-sm text-orange-600 font-medium">
-                    {leader.title}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    {leader.department} • Year {leader.year}
-                  </p>
-                </div>
-              </div>
-              
-              <Link 
-                href={`/leaders/${leader.id}`}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <ExternalLink className="w-4 h-4 text-gray-400" />
-              </Link>
-            </div>
-
-            <p className="mt-3 text-gray-700 leading-relaxed">
+          <div className="w-full">
+            <Link 
+              href={`/leaders/${leader.id}`}
+              className="group"
+            >
+              <h3 className="text-xl font-bold text-gray-900 group-hover:text-orange-600 transition-colors mb-1">
+                {leader.name}
+              </h3>
+            </Link>
+            <p className="text-orange-600 font-semibold mb-2">
+              {leader.title}
+            </p>
+            <p className="text-sm text-gray-500 mb-3">
+              {leader.department} • Year {leader.year}
+            </p>
+            <p className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-2">
               {leader.description}
             </p>
 
             {/* Tags */}
-            <div className="flex flex-wrap gap-2 mt-3">
-              {leader.tags.map((tag) => (
+            <div className="flex flex-wrap justify-center gap-2 mb-4">
+              {leader.tags.slice(0, 3).map((tag) => (
                 <span
                   key={tag}
-                  className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full"
+                  className="px-2 py-1 bg-orange-50 text-orange-600 text-xs rounded-full"
                 >
                   {tag}
                 </span>
               ))}
             </div>
 
-            {/* Footer */}
-            <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
-              <div className="flex items-center space-x-4 text-sm text-gray-500">
-                <div className="flex items-center space-x-1">
-                  <MessageCircle className="w-4 h-4" />
-                  <span>{leader.comments.length} comments</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <Clock className="w-4 h-4" />
-                  <span>{formatRelativeTime(leader.updatedAt)}</span>
-                </div>
+            {/* Action Section */}
+            <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+              {/* Vote Button */}
+              <button
+                onClick={handleVote}
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                  hasVoted 
+                    ? 'bg-orange-100 text-orange-600' 
+                    : 'bg-gray-50 hover:bg-orange-50 text-gray-600 hover:text-orange-600'
+                }`}
+                disabled={hasVoted}
+              >
+                <ChevronUp className="w-4 h-4" />
+                <span className="font-semibold">{votes}</span>
+              </button>
+
+              {/* Comment Count */}
+              <div className="flex items-center space-x-1 text-gray-500">
+                <MessageCircle className="w-4 h-4" />
+                <span className="text-sm">{leader.comments.length}</span>
               </div>
-              
+
+              {/* View Profile Link */}
               <Link
                 href={`/leaders/${leader.id}`}
-                className="text-orange-600 hover:text-orange-700 text-sm font-medium transition-colors"
+                className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
               >
-                View Profile →
+                View Profile
               </Link>
             </div>
           </div>

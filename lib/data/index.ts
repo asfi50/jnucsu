@@ -1,5 +1,5 @@
 import { StudentLeader, BlogPost, User } from '../types';
-import { generateAvatar, generatePlaceholderImage } from '../utils';
+import { generateAvatar, generateCandidateImage, generatePlaceholderImage } from '../utils';
 
 // Dummy users
 export const dummyUsers: User[] = [
@@ -30,10 +30,18 @@ export const dummyLeaders: StudentLeader[] = [
     name: 'Ashfaqul Islam Asif',
     title: 'Vice President - JnUCSU',
     description: 'Passionate about student rights and digital innovation. Leading initiatives for better campus facilities and technology integration.',
-    avatar: generateAvatar('Ashfaqul Islam Asif'),
+    avatar: generateCandidateImage('Ashfaqul Islam Asif', 0),
     university: 'Jagannath University',
     department: 'Computer Science & Engineering',
     year: 4,
+    studentId: 'CSE-2021-001',
+    futurePlans: 'After graduation, I plan to pursue a career in software development while continuing to advocate for student rights. I aim to establish a tech startup focused on educational solutions and mentor future student leaders.',
+    workGallery: [
+      generatePlaceholderImage(600, 400, 'Campus Tech Initiative'),
+      generatePlaceholderImage(600, 400, 'Student Welfare Program'),
+      generatePlaceholderImage(600, 400, 'Leadership Workshop'),
+      generatePlaceholderImage(600, 400, 'Community Outreach')
+    ],
     votes: 247,
     comments: [
       {
@@ -53,10 +61,18 @@ export const dummyLeaders: StudentLeader[] = [
     name: 'Fatima Rahman',
     title: 'General Secretary - JnUCSU',
     description: 'Dedicated to improving student welfare and organizing impactful events for the university community.',
-    avatar: generateAvatar('Fatima Rahman'),
+    avatar: generateCandidateImage('Fatima Rahman', 1),
     university: 'Jagannath University',
     department: 'English',
     year: 3,
+    studentId: 'ENG-2022-045',
+    futurePlans: 'I aspire to work in international development and education policy. My goal is to create programs that bridge educational gaps and empower students from diverse backgrounds to achieve their potential.',
+    workGallery: [
+      generatePlaceholderImage(600, 400, 'Cultural Event Organization'),
+      generatePlaceholderImage(600, 400, 'Student Welfare Campaign'),
+      generatePlaceholderImage(600, 400, 'Academic Support Program'),
+      generatePlaceholderImage(600, 400, 'International Relations')
+    ],
     votes: 189,
     comments: [
       {
@@ -76,10 +92,18 @@ export const dummyLeaders: StudentLeader[] = [
     name: 'Mohammad Hassan',
     title: 'President - JnUCSU',
     description: 'Working towards creating a better academic environment and strengthening student-administration relationships.',
-    avatar: generateAvatar('Mohammad Hassan'),
+    avatar: generateCandidateImage('Mohammad Hassan', 2),
     university: 'Jagannath University',
     department: 'Political Science',
     year: 4,
+    studentId: 'POL-2021-012',
+    futurePlans: 'My vision extends beyond university life to public service and policy making. I plan to pursue graduate studies in public administration and work towards creating policies that benefit the education system nationwide.',
+    workGallery: [
+      generatePlaceholderImage(600, 400, 'Student Government Reform'),
+      generatePlaceholderImage(600, 400, 'Academic Excellence Initiative'),
+      generatePlaceholderImage(600, 400, 'Policy Development Workshop'),
+      generatePlaceholderImage(600, 400, 'University Partnership Program')
+    ],
     votes: 312,
     comments: [
       {
@@ -107,10 +131,18 @@ export const dummyLeaders: StudentLeader[] = [
     name: 'Nusrat Jahan',
     title: 'Cultural Secretary - JnUCSU',
     description: 'Promoting arts, culture, and creative expression among students through various programs and competitions.',
-    avatar: generateAvatar('Nusrat Jahan'),
+    avatar: generateCandidateImage('Nusrat Jahan', 3),
     university: 'Jagannath University',
     department: 'Fine Arts',
     year: 2,
+    studentId: 'FA-2023-078',
+    futurePlans: 'I dream of establishing a cultural center that promotes Bengali heritage while embracing global artistic expressions. My goal is to become a cultural ambassador and create platforms for young artists to showcase their talents.',
+    workGallery: [
+      generatePlaceholderImage(600, 400, 'Art Exhibition Curation'),
+      generatePlaceholderImage(600, 400, 'Cultural Festival Management'),
+      generatePlaceholderImage(600, 400, 'Student Art Competition'),
+      generatePlaceholderImage(600, 400, 'Traditional Dance Workshop')
+    ],
     votes: 156,
     comments: [],
     tags: ['Arts', 'Culture', 'Creativity'],
@@ -122,10 +154,18 @@ export const dummyLeaders: StudentLeader[] = [
     name: 'Abdullah Al Mamun',
     title: 'Sports Secretary - JnUCSU',
     description: 'Encouraging sports participation and organizing tournaments to promote healthy competition and fitness.',
-    avatar: generateAvatar('Abdullah Al Mamun'),
+    avatar: generateCandidateImage('Abdullah Al Mamun', 4),
     university: 'Jagannath University',
     department: 'Physical Education',
     year: 3,
+    studentId: 'PE-2022-033',
+    futurePlans: 'I aspire to become a sports administrator and develop youth athletic programs. My plan is to establish sports academies that identify and nurture young talent while promoting physical fitness as a lifestyle.',
+    workGallery: [
+      generatePlaceholderImage(600, 400, 'Inter-University Tournament'),
+      generatePlaceholderImage(600, 400, 'Fitness Awareness Campaign'),
+      generatePlaceholderImage(600, 400, 'Sports Equipment Drive'),
+      generatePlaceholderImage(600, 400, 'Athletic Training Program')
+    ],
     votes: 134,
     comments: [],
     tags: ['Sports', 'Fitness', 'Competition'],
