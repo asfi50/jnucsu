@@ -8,6 +8,9 @@ export interface StudentLeader {
   university: string;
   department: string;
   year: number;
+  studentId: string;
+  futurePlans: string;
+  workGallery: string[];
   votes: number;
   comments: Comment[];
   tags: string[];
