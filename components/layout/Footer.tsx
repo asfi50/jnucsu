@@ -96,10 +96,10 @@ export default function Footer() {
             <ul className="space-y-3">
               <li>
                 <Link
-                  href="/leaders"
+                  href="/candidates"
                   className="text-gray-400 hover:text-orange-400 transition-colors duration-200 text-sm"
                 >
-                  Student Leaders
+                  Student Candidates
                 </Link>
               </li>
               <li>
@@ -112,10 +112,10 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/leaders/add"
+                  href="/candidates/add"
                   className="text-gray-400 hover:text-orange-400 transition-colors duration-200 text-sm"
                 >
-                  Add Leader Profile
+                  Add Candidate Profile
                 </Link>
               </li>
               <li>
