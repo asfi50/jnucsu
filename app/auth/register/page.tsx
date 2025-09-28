@@ -3,11 +3,11 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Mail, Lock, Eye, EyeOff, User } from 'lucide-react';
-import Header from '@/app/components/layout/Header';
-import Input from '@/app/components/ui/Input';
-import Button from '@/app/components/ui/Button';
-import Loader from '@/app/components/ui/Loader';
-import { useToast } from '@/app/components/ui/ToastProvider';
+import Header from '@/components/layout/Header';
+import Input from '@/components/ui/Input';
+import Button from '@/components/ui/Button';
+import Loader from '@/components/ui/Loader';
+import { useToast } from '@/components/ui/ToastProvider';
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { ToastProvider } from "./components/ui/ToastProvider";
+import { ToastProvider } from "@/components/ui/ToastProvider";
 
 // Using system fonts instead of Google Fonts for better reliability
 const fontVariables = "--font-geist-sans: ui-sans-serif, system-ui, sans-serif; --font-geist-mono: ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;";
