@@ -49,7 +49,7 @@ export default function LeaderCard({ leader }: LeaderCardProps) {
               </h3>
             </Link>
             <p className="text-orange-600 font-semibold mb-2">
-              {leader.title}
+              Competing for {leader.title.replace(' - JnUCSU', '')}
             </p>
             <p className="text-sm text-gray-500 mb-3">
               {leader.department} • Year {leader.year}
