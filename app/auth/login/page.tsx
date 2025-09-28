@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import Header from '@/app/components/layout/Header';
+import Footer from '@/app/components/layout/Footer';
 import Input from '@/app/components/ui/Input';
 import Button from '@/app/components/ui/Button';
 import Loader from '@/app/components/ui/Loader';
@@ -228,6 +229,8 @@ const LoginPage = () => {
           </div>
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 };

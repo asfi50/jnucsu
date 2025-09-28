@@ -1,4 +1,5 @@
 import Header from './components/layout/Header';
+import Footer from './components/layout/Footer';
 import LeaderCard from './components/features/LeaderCard';
 import BlogCard from './components/features/BlogCard';
 import { dummyLeaders, dummyBlogPosts } from '@/lib/data';
@@ -130,6 +131,8 @@ export default function Home() {
           </div>
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 }
