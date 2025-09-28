@@ -41,7 +41,7 @@ export default function LeaderCard({ leader }: LeaderCardProps) {
           {/* Leader Info */}
           <div className="w-full">
             <Link 
-              href={`/leaders/${leader.id}`}
+              href={`/candidates/${leader.id}`}
               className="group"
             >
               <h3 className="text-xl font-bold text-gray-900 group-hover:text-orange-600 transition-colors mb-1">
@@ -94,7 +94,7 @@ export default function LeaderCard({ leader }: LeaderCardProps) {
 
               {/* View Profile Link */}
               <Link
-                href={`/leaders/${leader.id}`}
+                href={`/candidates/${leader.id}`}
                 className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
               >
                 View Profile
