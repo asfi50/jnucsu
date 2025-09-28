@@ -2,17 +2,53 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import BlogCard from '@/components/home/BlogCard';
 import { dummyBlogPosts } from '@/lib/data';
+import { generateMetadata, generateStructuredData, KEYWORDS, combineKeywords } from '@/lib/seo';
 import { BookOpen, Search, PenTool } from 'lucide-react';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = generateMetadata({
+  title: "Blog & Articles - Student Insights and Leadership",
+  description: "Read thought-provoking articles from Jagannath University student leaders. Explore insights on leadership, technology, community building, and campus life. Join the conversation on student democracy and empowerment.",
+  keywords: combineKeywords(
+    KEYWORDS.general,
+    KEYWORDS.blog,
+    KEYWORDS.leadership,
+    ['student journalism', 'campus articles', 'university insights', 'leadership blog', 'student perspectives']
+  ),
+  type: 'website',
+  url: '/blog',
+});
 
 export default function BlogPage() {
   const featuredPost = dummyBlogPosts[0];
   const regularPosts = dummyBlogPosts.slice(1);
 
+  // Generate structured data for the blog collection
+  const blogStructuredData = generateStructuredData({
+    type: 'WebSite',
+    data: {
+      name: 'JnUCSU Blog',
+      description: 'Student insights, leadership articles, and campus news from Jagannath University',
+      url: '/blog',
+      author: {
+        '@type': 'Organization',
+        name: "Jagannath University Central Students' Union",
+      },
+    },
+  });
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
+    <>
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(blogStructuredData) }}
+      />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">{/* Page Header */}
         {/* Page Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
@@ -150,5 +186,6 @@ export default function BlogPage() {
       
       <Footer />
     </div>
+    </>
   );
 }
