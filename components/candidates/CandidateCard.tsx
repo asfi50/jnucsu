@@ -7,12 +7,12 @@ import { StudentLeader } from '@/lib/types';
 import { formatRelativeTime } from '@/lib/utils';
 import { useState } from 'react';
 
-interface LeaderCardProps {
-  leader: StudentLeader;
+interface CandidateCardProps {
+  candidate: StudentLeader;
 }
 
-export default function LeaderCard({ leader }: LeaderCardProps) {
-  const [votes, setVotes] = useState(leader.votes);
+export default function CandidateCard({ candidate }: CandidateCardProps) {
+  const [votes, setVotes] = useState(candidate.votes);
   const [hasVoted, setHasVoted] = useState(false);
 
   const handleVote = () => {
@@ -42,37 +42,37 @@ export default function LeaderCard({ leader }: LeaderCardProps) {
             </button>
           </div>
 
-          {/* Leader Info */}
+          {/* Candidate Info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between">
               <div className="flex items-start space-x-3">
                 <Image
-                  src={leader.avatar}
-                  alt={leader.name}
+                  src={candidate.avatar}
+                  alt={candidate.name}
                   width={48}
                   height={48}
                   className="rounded-full"
                 />
                 <div className="min-w-0 flex-1">
                   <Link 
-                    href={`/leaders/${leader.id}`}
+                    href={`/candidates/${candidate.id}`}
                     className="group"
                   >
                     <h3 className="text-lg font-semibold text-gray-900 group-hover:text-orange-600 transition-colors">
-                      {leader.name}
+                      {candidate.name}
                     </h3>
                   </Link>
                   <p className="text-sm text-orange-600 font-medium">
-                    {leader.title}
+                    {candidate.title}
                   </p>
                   <p className="text-sm text-gray-500">
-                    {leader.department} • Year {leader.year}
+                    {candidate.department} • Year {candidate.year}
                   </p>
                 </div>
               </div>
               
               <Link 
-                href={`/leaders/${leader.id}`}
+                href={`/candidates/${candidate.id}`}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <ExternalLink className="w-4 h-4 text-gray-400" />
@@ -80,12 +80,12 @@ export default function LeaderCard({ leader }: LeaderCardProps) {
             </div>
 
             <p className="mt-3 text-gray-700 leading-relaxed">
-              {leader.description}
+              {candidate.description}
             </p>
 
             {/* Tags */}
             <div className="flex flex-wrap gap-2 mt-3">
-              {leader.tags.map((tag) => (
+              {candidate.tags.map((tag) => (
                 <span
                   key={tag}
                   className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full"
@@ -100,16 +100,16 @@ export default function LeaderCard({ leader }: LeaderCardProps) {
               <div className="flex items-center space-x-4 text-sm text-gray-500">
                 <div className="flex items-center space-x-1">
                   <MessageCircle className="w-4 h-4" />
-                  <span>{leader.comments.length} comments</span>
+                  <span>{candidate.comments.length} comments</span>
                 </div>
                 <div className="flex items-center space-x-1">
                   <Clock className="w-4 h-4" />
-                  <span>{formatRelativeTime(leader.updatedAt)}</span>
+                  <span>{formatRelativeTime(candidate.updatedAt)}</span>
                 </div>
               </div>
               
               <Link
-                href={`/leaders/${leader.id}`}
+                href={`/candidates/${candidate.id}`}
                 className="text-orange-600 hover:text-orange-700 text-sm font-medium transition-colors"
               >
                 View Profile →

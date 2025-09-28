@@ -2,7 +2,7 @@
 
 import { useState, use } from 'react';
 import Image from 'next/image';
-import Header from '@/app/components/layout/Header';
+import Header from '@/components/layout/Header';
 import { dummyLeaders } from '@/lib/data';
 import { formatRelativeTime } from '@/lib/utils';
 import { 
@@ -16,28 +16,28 @@ import {
   Heart
 } from 'lucide-react';
 
-interface LeaderProfilePageProps {
+interface CandidateProfilePageProps {
   params: Promise<{
     id: string;
   }>;
 }
 
-export default function LeaderProfilePage({ params }: LeaderProfilePageProps) {
+export default function CandidateProfilePage({ params }: CandidateProfilePageProps) {
   const { id } = use(params);
-  const leader = dummyLeaders.find(l => l.id === id);
-  const [votes, setVotes] = useState(leader?.votes || 0);
+  const candidate = dummyLeaders.find(l => l.id === id);
+  const [votes, setVotes] = useState(candidate?.votes || 0);
   const [hasVoted, setHasVoted] = useState(false);
   const [newComment, setNewComment] = useState('');
-  const [comments, setComments] = useState(leader?.comments || []);
+  const [comments, setComments] = useState(candidate?.comments || []);
 
-  if (!leader) {
+  if (!candidate) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header />
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900">Leader not found</h1>
-            <p className="text-gray-600 mt-2">The leader you&apos;re looking for doesn&apos;t exist.</p>
+            <h1 className="text-2xl font-bold text-gray-900">Candidate not found</h1>
+            <p className="text-gray-600 mt-2">The candidate you&apos;re looking for doesn&apos;t exist.</p>
           </div>
         </div>
       </div>
@@ -76,7 +76,7 @@ export default function LeaderProfilePage({ params }: LeaderProfilePageProps) {
       <Header />
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Leader Header */}
+        {/* Candidate Header */}
         <div className="bg-white rounded-lg border border-gray-200 p-8 mb-8">
           <div className="flex items-start space-x-6">
             {/* Vote Section */}
@@ -96,36 +96,36 @@ export default function LeaderProfilePage({ params }: LeaderProfilePageProps) {
               </button>
             </div>
 
-            {/* Leader Info */}
+            {/* Candidate Info */}
             <div className="flex-1">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-start space-x-4">
                   <Image
-                    src={leader.avatar}
-                    alt={leader.name}
+                    src={candidate.avatar}
+                    alt={candidate.name}
                     width={80}
                     height={80}
                     className="rounded-full"
                   />
                   <div>
                     <h1 className="text-3xl font-bold text-gray-900 mb-1">
-                      {leader.name}
+                      {candidate.name}
                     </h1>
                     <p className="text-lg text-orange-600 font-semibold mb-2">
-                      {leader.title}
+                      {candidate.title}
                     </p>
                     <div className="flex items-center space-x-4 text-sm text-gray-600">
                       <div className="flex items-center space-x-1">
                         <GraduationCap className="w-4 h-4" />
-                        <span>{leader.department}</span>
+                        <span>{candidate.department}</span>
                       </div>
                       <div className="flex items-center space-x-1">
                         <MapPin className="w-4 h-4" />
-                        <span>{leader.university}</span>
+                        <span>{candidate.university}</span>
                       </div>
                       <div className="flex items-center space-x-1">
                         <Calendar className="w-4 h-4" />
-                        <span>Year {leader.year}</span>
+                        <span>Year {candidate.year}</span>
                       </div>
                     </div>
                   </div>
@@ -142,12 +142,12 @@ export default function LeaderProfilePage({ params }: LeaderProfilePageProps) {
               </div>
 
               <p className="text-gray-700 leading-relaxed mb-4">
-                {leader.description}
+                {candidate.description}
               </p>
 
               {/* Tags */}
               <div className="flex flex-wrap gap-2">
-                {leader.tags.map((tag) => (
+                {candidate.tags.map((tag) => (
                   <span
                     key={tag}
                     className="px-3 py-1 bg-orange-100 text-orange-700 text-sm rounded-full"
@@ -183,7 +183,7 @@ export default function LeaderProfilePage({ params }: LeaderProfilePageProps) {
                 <textarea
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="Share your thoughts about this leader..."
+                  placeholder="Share your thoughts about this candidate..."
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none resize-none"
                   rows={3}
                 />
