@@ -129,16 +129,20 @@ jnucsu/
 │   ├── candidates/         # Candidate-related pages
 │   ├── blog/              # Blog and articles
 │   ├── auth/              # Authentication pages
+│   ├── developers/        # Developer/team information page
 │   └── layout.tsx         # Root layout component
 ├── components/            # Reusable React components
 │   ├── candidates/        # Candidate-specific components
-│   ├── home/             # Homepage components
-│   └── layout/           # Layout components
+│   ├── blog/              # Blog-related components
+│   ├── home/              # Homepage components
+│   ├── layout/            # Layout components
+│   └── ui/                # Reusable UI components
 ├── lib/                   # Utility functions and data
-│   ├── data/             # Mock data and sample content
-│   ├── types/            # TypeScript type definitions
-│   └── utils.ts          # Helper functions
-└── public/               # Static assets
+│   ├── data/              # Mock data and sample content
+│   ├── types/             # TypeScript type definitions
+│   ├── utils.ts           # Helper functions
+│   └── seo.ts             # SEO utilities
+└── public/                # Static assets
 ```
 
 ## 🎯 Key Features in Detail
