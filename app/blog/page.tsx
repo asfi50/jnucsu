@@ -1,5 +1,6 @@
-import Header from '@/app/components/layout/Header';
-import BlogCard from '@/app/components/features/BlogCard';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
+import BlogCard from '@/components/home/BlogCard';
 import { dummyBlogPosts } from '@/lib/data';
 import { BookOpen, Search, PenTool } from 'lucide-react';
 
@@ -146,6 +147,8 @@ export default function BlogPage() {
           </div>
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 }
