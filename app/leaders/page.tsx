@@ -1,4 +1,5 @@
 import Header from '@/app/components/layout/Header';
+import Footer from '@/app/components/layout/Footer';
 import LeaderCard from '@/app/components/features/LeaderCard';
 import { dummyLeaders } from '@/lib/data';
 import { Users, Search } from 'lucide-react';
@@ -64,6 +65,8 @@ export default function LeadersPage() {
           </button>
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 }
