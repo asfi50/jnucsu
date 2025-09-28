@@ -51,9 +51,18 @@ export default function Header() {
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
               />
             </div>
-            <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors">
-              Add Leader
-            </button>
+            <Link 
+              href="/auth/login"
+              className="text-gray-600 hover:text-gray-900 transition-colors px-3 py-2"
+            >
+              Login
+            </Link>
+            <Link 
+              href="/auth/register"
+              className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors"
+            >
+              Sign Up
+            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -86,9 +95,18 @@ export default function Header() {
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
                 />
               </div>
-              <button className="bg-orange-500 text-white px-4 py-2 rounded-lg">
-                Add Leader
-              </button>
+              <Link 
+                href="/auth/login"
+                className="text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                Login
+              </Link>
+              <Link 
+                href="/auth/register"
+                className="bg-orange-500 text-white px-4 py-2 rounded-lg"
+              >
+                Sign Up
+              </Link>
             </div>
           </div>
         )}
