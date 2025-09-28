@@ -80,15 +80,43 @@ export default function CandidateProfilePage({ params }: CandidateProfilePagePro
     <div className="min-h-screen bg-gray-50">
       <Header />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 md:gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-3 space-y-8">
+          <div className="lg:col-span-3 space-y-4 md:space-y-8">
             {/* Candidate Header */}
-            <div className="bg-white rounded-lg border border-gray-200 p-8">
-              <div className="flex items-start space-x-6">
-                {/* Vote Section */}
-                <div className="flex flex-col items-center space-y-2">
+            <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-8">
+              <div className="flex flex-col md:flex-row items-start space-y-4 md:space-y-0 md:space-x-6">
+                {/* Mobile: Vote and Action Buttons Row */}
+                <div className="w-full md:hidden flex items-center justify-between mb-4">
+                  <button
+                    onClick={handleVote}
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                      hasVoted 
+                        ? 'bg-orange-100 text-orange-600' 
+                        : 'hover:bg-gray-100 text-gray-600'
+                    }`}
+                    disabled={hasVoted}
+                  >
+                    <ChevronUp className="w-5 h-5" />
+                    <div className="text-left">
+                      <div className="text-lg font-bold">{votes}</div>
+                      <div className="text-xs">votes</div>
+                    </div>
+                  </button>
+                  
+                  <div className="flex items-center space-x-2">
+                    <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                      <Share2 className="w-5 h-5 text-gray-600" />
+                    </button>
+                    <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                      <Heart className="w-5 h-5 text-gray-600" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Desktop: Vote Section */}
+                <div className="hidden md:flex flex-col items-center space-y-2">
                   <button
                     onClick={handleVote}
                     className={`flex flex-col items-center p-3 rounded-lg transition-colors ${
@@ -105,10 +133,10 @@ export default function CandidateProfilePage({ params }: CandidateProfilePagePro
                 </div>
 
                 {/* Candidate Info */}
-                <div className="flex-1">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-start space-x-4">
-                      <div className="w-32 h-32 rounded-full overflow-hidden ring-4 ring-orange-100">
+                <div className="flex-1 w-full">
+                  <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-4">
+                    <div className="flex flex-col md:flex-row md:items-start space-y-4 md:space-y-0 md:space-x-4">
+                      <div className="w-24 h-24 md:w-32 md:h-32 mx-auto md:mx-0 rounded-full overflow-hidden ring-4 ring-orange-100">
                         <Image
                           src={leader.avatar}
                           alt={leader.name}
@@ -117,35 +145,36 @@ export default function CandidateProfilePage({ params }: CandidateProfilePagePro
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <div>
-                        <h1 className="text-3xl font-bold text-gray-900 mb-1">
+                      <div className="text-center md:text-left">
+                        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">
                           {leader.name}
                         </h1>
-                        <p className="text-lg text-orange-600 font-semibold mb-2">
-                          {leader.title}
+                        <p className="text-base md:text-lg text-orange-600 font-semibold mb-3">
+                          Competing for {leader.title.replace(' - JnUCSU', '')}
                         </p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
-                          <div className="flex items-center space-x-1">
-                            <GraduationCap className="w-4 h-4" />
-                            <span>{leader.department}</span>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 text-sm text-gray-600">
+                          <div className="flex items-center justify-center md:justify-start space-x-1">
+                            <GraduationCap className="w-4 h-4 flex-shrink-0" />
+                            <span className="truncate">{leader.department}</span>
                           </div>
-                          <div className="flex items-center space-x-1">
-                            <MapPin className="w-4 h-4" />
-                            <span>{leader.university}</span>
+                          <div className="flex items-center justify-center md:justify-start space-x-1">
+                            <MapPin className="w-4 h-4 flex-shrink-0" />
+                            <span className="truncate">{leader.university}</span>
                           </div>
-                          <div className="flex items-center space-x-1">
-                            <Calendar className="w-4 h-4" />
+                          <div className="flex items-center justify-center md:justify-start space-x-1">
+                            <Calendar className="w-4 h-4 flex-shrink-0" />
                             <span>Year {leader.year}</span>
                           </div>
-                          <div className="flex items-center space-x-1">
-                            <User className="w-4 h-4" />
+                          <div className="flex items-center justify-center md:justify-start space-x-1">
+                            <User className="w-4 h-4 flex-shrink-0" />
                             <span>ID: {leader.studentId}</span>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center space-x-2">
+                    {/* Desktop: Action Buttons */}
+                    <div className="hidden md:flex items-center space-x-2">
                       <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
                         <Share2 className="w-5 h-5 text-gray-600" />
                       </button>
@@ -175,10 +204,10 @@ export default function CandidateProfilePage({ params }: CandidateProfilePagePro
             </div>
 
             {/* Future Plans Section */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
               <div className="flex items-center space-x-2 mb-4">
                 <Target className="w-5 h-5 text-orange-600" />
-                <h2 className="text-xl font-semibold text-gray-900">Future Plans</h2>
+                <h2 className="text-lg md:text-xl font-semibold text-gray-900">Future Plans</h2>
               </div>
               <p className="text-gray-700 leading-relaxed">
                 {leader.futurePlans}
@@ -186,12 +215,12 @@ export default function CandidateProfilePage({ params }: CandidateProfilePagePro
             </div>
 
             {/* Work Gallery Section */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <div className="flex items-center space-x-2 mb-6">
+            <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
+              <div className="flex items-center space-x-2 mb-4 md:mb-6">
                 <ImageIcon className="w-5 h-5 text-orange-600" />
-                <h2 className="text-xl font-semibold text-gray-900">Work Gallery</h2>
+                <h2 className="text-lg md:text-xl font-semibold text-gray-900">Work Gallery</h2>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 {leader.workGallery.map((image, index) => (
                   <div key={index} className="relative group">
                     <div className="aspect-video rounded-lg overflow-hidden bg-gray-100">
@@ -209,24 +238,26 @@ export default function CandidateProfilePage({ params }: CandidateProfilePagePro
             </div>
 
             {/* Comments Section */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <div className="flex items-center space-x-2 mb-6">
+            <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
+              <div className="flex items-center space-x-2 mb-4 md:mb-6">
                 <MessageCircle className="w-5 h-5 text-gray-600" />
-                <h2 className="text-xl font-semibold text-gray-900">
+                <h2 className="text-lg md:text-xl font-semibold text-gray-900">
                   Comments ({comments.length})
                 </h2>
               </div>
 
               {/* Add Comment Form */}
-              <form onSubmit={handleComment} className="mb-8">
-                <div className="flex space-x-4">
-                  <Image
-                    src="https://api.dicebear.com/7.x/avataaars/svg?seed=currentuser"
-                    alt="Your avatar"
-                    width={40}
-                    height={40}
-                    className="rounded-full"
-                  />
+              <form onSubmit={handleComment} className="mb-6 md:mb-8">
+                <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+                  <div className="flex-shrink-0 mx-auto md:mx-0">
+                    <Image
+                      src="https://api.dicebear.com/7.x/avataaars/svg?seed=currentuser"
+                      alt="Your avatar"
+                      width={40}
+                      height={40}
+                      className="rounded-full"
+                    />
+                  </div>
                   <div className="flex-1">
                     <textarea
                       value={newComment}
@@ -319,50 +350,50 @@ export default function CandidateProfilePage({ params }: CandidateProfilePagePro
           </div>
 
           {/* Sidebar */}
-          <div className="lg:col-span-1 space-y-6">
+          <div className="lg:col-span-1 space-y-4 md:space-y-6">
             {/* QR Code Section */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">
+            <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
+              <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-4 text-center">
                 Share Profile
               </h3>
               <QRCode 
-                url={typeof window !== 'undefined' ? window.location.href : ''}
+                url={typeof window !== 'undefined' ? `${window.location.origin}/candidates/${leader.id}` : `https://jnucsu.vercel.app/candidates/${leader.id}`}
                 title={`${leader.name}'s profile`}
-                size={180}
+                size={160}
               />
             </div>
 
             {/* Quick Stats */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
+              <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-4">
                 Quick Stats
               </h3>
-              <div className="space-y-4">
+              <div className="space-y-3 md:space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Total Votes</span>
-                  <span className="font-semibold text-orange-600">{votes}</span>
+                  <span className="text-gray-600 text-sm md:text-base">Total Votes</span>
+                  <span className="font-semibold text-orange-600 text-sm md:text-base">{votes}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Comments</span>
-                  <span className="font-semibold">{comments.length}</span>
+                  <span className="text-gray-600 text-sm md:text-base">Comments</span>
+                  <span className="font-semibold text-sm md:text-base">{comments.length}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Academic Year</span>
-                  <span className="font-semibold">{leader.year}</span>
+                  <span className="text-gray-600 text-sm md:text-base">Academic Year</span>
+                  <span className="font-semibold text-sm md:text-base">{leader.year}</span>
                 </div>
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
               <div className="space-y-3">
-                <button className="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg transition-colors">
+                <button className="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg transition-colors text-sm md:text-base">
                   Follow
                 </button>
-                <button className="w-full border border-gray-300 hover:border-gray-400 text-gray-700 py-2 px-4 rounded-lg transition-colors">
+                <button className="w-full border border-gray-300 hover:border-gray-400 text-gray-700 py-2 px-4 rounded-lg transition-colors text-sm md:text-base">
                   Message
                 </button>
-                <button className="w-full border border-gray-300 hover:border-gray-400 text-gray-700 py-2 px-4 rounded-lg transition-colors">
+                <button className="w-full border border-gray-300 hover:border-gray-400 text-gray-700 py-2 px-4 rounded-lg transition-colors text-sm md:text-base">
                   Share
                 </button>
               </div>
