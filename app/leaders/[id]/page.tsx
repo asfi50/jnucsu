@@ -4,6 +4,7 @@ import { useState, use } from 'react';
 import Image from 'next/image';
 import Header from '@/app/components/layout/Header';
 import QRCode from '@/app/components/features/QRCode';
+import Footer from '@/app/components/layout/Footer';
 import { dummyLeaders } from '@/lib/data';
 import { formatRelativeTime } from '@/lib/utils';
 import { 
@@ -369,6 +370,8 @@ export default function LeaderProfilePage({ params }: LeaderProfilePageProps) {
           </div>
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 }
