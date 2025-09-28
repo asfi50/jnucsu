@@ -171,6 +171,121 @@ export const dummyLeaders: StudentLeader[] = [
     tags: ['Sports', 'Fitness', 'Competition'],
     createdAt: '2024-01-05T00:00:00Z',
     updatedAt: '2024-01-05T00:00:00Z'
+  },
+  {
+    id: '6',
+    name: 'Sadia Sultana',
+    title: 'Social Welfare Secretary - JnUCSU',
+    description: 'Working to improve student social welfare and community engagement through various support programs.',
+    avatar: generateCandidateImage('Sadia Sultana', 5),
+    university: 'Jagannath University',
+    department: 'Social Work',
+    year: 2,
+    studentId: 'SW-2023-045',
+    futurePlans: 'I plan to work with NGOs and social organizations to create impactful community development programs after graduation.',
+    workGallery: [
+      generatePlaceholderImage(600, 400, 'Community Outreach Program'),
+      generatePlaceholderImage(600, 400, 'Student Support Initiative'),
+      generatePlaceholderImage(600, 400, 'Social Welfare Drive'),
+      generatePlaceholderImage(600, 400, 'Mental Health Awareness')
+    ],
+    votes: 98,
+    comments: [],
+    tags: ['Social Work', 'Community', 'Welfare'],
+    createdAt: '2024-01-08T00:00:00Z',
+    updatedAt: '2024-01-08T00:00:00Z'
+  },
+  {
+    id: '7',
+    name: 'Rakib Hasan',
+    title: 'Environment Secretary - JnUCSU',
+    description: 'Promoting environmental sustainability and green initiatives across the university campus.',
+    avatar: generateCandidateImage('Rakib Hasan', 0),
+    university: 'Jagannath University',
+    department: 'Environmental Science',
+    year: 3,
+    studentId: 'ENV-2022-012',
+    futurePlans: 'I aim to become an environmental policy maker and work on climate change mitigation strategies at the national level.',
+    workGallery: [
+      generatePlaceholderImage(600, 400, 'Campus Tree Plantation'),
+      generatePlaceholderImage(600, 400, 'Waste Management Initiative'),
+      generatePlaceholderImage(600, 400, 'Green Energy Project'),
+      generatePlaceholderImage(600, 400, 'Environmental Awareness Campaign')
+    ],
+    votes: 176,
+    comments: [],
+    tags: ['Environment', 'Sustainability', 'Green'],
+    createdAt: '2024-01-10T00:00:00Z',
+    updatedAt: '2024-01-10T00:00:00Z'
+  },
+  {
+    id: '8',
+    name: 'Tamanna Akter',
+    title: 'Publication Secretary - JnUCSU',
+    description: 'Managing university publications and promoting literary activities among students.',
+    avatar: generateCandidateImage('Tamanna Akter', 1),
+    university: 'Jagannath University',
+    department: 'Journalism',
+    year: 4,
+    studentId: 'JRN-2021-087',
+    futurePlans: 'I want to become a renowned journalist and establish a media house that focuses on educational journalism.',
+    workGallery: [
+      generatePlaceholderImage(600, 400, 'University Magazine'),
+      generatePlaceholderImage(600, 400, 'Literary Event'),
+      generatePlaceholderImage(600, 400, 'Student Newsletter'),
+      generatePlaceholderImage(600, 400, 'Writing Workshop')
+    ],
+    votes: 203,
+    comments: [],
+    tags: ['Media', 'Writing', 'Publication'],
+    createdAt: '2024-01-12T00:00:00Z',
+    updatedAt: '2024-01-12T00:00:00Z'
+  },
+  {
+    id: '9',
+    name: 'Md. Karim Rahman',
+    title: 'Religious Affairs Secretary - JnUCSU',
+    description: 'Organizing religious and cultural programs while promoting interfaith harmony among students.',
+    avatar: generateCandidateImage('Md. Karim Rahman', 2),
+    university: 'Jagannath University',
+    department: 'Islamic Studies',
+    year: 2,
+    studentId: 'IS-2023-021',
+    futurePlans: 'I aspire to become a religious scholar and work towards promoting peace and understanding between different communities.',
+    workGallery: [
+      generatePlaceholderImage(600, 400, 'Interfaith Dialogue'),
+      generatePlaceholderImage(600, 400, 'Religious Festival'),
+      generatePlaceholderImage(600, 400, 'Community Prayer'),
+      generatePlaceholderImage(600, 400, 'Cultural Exchange')
+    ],
+    votes: 87,
+    comments: [],
+    tags: ['Religion', 'Culture', 'Harmony'],
+    createdAt: '2024-01-15T00:00:00Z',
+    updatedAt: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: '10',
+    name: 'Ruma Begum',
+    title: 'Assistant General Secretary - JnUCSU',
+    description: 'Supporting administrative activities and coordinating between different student committees.',
+    avatar: generateCandidateImage('Ruma Begum', 3),
+    university: 'Jagannath University',
+    department: 'Public Administration',
+    year: 3,
+    studentId: 'PA-2022-054',
+    futurePlans: 'I plan to join the civil service and work in public administration to serve the nation effectively.',
+    workGallery: [
+      generatePlaceholderImage(600, 400, 'Administrative Meeting'),
+      generatePlaceholderImage(600, 400, 'Committee Coordination'),
+      generatePlaceholderImage(600, 400, 'Student Assembly'),
+      generatePlaceholderImage(600, 400, 'Policy Discussion')
+    ],
+    votes: 145,
+    comments: [],
+    tags: ['Administration', 'Coordination', 'Management'],
+    createdAt: '2024-01-18T00:00:00Z',
+    updatedAt: '2024-01-18T00:00:00Z'
   }
 ];
 
