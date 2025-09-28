@@ -111,6 +111,7 @@ JnUCSU is a modern, interactive platform designed to empower student leaders at 
    # or
    pnpm dev
    ```
+   *Note: Development server uses Turbopack for faster builds*
 
 4. **Open in browser**
    Navigate to [http://localhost:3000](http://localhost:3000) to view the application
@@ -120,6 +121,7 @@ JnUCSU is a modern, interactive platform designed to empower student leaders at 
 npm run build
 npm start
 ```
+*Note: Build process uses Turbopack for optimized performance*
 
 ## 📁 Project Structure
 
