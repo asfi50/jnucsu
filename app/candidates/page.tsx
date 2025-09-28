@@ -2,14 +2,54 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import LeaderCard from '@/components/home/LeaderCard';
 import { dummyLeaders } from '@/lib/data';
+import { generateMetadata, generateStructuredData, KEYWORDS, combineKeywords } from '@/lib/seo';
 import { Users, Search } from 'lucide-react';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = generateMetadata({
+  title: "Student Candidates - Meet Our Leaders",
+  description: "Explore profiles of student candidates running for positions at Jagannath University Central Students' Union. Vote for your favorite leaders, read their manifestos, and engage with the campus democratic process.",
+  keywords: combineKeywords(
+    KEYWORDS.general,
+    KEYWORDS.candidates,
+    KEYWORDS.leadership,
+    ['candidate profiles', 'student election', 'university politics', 'candidate manifestos', 'student representatives']
+  ),
+  type: 'website',
+  url: '/candidates',
+});
 
 export default function CandidatesPage() {
+  // Generate structured data for the candidates collection
+  const candidatesStructuredData = generateStructuredData({
+    type: 'WebSite',
+    data: {
+      name: 'JnUCSU Student Candidates',
+      description: 'Comprehensive profiles of student candidates running for election at Jagannath University Central Students\' Union',
+      url: '/candidates',
+      mainEntity: dummyLeaders.map(leader => ({
+        '@type': 'Person',
+        name: leader.name,
+        jobTitle: leader.title,
+        description: leader.description,
+        url: `/candidates/${leader.id}`,
+        image: leader.avatar,
+      })),
+    },
+  });
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
+    <>
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(candidatesStructuredData) }}
+      />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">{/* Page Header */}
         {/* Page Header */}
         <div className="mb-8">
           <div className="flex items-center space-x-2 mb-4">
@@ -68,5 +108,6 @@ export default function CandidatesPage() {
       
       <Footer />
     </div>
+    </>
   );
 }

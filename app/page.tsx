@@ -5,8 +5,23 @@ import CompactCandidateCard from '@/components/home/CompactCandidateCard';
 import NewCandidates from '@/components/home/NewCandidates';
 import BlogCard from '@/components/home/BlogCard';
 import { dummyLeaders, dummyBlogPosts } from '@/lib/data';
+import { generateMetadata, KEYWORDS, combineKeywords } from '@/lib/seo';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = generateMetadata({
+  title: "Home - Student Leadership Platform",
+  description: "Discover trending student leaders, explore candidate profiles, and read the latest articles from Jagannath University Central Students' Union. Join our democratic community and make your voice heard.",
+  keywords: combineKeywords(
+    KEYWORDS.general,
+    KEYWORDS.candidates,
+    KEYWORDS.leadership,
+    ['trending candidates', 'student democracy', 'university community', 'student engagement']
+  ),
+  type: 'website',
+  url: '/',
+});
 
 export default function Home() {
   // Sort candidates by votes for trending (top 5)

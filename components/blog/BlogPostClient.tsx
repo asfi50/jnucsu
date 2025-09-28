@@ -1,0 +1,315 @@
+'use client';
+
+import { useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
+import { formatRelativeTime } from '@/lib/utils';
+import { BlogPost } from '@/lib/types';
+import { 
+  ArrowLeft,
+  Heart,
+  MessageCircle,
+  Share2,
+  Clock,
+  Calendar,
+  Tag,
+  Send
+} from 'lucide-react';
+
+interface BlogPostClientProps {
+  post: BlogPost;
+}
+
+export default function BlogPostClient({ post }: BlogPostClientProps) {
+  const [likes, setLikes] = useState(post.likes);
+  const [hasLiked, setHasLiked] = useState(false);
+  const [newComment, setNewComment] = useState('');
+  const [comments, setComments] = useState<Array<{
+    id: string;
+    author: {
+      id: string;
+      name: string;
+      avatar: string;
+      email: string;
+    };
+    content: string;
+    createdAt: string;
+    replies: unknown[];
+  }>>([]);
+
+  const handleLike = () => {
+    if (!hasLiked) {
+      setLikes(likes + 1);
+      setHasLiked(true);
+    } else {
+      setLikes(likes - 1);
+      setHasLiked(false);
+    }
+  };
+
+  const handleComment = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newComment.trim()) {
+      const comment = {
+        id: Date.now().toString(),
+        author: {
+          id: '1',
+          name: 'Anonymous User',
+          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=anonymous',
+          email: 'anonymous@jnu.ac.bd'
+        },
+        content: newComment,
+        createdAt: new Date().toISOString(),
+        replies: []
+      };
+      setComments([comment, ...comments]);
+      setNewComment('');
+    }
+  };
+
+  // Generate estimated reading time
+  const wordsPerMinute = 200;
+  const wordCount = post.content?.split(' ').length || 500;
+  const readingTime = Math.ceil(wordCount / wordsPerMinute);
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      
+      <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Back Button */}
+        <div className="mb-6">
+          <Link 
+            href="/blog"
+            className="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Blog</span>
+          </Link>
+        </div>
+
+        {/* Article Header */}
+        <header className="mb-8">
+          {/* Featured Image */}
+          <div className="relative aspect-video rounded-lg overflow-hidden mb-6">
+            <Image
+              src={post.coverImage}
+              alt={post.title}
+              fill
+              className="object-cover"
+              priority
+            />
+          </div>
+
+          {/* Tags */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            {post.tags.map((tag) => (
+              <Link
+                key={tag}
+                href={`/blog?tag=${tag.toLowerCase()}`}
+                className="inline-flex items-center space-x-1 px-3 py-1 bg-orange-100 text-orange-700 text-sm rounded-full hover:bg-orange-200 transition-colors"
+              >
+                <Tag className="w-3 h-3" />
+                <span>{tag}</span>
+              </Link>
+            ))}
+          </div>
+
+          {/* Title */}
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight">
+            {post.title}
+          </h1>
+
+          {/* Excerpt */}
+          <p className="text-xl text-gray-600 mb-6 leading-relaxed">
+            {post.excerpt}
+          </p>
+
+          {/* Author and Meta Info */}
+          <div className="flex items-center justify-between py-4 border-y border-gray-200">
+            <div className="flex items-center space-x-4">
+              <Image
+                src={post.author.avatar}
+                alt={post.author.name}
+                width={48}
+                height={48}
+                className="rounded-full"
+              />
+              <div>
+                <div className="font-semibold text-gray-900">
+                  {post.author.name}
+                </div>
+                <div className="flex items-center space-x-4 text-sm text-gray-500 mt-1">
+                  <div className="flex items-center space-x-1">
+                    <Calendar className="w-4 h-4" />
+                    <time dateTime={post.publishedAt}>
+                      {new Date(post.publishedAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </time>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <Clock className="w-4 h-4" />
+                    <span>{readingTime} min read</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Social Actions */}
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={handleLike}
+                className={`flex items-center space-x-1 px-3 py-2 rounded-lg transition-colors ${
+                  hasLiked 
+                    ? 'bg-red-50 text-red-600' 
+                    : 'hover:bg-gray-100 text-gray-600'
+                }`}
+              >
+                <Heart className={`w-4 h-4 ${hasLiked ? 'fill-current' : ''}`} />
+                <span className="font-medium">{likes}</span>
+              </button>
+              
+              <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                <Share2 className="w-4 h-4 text-gray-600" />
+              </button>
+            </div>
+          </div>
+        </header>
+
+        {/* Article Content */}
+        <div className="prose prose-lg max-w-none">
+          <div className="text-gray-700 leading-relaxed space-y-6">
+            {/* Since we don't have actual content, we'll simulate it */}
+            <p>
+              {post.content || `This is the full content for "${post.title}". The article explores various aspects of ${post.tags.join(', ').toLowerCase()} and provides insights into student leadership and campus life at Jagannath University.`}
+            </p>
+            
+            {/* Add more realistic content blocks */}
+            <p>
+              At Jagannath University Central Students&apos; Union, we believe in fostering a culture of leadership, innovation, and community engagement. This article delves into the various initiatives and programs that make our institution a beacon of hope for future leaders.
+            </p>
+            
+            <blockquote className="border-l-4 border-orange-500 pl-4 italic text-gray-600">
+              &quot;Leadership is not about being in charge. It&apos;s about taking care of those in your charge.&quot; - This philosophy guides every decision we make at JnUCSU.
+            </blockquote>
+            
+            <p>
+              Through various programs and initiatives, we continue to build a stronger, more inclusive community that empowers every student to reach their full potential.
+            </p>
+          </div>
+        </div>
+
+        {/* Article Footer */}
+        <footer className="mt-12 pt-8 border-t border-gray-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-gray-500">Share this article:</span>
+              <div className="flex items-center space-x-2">
+                <button className="p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+                  <span className="sr-only">Share on Facebook</span>
+                  📘
+                </button>
+                <button className="p-2 bg-sky-500 text-white rounded hover:bg-sky-600 transition-colors">
+                  <span className="sr-only">Share on Twitter</span>
+                  🐦
+                </button>
+                <button className="p-2 bg-blue-800 text-white rounded hover:bg-blue-900 transition-colors">
+                  <span className="sr-only">Share on LinkedIn</span>
+                  💼
+                </button>
+              </div>
+            </div>
+          </div>
+        </footer>
+
+        {/* Comments Section */}
+        <section className="mt-12 pt-8 border-t border-gray-200">
+          <div className="flex items-center space-x-2 mb-6">
+            <MessageCircle className="w-5 h-5 text-gray-600" />
+            <h3 className="text-xl font-semibold text-gray-900">
+              Comments ({comments.length})
+            </h3>
+          </div>
+
+          {/* Add Comment Form */}
+          <form onSubmit={handleComment} className="mb-8">
+            <div className="flex space-x-4">
+              <div className="flex-shrink-0">
+                <Image
+                  src="https://api.dicebear.com/7.x/avataaars/svg?seed=currentuser"
+                  alt="Your avatar"
+                  width={40}
+                  height={40}
+                  className="rounded-full"
+                />
+              </div>
+              <div className="flex-1">
+                <textarea
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="Share your thoughts on this article..."
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none resize-none"
+                  rows={4}
+                />
+                <div className="flex justify-end mt-3">
+                  <button
+                    type="submit"
+                    disabled={!newComment.trim()}
+                    className="flex items-center space-x-2 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 text-white px-4 py-2 rounded-lg transition-colors"
+                  >
+                    <Send className="w-4 h-4" />
+                    <span>Post Comment</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+
+          {/* Comments List */}
+          <div className="space-y-6">
+            {comments.map((comment) => (
+              <div key={comment.id} className="bg-white rounded-lg p-4 border border-gray-200">
+                <div className="flex space-x-3">
+                  <Image
+                    src={comment.author.avatar}
+                    alt={comment.author.name}
+                    width={40}
+                    height={40}
+                    className="rounded-full"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <span className="font-medium text-gray-900">
+                        {comment.author.name}
+                      </span>
+                      <span className="text-sm text-gray-500">
+                        {formatRelativeTime(comment.createdAt)}
+                      </span>
+                    </div>
+                    <p className="text-gray-700 leading-relaxed">
+                      {comment.content}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {comments.length === 0 && (
+              <div className="text-center py-12 text-gray-500">
+                <MessageCircle className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                <p>No comments yet. Be the first to share your thoughts!</p>
+              </div>
+            )}
+          </div>
+        </section>
+      </article>
+      
+      <Footer />
+    </div>
+  );
+}
