@@ -2,7 +2,7 @@
 
 JnUCSU is a modern, interactive platform designed to empower student leaders at Jagannath University. It provides a comprehensive digital space for students to discover candidates, engage with their profiles, and participate in university democratic processes.
 
-![JnUCSU Homepage](https://github.com/user-attachments/assets/91ab686b-e378-46b3-afaf-e0c3eac1ea2b)
+![JnUCSU Homepage](https://github.com/user-attachments/assets/24d31498-51d9-40fa-947f-502fbf88a9d5)
 
 ## 📚 Table of Contents
 
@@ -24,7 +24,7 @@ JnUCSU is a modern, interactive platform designed to empower student leaders at 
 - **Verification System**: Admin-verified profiles ensure authenticity before public access
 - **Student Information**: Detailed candidate information including student ID, department, academic year, and role aspirations
 
-![Candidate Directory](https://github.com/user-attachments/assets/9efffdcd-2cd0-4210-bc08-fad6d6ae965a)
+![Candidate Directory](https://github.com/user-attachments/assets/95026db7-d036-4855-b40a-b66c52790dba)
 
 ### 📱 **QR Code Integration**
 - **Unique QR Codes**: Each candidate receives a personalized QR code linked to their profile
@@ -65,16 +65,16 @@ JnUCSU is a modern, interactive platform designed to empower student leaders at 
 ## 🛠️ Technology Stack
 
 ### **Frontend**
-- **Next.js 15**: Modern React framework with App Router
-- **React 19**: Latest React features and optimizations
+- **Next.js 15.5.4**: Modern React framework with App Router and Turbopack
+- **React 19.1.0**: Latest React features and optimizations
 - **TypeScript**: Type-safe development experience
-- **Tailwind CSS**: Utility-first CSS framework for responsive design
+- **Tailwind CSS 4**: Latest utility-first CSS framework for responsive design
 - **Lucide React**: Beautiful, customizable icons
 
 ### **Backend & Data**
-- **Directus CMS**: Headless content management system
-- **Cloudinary**: Image storage and optimization
-- **Email & Google Authentication**: Secure user authentication options
+- **Mock Data**: Structured sample data for development and demonstration
+- **QR Code Generation**: Dynamic QR code creation for candidate profiles
+- **Placeholder Images**: Generated images using placeholder services
 
 ### **Development Tools**
 - **ESLint**: Code linting and quality assurance
@@ -111,6 +111,7 @@ JnUCSU is a modern, interactive platform designed to empower student leaders at 
    # or
    pnpm dev
    ```
+   *Note: Development server uses Turbopack for faster builds*
 
 4. **Open in browser**
    Navigate to [http://localhost:3000](http://localhost:3000) to view the application
@@ -120,6 +121,7 @@ JnUCSU is a modern, interactive platform designed to empower student leaders at 
 npm run build
 npm start
 ```
+*Note: Build process uses Turbopack for optimized performance*
 
 ## 📁 Project Structure
 
@@ -129,16 +131,20 @@ jnucsu/
 │   ├── candidates/         # Candidate-related pages
 │   ├── blog/              # Blog and articles
 │   ├── auth/              # Authentication pages
+│   ├── developers/        # Developer/team information page
 │   └── layout.tsx         # Root layout component
 ├── components/            # Reusable React components
 │   ├── candidates/        # Candidate-specific components
-│   ├── home/             # Homepage components
-│   └── layout/           # Layout components
+│   ├── blog/              # Blog-related components
+│   ├── home/              # Homepage components
+│   ├── layout/            # Layout components
+│   └── ui/                # Reusable UI components
 ├── lib/                   # Utility functions and data
-│   ├── data/             # Mock data and sample content
-│   ├── types/            # TypeScript type definitions
-│   └── utils.ts          # Helper functions
-└── public/               # Static assets
+│   ├── data/              # Mock data and sample content
+│   ├── types/             # TypeScript type definitions
+│   ├── utils.ts           # Helper functions
+│   └── seo.ts             # SEO utilities
+└── public/                # Static assets
 ```
 
 ## 🎯 Key Features in Detail
