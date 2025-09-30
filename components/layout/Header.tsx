@@ -8,6 +8,7 @@ import { useAuth } from "@/lib/contexts/AuthContext";
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [isMobileProfileOpen, setIsMobileProfileOpen] = useState(false);
   const { user, logout, isAuthenticated } = useAuth();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -23,6 +24,7 @@ export default function Header() {
   const handleLogout = () => {
     logout();
     setIsProfileDropdownOpen(false);
+    setIsMobileProfileOpen(false);
   };
 
   // Close dropdown when clicking outside
@@ -92,7 +94,7 @@ export default function Header() {
                     </div>
                     
                     <Link 
-                      href="/dashboard/profile" 
+                      href="/profile" 
                       className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                       onClick={() => setIsProfileDropdownOpen(false)}
                     >
@@ -119,7 +121,7 @@ export default function Header() {
                     </Link>
                     
                     <Link 
-                      href="/dashboard" 
+                      href="/settings" 
                       className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                       onClick={() => setIsProfileDropdownOpen(false)}
                     >
@@ -152,23 +154,37 @@ export default function Header() {
             )}
           </div>
 
-          {/* Mobile menu button */}
-          <button className="md:hidden p-2" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          {/* Mobile menu button and profile icon */}
+          <div className="md:hidden flex items-center space-x-2">
+            {isAuthenticated && (
+              <button 
+                onClick={() => setIsMobileProfileOpen(!isMobileProfileOpen)}
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-medium">
+                    {getUserInitials(user?.name || 'U')}
+                  </span>
+                </div>
+              </button>
+            )}
+            <button className="p-2" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile menu */}
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-200">
             <div className="flex flex-col space-y-4">
-              <Link href="/candidates" className="text-gray-600">
+              <Link href="/candidates" className="text-gray-600 hover:text-gray-900 transition-colors" onClick={() => setIsMenuOpen(false)}>
                 Candidates
               </Link>
-              <Link href="/blog" className="text-gray-600">
+              <Link href="/blog" className="text-gray-600 hover:text-gray-900 transition-colors" onClick={() => setIsMenuOpen(false)}>
                 Blog
               </Link>
-              <Link href="/about" className="text-gray-600">
+              <Link href="/about" className="text-gray-600 hover:text-gray-900 transition-colors" onClick={() => setIsMenuOpen(false)}>
                 About
               </Link>
               <div className="relative">
@@ -176,58 +192,76 @@ export default function Header() {
                 <input type="text" placeholder="Search candidates..." className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none" />
               </div>
               
-              {isAuthenticated ? (
-                // Mobile profile section for authenticated users
-                <div className="pt-4 border-t border-gray-200">
-                  <div className="flex items-center space-x-3 px-3 py-2 mb-4">
-                    <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
-                      <span className="text-white text-sm font-medium">
-                        {getUserInitials(user?.name || 'U')}
-                      </span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{user?.name}</p>
-                      <p className="text-xs text-gray-500 truncate">{user?.email}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Link href="/dashboard/profile" className="flex items-center text-gray-600 hover:text-gray-900 transition-colors">
-                      <User className="w-4 h-4 mr-3" />
-                      Update Profile
-                    </Link>
-                    <Link href="/my-candidate-profile" className="flex items-center text-gray-600 hover:text-gray-900 transition-colors">
-                      <Edit className="w-4 h-4 mr-3" />
-                      My Candidate Profile
-                    </Link>
-                    <Link href="/my-blogs" className="flex items-center text-gray-600 hover:text-gray-900 transition-colors">
-                      <Edit className="w-4 h-4 mr-3" />
-                      My Blogs
-                    </Link>
-                    <Link href="/dashboard" className="flex items-center text-gray-600 hover:text-gray-900 transition-colors">
-                      <Settings className="w-4 h-4 mr-3" />
-                      Settings
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="flex items-center w-full text-red-600 hover:text-red-700 transition-colors"
-                    >
-                      <LogOut className="w-4 h-4 mr-3" />
-                      Logout
-                    </button>
-                  </div>
-                </div>
-              ) : (
+              {!isAuthenticated && (
                 // Mobile login/register for unauthenticated users
                 <>
-                  <Link href="/auth/login" className="text-gray-600 hover:text-gray-900 transition-colors">
+                  <Link href="/auth/login" className="text-gray-600 hover:text-gray-900 transition-colors" onClick={() => setIsMenuOpen(false)}>
                     Login
                   </Link>
-                  <Link href="/auth/register" className="bg-orange-500 text-white px-4 py-2 rounded-lg">
+                  <Link href="/auth/register" className="bg-orange-500 text-white px-4 py-2 rounded-lg text-center" onClick={() => setIsMenuOpen(false)}>
                     Sign Up
                   </Link>
                 </>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Mobile profile dropdown */}
+        {isMobileProfileOpen && isAuthenticated && (
+          <div className="md:hidden py-4 border-t border-gray-200">
+            <div className="flex items-center space-x-3 px-3 py-2 mb-4">
+              <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
+                <span className="text-white text-sm font-medium">
+                  {getUserInitials(user?.name || 'U')}
+                </span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">{user?.name}</p>
+                <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Link 
+                href="/profile" 
+                className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+                onClick={() => setIsMobileProfileOpen(false)}
+              >
+                <User className="w-4 h-4 mr-3" />
+                Update Profile
+              </Link>
+              <Link 
+                href="/my-candidate-profile" 
+                className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+                onClick={() => setIsMobileProfileOpen(false)}
+              >
+                <Edit className="w-4 h-4 mr-3" />
+                My Candidate Profile
+              </Link>
+              <Link 
+                href="/my-blogs" 
+                className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+                onClick={() => setIsMobileProfileOpen(false)}
+              >
+                <Edit className="w-4 h-4 mr-3" />
+                My Blogs
+              </Link>
+              <Link 
+                href="/settings" 
+                className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+                onClick={() => setIsMobileProfileOpen(false)}
+              >
+                <Settings className="w-4 h-4 mr-3" />
+                Settings
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="flex items-center w-full px-3 py-2 text-red-600 hover:text-red-700 hover:bg-gray-50 rounded-lg transition-colors"
+              >
+                <LogOut className="w-4 h-4 mr-3" />
+                Logout
+              </button>
             </div>
           </div>
         )}

@@ -94,9 +94,9 @@ export default function BlogPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 order-2 lg:order-1">
             {/* Featured Article */}
             <section className="mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Featured Article</h2>
@@ -106,7 +106,7 @@ export default function BlogPage() {
             {/* Recent Articles */}
             <section>
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Articles</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 {regularPosts.map((post) => (
                   <BlogCard key={post.id} post={post} />
                 ))}
@@ -122,7 +122,7 @@ export default function BlogPage() {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-8">
+          <div className="space-y-6 lg:space-y-8 order-1 lg:order-2">
             {/* Popular Tags */}
             <section className="bg-white rounded-lg border border-gray-200 p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Popular Tags</h3>
