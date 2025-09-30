@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -20,6 +20,8 @@ const LoginPage = () => {
   const { showToast } = useToast();
   const { login, loginWithGoogle, isLoading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get('returnTo') || '/';
 
   const validateForm = () => {
     const newErrors: { email?: string; password?: string } = {};
@@ -55,7 +57,7 @@ const LoginPage = () => {
           message: 'Welcome back to JnUCSU.'
         });
         
-        router.push('/dashboard');
+        router.push(returnTo);
       } else {
         showToast({
           type: 'error',
@@ -84,7 +86,7 @@ const LoginPage = () => {
           message: 'Welcome to JnUCSU.'
         });
         
-        router.push('/dashboard');
+        router.push(returnTo);
       } else {
         showToast({
           type: 'error',
@@ -230,7 +232,7 @@ const LoginPage = () => {
             <p className="text-center text-sm text-gray-600 mt-6">
               Don&apos;t have an account?{' '}
               <Link 
-                href="/auth/register" 
+                href={`/auth/register?returnTo=${encodeURIComponent(returnTo)}`}
                 className="text-orange-600 hover:text-orange-700 font-medium transition-colors"
               >
                 Sign up
