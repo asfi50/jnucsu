@@ -8,6 +8,7 @@ import Footer from '@/components/layout/Footer';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
+import MarkdownEditor from '@/components/ui/MarkdownEditor';
 import { useToast } from '@/components/ui/ToastProvider';
 import { useAuth } from '@/lib/contexts/AuthContext';
 
@@ -282,57 +283,39 @@ const SubmitCandidatePage = () => {
               </h2>
               
               <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Biography</label>
-                  <textarea
-                    value={formData.biography}
-                    onChange={(e) => handleInputChange('biography', e.target.value)}
-                    placeholder="Tell us about yourself, your background, and what drives you... (minimum 50 characters)"
-                    rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  />
-                  <div className="flex justify-between mt-1">
-                    {errors.biography && <p className="text-sm text-red-600">{errors.biography}</p>}
-                    <p className="text-sm text-gray-500">{formData.biography.length}/50 minimum</p>
-                  </div>
-                </div>
+                <MarkdownEditor
+                  label="Biography"
+                  value={formData.biography}
+                  onChange={(value) => handleInputChange('biography', value)}
+                  placeholder="Tell us about yourself, your background, and what drives you... (minimum 50 characters)"
+                  error={errors.biography}
+                  height={250}
+                />
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Election Manifesto</label>
-                  <textarea
-                    value={formData.manifesto}
-                    onChange={(e) => handleInputChange('manifesto', e.target.value)}
-                    placeholder="Share your vision, goals, and plans for the position you're running for... (minimum 100 characters)"
-                    rows={6}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  />
-                  <div className="flex justify-between mt-1">
-                    {errors.manifesto && <p className="text-sm text-red-600">{errors.manifesto}</p>}
-                    <p className="text-sm text-gray-500">{formData.manifesto.length}/100 minimum</p>
-                  </div>
-                </div>
+                <MarkdownEditor
+                  label="Election Manifesto"
+                  value={formData.manifesto}
+                  onChange={(value) => handleInputChange('manifesto', value)}
+                  placeholder="Share your vision, goals, and plans for the position you're running for... (minimum 100 characters)"
+                  error={errors.manifesto}
+                  height={300}
+                />
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Experience & Qualifications</label>
-                  <textarea
-                    value={formData.experience}
-                    onChange={(e) => handleInputChange('experience', e.target.value)}
-                    placeholder="Describe your relevant experience, leadership roles, and qualifications..."
-                    rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  />
-                </div>
+                <MarkdownEditor
+                  label="Experience & Qualifications"
+                  value={formData.experience}
+                  onChange={(value) => handleInputChange('experience', value)}
+                  placeholder="Describe your relevant experience, leadership roles, and qualifications..."
+                  height={250}
+                />
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Achievements & Recognition</label>
-                  <textarea
-                    value={formData.achievements}
-                    onChange={(e) => handleInputChange('achievements', e.target.value)}
-                    placeholder="List your notable achievements, awards, and recognition..."
-                    rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  />
-                </div>
+                <MarkdownEditor
+                  label="Achievements & Recognition"
+                  value={formData.achievements}
+                  onChange={(value) => handleInputChange('achievements', value)}
+                  placeholder="List your notable achievements, awards, and recognition..."
+                  height={250}
+                />
               </div>
             </div>
 

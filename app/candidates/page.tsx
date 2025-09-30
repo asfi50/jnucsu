@@ -1,6 +1,7 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import LeaderCard from "@/components/home/LeaderCard";
+import CallToActionBanner from "@/components/ui/CallToActionBanner";
 import { dummyLeaders } from "@/lib/data";
 import { generateMetadata, generateStructuredData, KEYWORDS, combineKeywords } from "@/lib/seo";
 import { Users, Search } from "lucide-react";
@@ -42,6 +43,9 @@ export default function CandidatesPage() {
         <Header />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Call to Action Banner for Candidates */}
+          <CallToActionBanner type="candidate" />
+
           {/* Page Header */}
           {/* Page Header */}
           <div className="mb-8">
