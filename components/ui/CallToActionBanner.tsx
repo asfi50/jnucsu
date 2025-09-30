@@ -36,7 +36,7 @@ export default function CallToActionBanner({ type, onClose }: CallToActionBanner
     description: "Write a blog post and share your thoughts, insights, and experiences with fellow students. Your voice matters!",
     buttonText: "Write a Blog Post",
     buttonLink: "/submit-blog",
-    bgGradient: "from-blue-500 to-purple-500"
+    bgGradient: "from-orange-500 to-orange-600"
   };
 
   const content = type === 'candidate' ? candidateContent : blogContent;
