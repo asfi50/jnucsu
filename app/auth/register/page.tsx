@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Mail, Lock, Eye, EyeOff, User } from 'lucide-react';
@@ -10,7 +10,7 @@ import Button from '@/components/ui/Button';
 import Loader from '@/components/ui/Loader';
 import { useToast } from '@/components/ui/ToastProvider';
 
-const RegisterPage = () => {
+function RegisterForm() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -299,6 +299,18 @@ const RegisterPage = () => {
         </div>
       </div>
     </div>
+  );
+}
+
+const RegisterPage = () => {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Loader size="lg" />
+      </div>
+    }>
+      <RegisterForm />
+    </Suspense>
   );
 };
 

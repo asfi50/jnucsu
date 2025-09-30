@@ -2,14 +2,13 @@
 
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { FileText, Image, Tag, Folder, Upload, X } from 'lucide-react';
+import { FileText, Image as ImageIcon, Tag, Upload, X } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import { useToast } from '@/components/ui/ToastProvider';
-import { useAuth } from '@/lib/contexts/AuthContext';
 
 const SubmitBlogPage = () => {
   const [formData, setFormData] = useState({
@@ -27,7 +26,6 @@ const SubmitBlogPage = () => {
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { showToast } = useToast();
-  const { user } = useAuth();
   const router = useRouter();
 
   const categories = [
@@ -70,7 +68,10 @@ const SubmitBlogPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    await submitForm();
+  };
+
+  const submitForm = async () => {
     if (!validateForm()) return;
 
     setLoading(true);
@@ -242,7 +243,7 @@ const SubmitBlogPage = () => {
             {/* Media & Categorization */}
             <div className="bg-white rounded-lg border border-gray-200 p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-                <Image className="w-5 h-5 mr-2 text-orange-500" />
+                <ImageIcon className="w-5 h-5 mr-2 text-orange-500" />
                 Media & Category
               </h2>
               
@@ -253,6 +254,7 @@ const SubmitBlogPage = () => {
                   <div className="space-y-4">
                     {thumbnailPreview ? (
                       <div className="relative inline-block">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={thumbnailPreview}
                           alt="Thumbnail preview"
@@ -376,7 +378,7 @@ const SubmitBlogPage = () => {
                   variant="outline"
                   onClick={() => {
                     setFormData(prev => ({ ...prev, status: 'draft' }));
-                    handleSubmit(new Event('submit') as any);
+                    submitForm();
                   }}
                   disabled={loading}
                 >

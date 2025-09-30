@@ -67,6 +67,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       
       // Mock user data - in real app, this would come from API
       // Using email and password for validation would happen here
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _validationCheck = password; // Password would be used for authentication
       const mockUser: User = {
         id: '1',
         name: 'John Doe',
