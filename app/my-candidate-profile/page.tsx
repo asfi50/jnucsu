@@ -133,7 +133,7 @@ const MyCandidateProfilePage = () => {
           ? 'You are now actively participating in the election.'
           : 'You have marked yourself as not participating in the election.'
       });
-    } catch (error) {
+    } catch {
       showToast({
         type: 'error',
         title: 'Update Failed',
@@ -157,7 +157,7 @@ const MyCandidateProfilePage = () => {
         title: 'Profile Deleted',
         message: 'Your candidate profile has been deleted successfully.'
       });
-    } catch (error) {
+    } catch {
       showToast({
         type: 'error',
         title: 'Deletion Failed',
@@ -190,7 +190,7 @@ const MyCandidateProfilePage = () => {
               <Award className="w-16 h-16 text-gray-400 mx-auto mb-4" />
               <h1 className="text-2xl font-bold text-gray-900 mb-2">No Candidate Profile Found</h1>
               <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
-                You haven't created a candidate profile yet. Submit your profile to participate in the upcoming student union elections.
+                You haven&apos;t created a candidate profile yet. Submit your profile to participate in the upcoming student union elections.
               </p>
               <Link href="/submit-candidate">
                 <Button className="flex items-center space-x-2">

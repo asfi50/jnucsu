@@ -8,7 +8,6 @@ import Footer from '@/components/layout/Footer';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Button from '@/components/ui/Button';
 import { useToast } from '@/components/ui/ToastProvider';
-import { useAuth } from '@/lib/contexts/AuthContext';
 
 interface BlogPost {
   id: string;
@@ -32,7 +31,6 @@ const MyBlogsPage = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'draft' | 'pending' | 'published' | 'rejected'>('all');
   const { showToast } = useToast();
-  const { user } = useAuth();
 
   // Mock data for demonstration
   useEffect(() => {
@@ -148,7 +146,7 @@ const MyBlogsPage = () => {
         title: 'Blog Deleted',
         message: 'The blog post has been deleted successfully.'
       });
-    } catch (error) {
+    } catch {
       showToast({
         type: 'error',
         title: 'Deletion Failed',
@@ -173,7 +171,7 @@ const MyBlogsPage = () => {
         title: 'Blog Submitted',
         message: 'Your blog post has been submitted for review.'
       });
-    } catch (error) {
+    } catch {
       showToast({
         type: 'error',
         title: 'Submission Failed',
@@ -287,7 +285,7 @@ const MyBlogsPage = () => {
                 ].map((tab) => (
                   <button
                     key={tab.key}
-                    onClick={() => setFilter(tab.key as any)}
+                    onClick={() => setFilter(tab.key as 'all' | 'draft' | 'pending' | 'published' | 'rejected')}
                     className={`py-2 px-1 border-b-2 font-medium text-sm ${
                       filter === tab.key
                         ? 'border-orange-500 text-orange-600'

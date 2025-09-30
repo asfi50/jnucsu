@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
@@ -12,7 +12,7 @@ import Loader from '@/components/ui/Loader';
 import { useToast } from '@/components/ui/ToastProvider';
 import { useAuth } from '@/lib/contexts/AuthContext';
 
-const LoginPage = () => {
+function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -244,6 +244,18 @@ const LoginPage = () => {
       
       <Footer />
     </div>
+  );
+}
+
+const LoginPage = () => {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Loader size="lg" />
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 };
 
