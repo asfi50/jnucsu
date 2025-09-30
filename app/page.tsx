@@ -4,6 +4,7 @@ import TrendingCandidates from "@/components/home/TrendingCandidates";
 import CompactCandidateCard from "@/components/home/CompactCandidateCard";
 import NewCandidates from "@/components/home/NewCandidates";
 import BlogCard from "@/components/home/BlogCard";
+import CallToActionBanner from "@/components/ui/CallToActionBanner";
 import { dummyLeaders, dummyBlogPosts } from "@/lib/data";
 import { generateMetadata, KEYWORDS, combineKeywords } from "@/lib/seo";
 import Link from "next/link";
@@ -40,6 +41,9 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-3 space-y-8">
+            {/* Call to Action Banner for Candidates */}
+            <CallToActionBanner type="candidate" />
+
             {/* Trending Candidates Section */}
             <TrendingCandidates candidates={trendingCandidates} />
 

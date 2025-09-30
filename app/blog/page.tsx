@@ -1,6 +1,7 @@
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import BlogCard from '@/components/home/BlogCard';
+import CallToActionBanner from '@/components/ui/CallToActionBanner';
 import { dummyBlogPosts } from '@/lib/data';
 import { generateMetadata, generateStructuredData, KEYWORDS, combineKeywords } from '@/lib/seo';
 import { BookOpen, Search, PenTool } from 'lucide-react';
@@ -48,7 +49,11 @@ export default function BlogPage() {
       <div className="min-h-screen bg-gray-50">
         <Header />
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">{/* Page Header */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Call to Action Banner for Blog */}
+        <CallToActionBanner type="blog" />
+
+        {/* Page Header */}
         {/* Page Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">

@@ -8,6 +8,7 @@ import Footer from '@/components/layout/Footer';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
+import MarkdownEditor from '@/components/ui/MarkdownEditor';
 import { useToast } from '@/components/ui/ToastProvider';
 
 const SubmitBlogPage = () => {
@@ -223,20 +224,14 @@ const SubmitBlogPage = () => {
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
-                  <textarea
-                    value={formData.content}
-                    onChange={(e) => handleInputChange('content', e.target.value)}
-                    placeholder="Write your blog content here... Share your thoughts, experiences, and insights. (minimum 200 characters)"
-                    rows={12}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  />
-                  <div className="flex justify-between mt-1">
-                    {errors.content && <p className="text-sm text-red-600">{errors.content}</p>}
-                    <p className="text-sm text-gray-500">{formData.content.length}/200 minimum</p>
-                  </div>
-                </div>
+                <MarkdownEditor
+                  label="Content"
+                  value={formData.content}
+                  onChange={(value) => handleInputChange('content', value)}
+                  placeholder="Write your blog content here... Share your thoughts, experiences, and insights. (minimum 200 characters)"
+                  error={errors.content}
+                  height={400}
+                />
               </div>
             </div>
 
