@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -9,14 +10,16 @@ import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import Loader from '@/components/ui/Loader';
 import { useToast } from '@/components/ui/ToastProvider';
+import { useAuth } from '@/lib/contexts/AuthContext';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const { showToast } = useToast();
+  const { login, loginWithGoogle, isLoading } = useAuth();
+  const router = useRouter();
 
   const validateForm = () => {
     const newErrors: { email?: string; password?: string } = {};
@@ -42,20 +45,24 @@ const LoginPage = () => {
     
     if (!validateForm()) return;
 
-    setLoading(true);
-    
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const success = await login(email, password);
       
-      showToast({
-        type: 'success',
-        title: 'Login Successful!',
-        message: 'Welcome back to JnUCSU.'
-      });
-
-      // In a real app, redirect to dashboard or home
-      console.log('Login successful:', { email });
+      if (success) {
+        showToast({
+          type: 'success',
+          title: 'Login Successful!',
+          message: 'Welcome back to JnUCSU.'
+        });
+        
+        router.push('/dashboard');
+      } else {
+        showToast({
+          type: 'error',
+          title: 'Login Failed',
+          message: 'Invalid email or password. Please try again.'
+        });
+      }
     } catch (error) {
       console.error('Login error:', error);
       showToast({
@@ -63,23 +70,28 @@ const LoginPage = () => {
         title: 'Login Failed',
         message: 'Invalid email or password. Please try again.'
       });
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleGoogleLogin = async () => {
-    setLoading(true);
-    
     try {
-      // Simulate Google login
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const success = await loginWithGoogle();
       
-      showToast({
-        type: 'success',
-        title: 'Google Login Successful!',
-        message: 'Welcome to JnUCSU.'
-      });
+      if (success) {
+        showToast({
+          type: 'success',
+          title: 'Google Login Successful!',
+          message: 'Welcome to JnUCSU.'
+        });
+        
+        router.push('/dashboard');
+      } else {
+        showToast({
+          type: 'error',
+          title: 'Google Login Failed',
+          message: 'Something went wrong. Please try again.'
+        });
+      }
     } catch (error) {
       console.error('Google login error:', error);
       showToast({
@@ -87,8 +99,6 @@ const LoginPage = () => {
         title: 'Google Login Failed',
         message: 'Something went wrong. Please try again.'
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -164,11 +174,11 @@ const LoginPage = () => {
 
               <Button
                 type="submit"
-                loading={loading}
+                loading={isLoading}
                 className="w-full"
                 size="lg"
               >
-                {loading ? <Loader size="sm" /> : 'Sign In'}
+                {isLoading ? <Loader size="sm" /> : 'Sign In'}
               </Button>
             </form>
 
@@ -189,7 +199,7 @@ const LoginPage = () => {
               type="button"
               variant="outline"
               onClick={handleGoogleLogin}
-              loading={loading}
+              loading={isLoading}
               className="w-full mt-4"
               size="lg"
               icon={

@@ -1,6 +1,6 @@
 import { QRCodeSVG } from "qrcode.react";
 
-export default function LeaderDashboard() {
+export default function Dashboard() {
   const isVerified = true; // you can fetch this dynamically later
   const profileLink = "https://yourapp.com/profile/john-doe"; // dynamic user link
 
