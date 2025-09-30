@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Mail, Lock, Eye, EyeOff, User } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Input from '@/components/ui/Input';
@@ -9,7 +10,7 @@ import Button from '@/components/ui/Button';
 import Loader from '@/components/ui/Loader';
 import { useToast } from '@/components/ui/ToastProvider';
 
-const RegisterPage = () => {
+function RegisterForm() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -26,6 +27,9 @@ const RegisterPage = () => {
     confirmPassword?: string;
   }>({});
   const { showToast } = useToast();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get('returnTo') || '/';
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
@@ -75,11 +79,10 @@ const RegisterPage = () => {
         message: 'Welcome to JnUCSU. Please check your email for verification.'
       });
 
-      // In a real app, redirect to dashboard or email verification page
-      console.log('Registration successful:', { 
-        name: formData.name, 
-        email: formData.email 
-      });
+      // Redirect to return URL or homepage after successful registration
+      setTimeout(() => {
+        router.push(returnTo);
+      }, 1500);
     } catch (error) {
       console.error('Registration error:', error);
       showToast({
@@ -286,7 +289,7 @@ const RegisterPage = () => {
             <p className="text-center text-sm text-gray-600 mt-6">
               Already have an account?{' '}
               <Link 
-                href="/auth/login" 
+                href={`/auth/login?returnTo=${encodeURIComponent(returnTo)}`}
                 className="text-orange-600 hover:text-orange-700 font-medium transition-colors"
               >
                 Sign in
@@ -296,6 +299,18 @@ const RegisterPage = () => {
         </div>
       </div>
     </div>
+  );
+}
+
+const RegisterPage = () => {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Loader size="lg" />
+      </div>
+    }>
+      <RegisterForm />
+    </Suspense>
   );
 };
 

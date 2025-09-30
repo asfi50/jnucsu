@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -12,7 +12,7 @@ import Loader from '@/components/ui/Loader';
 import { useToast } from '@/components/ui/ToastProvider';
 import { useAuth } from '@/lib/contexts/AuthContext';
 
-const LoginPage = () => {
+function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -20,6 +20,8 @@ const LoginPage = () => {
   const { showToast } = useToast();
   const { login, loginWithGoogle, isLoading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get('returnTo') || '/';
 
   const validateForm = () => {
     const newErrors: { email?: string; password?: string } = {};
@@ -55,7 +57,7 @@ const LoginPage = () => {
           message: 'Welcome back to JnUCSU.'
         });
         
-        router.push('/dashboard');
+        router.push(returnTo);
       } else {
         showToast({
           type: 'error',
@@ -84,7 +86,7 @@ const LoginPage = () => {
           message: 'Welcome to JnUCSU.'
         });
         
-        router.push('/dashboard');
+        router.push(returnTo);
       } else {
         showToast({
           type: 'error',
@@ -230,7 +232,7 @@ const LoginPage = () => {
             <p className="text-center text-sm text-gray-600 mt-6">
               Don&apos;t have an account?{' '}
               <Link 
-                href="/auth/register" 
+                href={`/auth/register?returnTo=${encodeURIComponent(returnTo)}`}
                 className="text-orange-600 hover:text-orange-700 font-medium transition-colors"
               >
                 Sign up
@@ -242,6 +244,18 @@ const LoginPage = () => {
       
       <Footer />
     </div>
+  );
+}
+
+const LoginPage = () => {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Loader size="lg" />
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 };
 
