@@ -15,10 +15,15 @@ import {
   GraduationCap,
   MapPin,
   Send,
-  Heart,
   User,
   Target,
-  ImageIcon
+  ImageIcon,
+  Download,
+  Phone,
+  Mail,
+  Home,
+  Award,
+  X
 } from 'lucide-react';
 
 interface CandidateProfileClientProps {
@@ -30,11 +35,99 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
   const [hasVoted, setHasVoted] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [comments, setComments] = useState(leader.comments);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const handleVote = () => {
-    if (!hasVoted) {
+    if (hasVoted) {
+      // Remove vote
+      setVotes(votes - 1);
+      setHasVoted(false);
+    } else {
+      // Add vote
       setVotes(votes + 1);
       setHasVoted(true);
+    }
+  };
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${leader.name} - ${leader.title}`,
+          text: `Check out ${leader.name}'s profile for ${leader.title}`,
+          url: window.location.href,
+        });
+      } catch (error) {
+        console.log('Error sharing:', error);
+      }
+    } else {
+      // Fallback: Copy to clipboard
+      navigator.clipboard.writeText(window.location.href);
+      alert('Link copied to clipboard!');
+    }
+  };
+
+  const handleDownloadIDCard = async () => {
+    try {
+      const { default: jsPDF } = await import('jspdf');
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: [85.6, 53.98] // Credit card size
+      });
+
+      // Background
+      pdf.setFillColor(255, 120, 60); // Orange
+      pdf.rect(0, 0, 85.6, 53.98, 'F');
+
+      // White content area
+      pdf.setFillColor(255, 255, 255);
+      pdf.roundedRect(3, 3, 79.6, 47.98, 2, 2, 'F');
+
+      // Title
+      pdf.setFontSize(10);
+      pdf.setTextColor(255, 120, 60);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('JnUCSU Candidate ID', 42.8, 8, { align: 'center' });
+
+      // Name
+      pdf.setFontSize(12);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text(leader.name, 6, 16);
+
+      // Position
+      pdf.setFontSize(8);
+      pdf.setTextColor(255, 120, 60);
+      pdf.text(leader.title.replace(' - JnUCSU', ''), 6, 21);
+
+      // Details
+      pdf.setFontSize(7);
+      pdf.setTextColor(80, 80, 80);
+      pdf.text(`ID: ${leader.studentId}`, 6, 27);
+      pdf.text(`${leader.department}`, 6, 31);
+      pdf.text(`Year ${leader.year}`, 6, 35);
+
+      // QR Code (placeholder - in real implementation, you'd embed actual QR)
+      const qrSize = 30;
+      const qrX = 85.6 - qrSize - 5;
+      const qrY = (53.98 - qrSize) / 2;
+      
+      pdf.setDrawColor(200, 200, 200);
+      pdf.rect(qrX, qrY, qrSize, qrSize);
+      
+      // QR code URL text
+      pdf.setFontSize(5);
+      pdf.text('Scan for profile', qrX + qrSize/2, qrY + qrSize + 2, { align: 'center' });
+
+      // Footer
+      pdf.setFontSize(6);
+      pdf.setTextColor(150, 150, 150);
+      pdf.text('Jagannath University CSU', 42.8, 51, { align: 'center' });
+
+      pdf.save(`${leader.name.replace(/\s+/g, '_')}_ID_Card.pdf`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error generating ID card. Please try again.');
     }
   };
 
@@ -78,21 +171,20 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
                         ? 'bg-orange-100 text-orange-600' 
                         : 'hover:bg-gray-100 text-gray-600'
                     }`}
-                    disabled={hasVoted}
                   >
                     <ChevronUp className="w-5 h-5" />
                     <div className="text-left">
                       <div className="text-lg font-bold">{votes}</div>
-                      <div className="text-xs">votes</div>
+                      <div className="text-xs">{hasVoted ? 'Upvoted' : 'Upvote'}</div>
                     </div>
                   </button>
                   
                   <div className="flex items-center space-x-2">
-                    <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                    <button 
+                      onClick={handleShare}
+                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
                       <Share2 className="w-5 h-5 text-gray-600" />
-                    </button>
-                    <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                      <Heart className="w-5 h-5 text-gray-600" />
                     </button>
                   </div>
                 </div>
@@ -106,11 +198,10 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
                         ? 'bg-orange-100 text-orange-600' 
                         : 'hover:bg-gray-100 text-gray-600'
                     }`}
-                    disabled={hasVoted}
                   >
                     <ChevronUp className="w-6 h-6" />
                     <span className="text-lg font-bold">{votes}</span>
-                    <span className="text-xs">votes</span>
+                    <span className="text-xs">{hasVoted ? 'Upvoted' : 'Upvote'}</span>
                   </button>
                 </div>
 
@@ -157,11 +248,12 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
 
                     {/* Desktop: Action Buttons */}
                     <div className="hidden md:flex items-center space-x-2">
-                      <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                      <button 
+                        onClick={handleShare}
+                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        title="Share profile"
+                      >
                         <Share2 className="w-5 h-5 text-gray-600" />
-                      </button>
-                      <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                        <Heart className="w-5 h-5 text-gray-600" />
                       </button>
                     </div>
                   </div>
@@ -169,6 +261,30 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
                   <p className="text-gray-700 leading-relaxed mb-4">
                     {leader.description}
                   </p>
+
+                  {/* Additional Profile Fields */}
+                  {(leader.phone || leader.email || leader.address) && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 p-4 bg-gray-50 rounded-lg">
+                      {leader.phone && (
+                        <div className="flex items-center space-x-2 text-sm text-gray-600">
+                          <Phone className="w-4 h-4 text-orange-600 flex-shrink-0" />
+                          <span>{leader.phone}</span>
+                        </div>
+                      )}
+                      {leader.email && (
+                        <div className="flex items-center space-x-2 text-sm text-gray-600">
+                          <Mail className="w-4 h-4 text-orange-600 flex-shrink-0" />
+                          <span className="truncate">{leader.email}</span>
+                        </div>
+                      )}
+                      {leader.address && (
+                        <div className="flex items-center space-x-2 text-sm text-gray-600 md:col-span-2">
+                          <Home className="w-4 h-4 text-orange-600 flex-shrink-0" />
+                          <span>{leader.address}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Tags */}
                   <div className="flex flex-wrap gap-2">
@@ -196,28 +312,72 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
               </p>
             </div>
 
+            {/* Achievements Section */}
+            {leader.achievements && (
+              <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
+                <div className="flex items-center space-x-2 mb-4">
+                  <Award className="w-5 h-5 text-orange-600" />
+                  <h2 className="text-lg md:text-xl font-semibold text-gray-900">Achievements</h2>
+                </div>
+                <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                  {leader.achievements}
+                </p>
+              </div>
+            )}
+
             {/* Work Gallery Section */}
             <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
               <div className="flex items-center space-x-2 mb-4 md:mb-6">
                 <ImageIcon className="w-5 h-5 text-orange-600" />
                 <h2 className="text-lg md:text-xl font-semibold text-gray-900">Work Gallery</h2>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {leader.workGallery.map((image, index) => (
-                  <div key={index} className="relative group">
-                    <div className="aspect-video rounded-lg overflow-hidden bg-gray-100">
+                  <div 
+                    key={index} 
+                    className="relative group cursor-pointer"
+                    onClick={() => setSelectedImage(image)}
+                  >
+                    <div className="aspect-video rounded-lg overflow-hidden bg-gray-100 shadow-sm hover:shadow-md transition-shadow">
                       <Image
                         src={image}
                         alt={`${leader.name}'s work sample ${index + 1}`}
                         width={600}
                         height={400}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                       />
+                    </div>
+                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 rounded-lg flex items-center justify-center">
+                      <ImageIcon className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                   </div>
                 ))}
               </div>
             </div>
+
+            {/* Image Lightbox Modal */}
+            {selectedImage && (
+              <div 
+                className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+                onClick={() => setSelectedImage(null)}
+              >
+                <button
+                  className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
+                  onClick={() => setSelectedImage(null)}
+                >
+                  <X className="w-8 h-8" />
+                </button>
+                <div className="relative max-w-6xl max-h-[90vh] w-full">
+                  <Image
+                    src={selectedImage}
+                    alt="Gallery image"
+                    width={1200}
+                    height={800}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Comments Section */}
             <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
@@ -230,8 +390,8 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
 
               {/* Add Comment Form */}
               <form onSubmit={handleComment} className="mb-6 md:mb-8">
-                <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
-                  <div className="flex-shrink-0 mx-auto md:mx-0">
+                <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+                  <div className="flex-shrink-0 hidden sm:block">
                     <Image
                       src="https://api.dicebear.com/7.x/avataaars/svg?seed=currentuser"
                       alt="Your avatar"
@@ -245,14 +405,14 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
                       value={newComment}
                       onChange={(e) => setNewComment(e.target.value)}
                       placeholder="Share your thoughts about this candidate..."
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none resize-none"
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none resize-none text-sm md:text-base"
                       rows={3}
                     />
                     <div className="flex justify-end mt-2">
                       <button
                         type="submit"
                         disabled={!newComment.trim()}
-                        className="flex items-center space-x-2 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 text-white px-4 py-2 rounded-lg transition-colors"
+                        className="flex items-center space-x-2 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg transition-colors text-sm md:text-base"
                       >
                         <Send className="w-4 h-4" />
                         <span>Comment</span>
@@ -263,52 +423,56 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
               </form>
 
               {/* Comments List */}
-              <div className="space-y-6">
+              <div className="space-y-4 md:space-y-6">
                 {comments.map((comment) => (
-                  <div key={comment.id} className="border-b border-gray-100 pb-6 last:border-b-0">
-                    <div className="flex space-x-4">
-                      <Image
-                        src={comment.author.avatar}
-                        alt={comment.author.name}
-                        width={40}
-                        height={40}
-                        className="rounded-full"
-                      />
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <span className="font-medium text-gray-900">
+                  <div key={comment.id} className="border-b border-gray-100 pb-4 md:pb-6 last:border-b-0">
+                    <div className="flex space-x-3 md:space-x-4">
+                      <div className="flex-shrink-0">
+                        <Image
+                          src={comment.author.avatar}
+                          alt={comment.author.name}
+                          width={40}
+                          height={40}
+                          className="rounded-full"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 mb-1">
+                          <span className="font-medium text-gray-900 text-sm md:text-base">
                             {comment.author.name}
                           </span>
-                          <span className="text-sm text-gray-500">
+                          <span className="text-xs md:text-sm text-gray-500">
                             {formatRelativeTime(comment.createdAt)}
                           </span>
                         </div>
-                        <p className="text-gray-700 leading-relaxed">
+                        <p className="text-gray-700 leading-relaxed text-sm md:text-base break-words">
                           {comment.content}
                         </p>
 
                         {/* Comment Replies */}
                         {comment.replies.length > 0 && (
-                          <div className="mt-4 ml-4 space-y-4">
+                          <div className="mt-3 md:mt-4 ml-3 md:ml-4 space-y-3 md:space-y-4 border-l-2 border-gray-200 pl-3 md:pl-4">
                             {comment.replies.map((reply) => (
-                              <div key={reply.id} className="flex space-x-3">
-                                <Image
-                                  src={reply.author.avatar}
-                                  alt={reply.author.name}
-                                  width={32}
-                                  height={32}
-                                  className="rounded-full"
-                                />
-                                <div className="flex-1">
-                                  <div className="flex items-center space-x-2 mb-1">
-                                    <span className="font-medium text-gray-900 text-sm">
+                              <div key={reply.id} className="flex space-x-2 md:space-x-3">
+                                <div className="flex-shrink-0">
+                                  <Image
+                                    src={reply.author.avatar}
+                                    alt={reply.author.name}
+                                    width={32}
+                                    height={32}
+                                    className="rounded-full"
+                                  />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 mb-1">
+                                    <span className="font-medium text-gray-900 text-xs md:text-sm">
                                       {reply.author.name}
                                     </span>
                                     <span className="text-xs text-gray-500">
                                       {formatRelativeTime(reply.createdAt)}
                                     </span>
                                   </div>
-                                  <p className="text-gray-700 text-sm leading-relaxed">
+                                  <p className="text-gray-700 text-xs md:text-sm leading-relaxed break-words">
                                     {reply.content}
                                   </p>
                                 </div>
@@ -324,7 +488,7 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
                 {comments.length === 0 && (
                   <div className="text-center py-8 text-gray-500">
                     <MessageCircle className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                    <p>No comments yet. Be the first to share your thoughts!</p>
+                    <p className="text-sm md:text-base">No comments yet. Be the first to share your thoughts!</p>
                   </div>
                 )}
               </div>
@@ -333,8 +497,34 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
 
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-4 md:space-y-6">
-            {/* QR Code Section */}
-            <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
+            {/* Mobile: QR Code next to image - shown only on mobile */}
+            <div className="lg:hidden bg-white rounded-lg border border-gray-200 p-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex-1">
+                  <h3 className="text-base font-semibold text-gray-900 mb-2">
+                    Share Profile
+                  </h3>
+                  <p className="text-xs text-gray-600">Scan to visit profile</p>
+                </div>
+                <div className="flex-shrink-0">
+                  <QRCode 
+                    url={typeof window !== 'undefined' ? `${window.location.origin}/candidates/${leader.id}` : `https://jnucsu.vercel.app/candidates/${leader.id}`}
+                    title=""
+                    size={100}
+                  />
+                </div>
+              </div>
+              <button
+                onClick={handleDownloadIDCard}
+                className="w-full mt-3 flex items-center justify-center space-x-2 bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg transition-colors text-sm"
+              >
+                <Download className="w-4 h-4" />
+                <span>Download ID Card</span>
+              </button>
+            </div>
+
+            {/* Desktop: QR Code Section */}
+            <div className="hidden lg:block bg-white rounded-lg border border-gray-200 p-4 md:p-6">
               <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-4 text-center">
                 Share Profile
               </h3>
@@ -343,6 +533,13 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
                 title={`${leader.name}'s profile`}
                 size={160}
               />
+              <button
+                onClick={handleDownloadIDCard}
+                className="w-full mt-4 flex items-center justify-center space-x-2 bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg transition-colors text-sm md:text-base"
+              >
+                <Download className="w-4 h-4" />
+                <span>Download ID Card</span>
+              </button>
             </div>
 
             {/* Quick Stats */}
@@ -375,8 +572,12 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
                 <button className="w-full border border-gray-300 hover:border-gray-400 text-gray-700 py-2 px-4 rounded-lg transition-colors text-sm md:text-base">
                   Message
                 </button>
-                <button className="w-full border border-gray-300 hover:border-gray-400 text-gray-700 py-2 px-4 rounded-lg transition-colors text-sm md:text-base">
-                  Share
+                <button 
+                  onClick={handleShare}
+                  className="w-full border border-gray-300 hover:border-gray-400 text-gray-700 py-2 px-4 rounded-lg transition-colors text-sm md:text-base flex items-center justify-center space-x-2"
+                >
+                  <Share2 className="w-4 h-4" />
+                  <span>Share</span>
                 </button>
               </div>
             </div>

@@ -16,6 +16,10 @@ export interface StudentLeader {
   tags: string[];
   createdAt: string;
   updatedAt: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  achievements?: string;
 }
 
 // Comment types

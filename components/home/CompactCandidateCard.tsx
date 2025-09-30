@@ -15,7 +15,12 @@ export default function CompactCandidateCard({ candidate }: CompactCandidateCard
   const [hasVoted, setHasVoted] = useState(false);
 
   const handleVote = () => {
-    if (!hasVoted) {
+    if (hasVoted) {
+      // Remove vote
+      setVotes(votes - 1);
+      setHasVoted(false);
+    } else {
+      // Add vote
       setVotes(votes + 1);
       setHasVoted(true);
     }
@@ -57,9 +62,10 @@ export default function CompactCandidateCard({ candidate }: CompactCandidateCard
                   }}
                   className={`flex items-center space-x-1 text-sm transition-colors ${
                     hasVoted 
-                      ? 'text-orange-600 bg-orange-50' 
+                      ? 'text-orange-600 bg-orange-50 font-medium' 
                       : 'text-gray-600 hover:text-orange-600 hover:bg-orange-50'
                   } px-2 py-1 rounded`}
+                  title={hasVoted ? 'Click to remove vote' : 'Click to upvote'}
                 >
                   <ChevronUp className="w-4 h-4" />
                   <span>{votes}</span>

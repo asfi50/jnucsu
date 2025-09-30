@@ -15,7 +15,12 @@ export default function LeaderCard({ leader }: LeaderCardProps) {
   const [hasVoted, setHasVoted] = useState(false);
 
   const handleVote = () => {
-    if (!hasVoted) {
+    if (hasVoted) {
+      // Remove vote
+      setVotes(votes - 1);
+      setHasVoted(false);
+    } else {
+      // Add vote
       setVotes(votes + 1);
       setHasVoted(true);
     }
@@ -80,7 +85,7 @@ export default function LeaderCard({ leader }: LeaderCardProps) {
                     ? 'bg-orange-100 text-orange-600' 
                     : 'bg-gray-50 hover:bg-orange-50 text-gray-600 hover:text-orange-600'
                 }`}
-                disabled={hasVoted}
+                title={hasVoted ? 'Click to remove vote' : 'Click to upvote'}
               >
                 <ChevronUp className="w-4 h-4" />
                 <span className="font-semibold">{votes}</span>
