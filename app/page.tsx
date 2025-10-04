@@ -30,7 +30,8 @@ export default function Home() {
   const newCandidates = [...dummyLeaders].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 4);
 
   const featuredBlog = dummyBlogPosts[0];
-  const recentBlogs = dummyBlogPosts.slice(1, 3);
+  const recentBlogs = dummyBlogPosts.slice(1, 7); // Get 6 recent posts
+  const trendingBlogs = [...dummyBlogPosts].sort((a, b) => b.likes - a.likes).slice(0, 2); // Top 2 trending posts by likes
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -66,6 +67,24 @@ export default function Home() {
 
             {/* New Candidates Section */}
             <NewCandidates candidates={newCandidates} />
+
+            {/* Recent Articles Section - Moved from sidebar */}
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Articles</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {recentBlogs.map((post) => (
+                  <BlogCard key={post.id} post={post} />
+                ))}
+              </div>
+              
+              {/* View all posts button */}
+              <div className="mt-6 text-center">
+                <Link href="/blog" className="inline-flex items-center space-x-2 text-orange-600 hover:text-orange-700 font-medium transition-colors group">
+                  <span>View all posts</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </div>
+            </section>
           </div>
 
           {/* Sidebar */}
@@ -85,9 +104,9 @@ export default function Home() {
 
             {/* Recent Articles */}
             <section>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Articles</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Trending Posts</h3>
               <div className="space-y-4">
-                {recentBlogs.map((post) => (
+                {trendingBlogs.map((post) => (
                   <BlogCard key={post.id} post={post} />
                 ))}
               </div>
@@ -97,10 +116,10 @@ export default function Home() {
             <section className="bg-white rounded-lg border border-gray-200 p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Get Involved</h3>
               <div className="space-y-3">
-                <Link href="/candidates/add" className="block w-full bg-orange-500 hover:bg-orange-600 text-white text-center py-2 px-4 rounded-lg transition-colors">
-                  Add Candidate Profile
+                <Link href="/submit-candidate" className="block w-full bg-orange-500 hover:bg-orange-600 text-white text-center py-2 px-4 rounded-lg transition-colors">
+                  Candidate
                 </Link>
-                <Link href="/blog/write" className="block w-full border border-gray-300 hover:border-gray-400 text-gray-700 text-center py-2 px-4 rounded-lg transition-colors">
+                <Link href="/submit-blog" className="block w-full border border-gray-300 hover:border-gray-400 text-gray-700 text-center py-2 px-4 rounded-lg transition-colors">
                   Write Article
                 </Link>
               </div>
