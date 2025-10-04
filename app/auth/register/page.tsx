@@ -1,21 +1,21 @@
-'use client';
+"use client";
 
-import { useState, Suspense } from 'react';
-import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Mail, Lock, Eye, EyeOff, User } from 'lucide-react';
-import Header from '@/components/layout/Header';
-import Input from '@/components/ui/Input';
-import Button from '@/components/ui/Button';
-import Loader from '@/components/ui/Loader';
-import { useToast } from '@/components/ui/ToastProvider';
+import { useState, Suspense } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Mail, Lock, Eye, EyeOff, User } from "lucide-react";
+import Header from "@/components/layout/Header";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
+import Loader from "@/components/ui/Loader";
+import { useToast } from "@/components/ui/ToastProvider";
 
 function RegisterForm() {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -29,33 +29,33 @@ function RegisterForm() {
   const { showToast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const returnTo = searchParams.get('returnTo') || '/';
+  const returnTo = searchParams.get("returnTo") || "/";
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
-    
+
     if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
+      newErrors.name = "Name is required";
     } else if (formData.name.trim().length < 2) {
-      newErrors.name = 'Name must be at least 2 characters';
+      newErrors.name = "Name must be at least 2 characters";
     }
-    
+
     if (!formData.email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
+      newErrors.email = "Email is invalid";
     }
-    
+
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = "Password must be at least 6 characters";
     }
-    
+
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password';
+      newErrors.confirmPassword = "Please confirm your password";
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = "Passwords do not match";
     }
 
     setErrors(newErrors);
@@ -64,19 +64,37 @@ function RegisterForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     setLoading(true);
-    
+
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fullName: formData.name,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+      //const data = await res.json();
+
+      //console.log("Registration response:", data, formData);
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to register user");
+      }
+
       showToast({
-        type: 'success',
-        title: 'Account Created Successfully!',
-        message: 'Welcome to JnUCSU. Please check your email for verification.'
+        type: "success",
+        title: "Account Created Successfully!",
+        message: "Welcome to JnUCSU. Please check your email for verification.",
       });
 
       // Redirect to return URL or homepage after successful registration
@@ -84,11 +102,11 @@ function RegisterForm() {
         router.push(returnTo);
       }, 1500);
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error("Registration error:", error);
       showToast({
-        type: 'error',
-        title: 'Registration Failed',
-        message: 'Something went wrong. Please try again.'
+        type: "error",
+        title: "Registration Failed",
+        message: "Something went wrong. Please try again.",
       });
     } finally {
       setLoading(false);
@@ -97,22 +115,22 @@ function RegisterForm() {
 
   const handleGoogleRegister = async () => {
     setLoading(true);
-    
+
     try {
       // Simulate Google registration
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       showToast({
-        type: 'success',
-        title: 'Google Registration Successful!',
-        message: 'Welcome to JnUCSU.'
+        type: "success",
+        title: "Google Registration Successful!",
+        message: "Welcome to JnUCSU.",
       });
     } catch (error) {
-      console.error('Google registration error:', error);
+      console.error("Google registration error:", error);
       showToast({
-        type: 'error',
-        title: 'Google Registration Failed',
-        message: 'Something went wrong. Please try again.'
+        type: "error",
+        title: "Google Registration Failed",
+        message: "Something went wrong. Please try again.",
       });
     } finally {
       setLoading(false);
@@ -120,26 +138,24 @@ function RegisterForm() {
   };
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: undefined }));
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      
+
       <div className="flex items-center justify-center min-h-[calc(100vh-64px)] px-4 sm:px-6 lg:px-8 py-8">
         <div className="w-full max-w-md">
           <div className="bg-white rounded-lg shadow-md p-8">
             {/* Header */}
             <div className="text-center mb-8">
               <div className="flex items-center justify-center space-x-2 mb-4">
-                <div className="bg-orange-500 text-white font-bold text-xl px-3 py-1 rounded">
-                  JnU
-                </div>
+                <div className="bg-orange-500 text-white font-bold text-xl px-3 py-1 rounded">JnU</div>
                 <span className="font-semibold text-gray-900 text-xl">CSU</span>
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Create Account</h2>
@@ -148,82 +164,35 @@ function RegisterForm() {
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-6">
-              <Input
-                type="text"
-                label="Full Name"
-                placeholder="Enter your full name"
-                value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                error={errors.name}
-                icon={<User className="w-4 h-4" />}
-              />
+              <Input type="text" className="text-black" label="Full Name" placeholder="Enter your full name" value={formData.name} onChange={(e) => handleInputChange("name", e.target.value)} error={errors.name} icon={<User className="w-4 h-4" />} />
 
-              <Input
-                type="email"
-                label="Email Address"
-                placeholder="Enter your email"
-                value={formData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                error={errors.email}
-                icon={<Mail className="w-4 h-4" />}
-              />
+              <Input type="email" label="Email Address" placeholder="Enter your email" value={formData.email} onChange={(e) => handleInputChange("email", e.target.value)} error={errors.email} icon={<Mail className="w-4 h-4" />} />
 
               <div>
-                <Input
-                  type={showPassword ? 'text' : 'password'}
-                  label="Password"
-                  placeholder="Create a password"
-                  value={formData.password}
-                  onChange={(e) => handleInputChange('password', e.target.value)}
-                  error={errors.password}
-                  icon={<Lock className="w-4 h-4" />}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-9 text-gray-400 hover:text-gray-600 transition-colors"
-                  style={{ position: 'relative', top: '-35px', right: '12px', float: 'right' }}
-                >
+                <Input type={showPassword ? "text" : "password"} label="Password" placeholder="Create a password" value={formData.password} onChange={(e) => handleInputChange("password", e.target.value)} error={errors.password} icon={<Lock className="w-4 h-4" />} />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-9 text-gray-400 hover:text-gray-600 transition-colors" style={{ position: "relative", top: "-35px", right: "12px", float: "right" }}>
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
 
               <div>
-                <Input
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  label="Confirm Password"
-                  placeholder="Confirm your password"
-                  value={formData.confirmPassword}
-                  onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                  error={errors.confirmPassword}
-                  icon={<Lock className="w-4 h-4" />}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-9 text-gray-400 hover:text-gray-600 transition-colors"
-                  style={{ position: 'relative', top: '-35px', right: '12px', float: 'right' }}
-                >
+                <Input className="text-black" type={showConfirmPassword ? "text" : "password"} label="Confirm Password" placeholder="Confirm your password" value={formData.confirmPassword} onChange={(e) => handleInputChange("confirmPassword", e.target.value)} error={errors.confirmPassword} icon={<Lock className="w-4 h-4" />} />
+                <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-9 text-gray-400 hover:text-gray-600 transition-colors" style={{ position: "relative", top: "-35px", right: "12px", float: "right" }}>
                   {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
 
               <div className="flex items-start">
                 <div className="flex items-center h-5">
-                  <input
-                    type="checkbox"
-                    id="terms"
-                    required
-                    className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded"
-                  />
+                  <input type="checkbox" id="terms" required className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded" />
                 </div>
                 <div className="ml-3 text-sm">
                   <label htmlFor="terms" className="text-gray-600">
-                    I agree to the{' '}
+                    I agree to the{" "}
                     <Link href="/terms" className="text-orange-600 hover:text-orange-700">
                       Terms of Service
-                    </Link>{' '}
-                    and{' '}
+                    </Link>{" "}
+                    and{" "}
                     <Link href="/privacy" className="text-orange-600 hover:text-orange-700">
                       Privacy Policy
                     </Link>
@@ -231,13 +200,8 @@ function RegisterForm() {
                 </div>
               </div>
 
-              <Button
-                type="submit"
-                loading={loading}
-                className="w-full"
-                size="lg"
-              >
-                {loading ? <Loader size="sm" /> : 'Create Account'}
+              <Button type="submit" loading={loading} className="w-full" size="lg">
+                {loading ? <Loader size="sm" /> : "Create Account"}
               </Button>
             </form>
 
@@ -263,22 +227,10 @@ function RegisterForm() {
               size="lg"
               icon={
                 <svg className="w-4 h-4" viewBox="0 0 24 24">
-                  <path
-                    fill="currentColor"
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                  />
-                  <path
-                    fill="currentColor"
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                  />
-                  <path
-                    fill="currentColor"
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                  />
-                  <path
-                    fill="currentColor"
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                  />
+                  <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                  <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                  <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                  <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                 </svg>
               }
             >
@@ -287,11 +239,8 @@ function RegisterForm() {
 
             {/* Sign in link */}
             <p className="text-center text-sm text-gray-600 mt-6">
-              Already have an account?{' '}
-              <Link 
-                href={`/auth/login?returnTo=${encodeURIComponent(returnTo)}`}
-                className="text-orange-600 hover:text-orange-700 font-medium transition-colors"
-              >
+              Already have an account?{" "}
+              <Link href={`/auth/login?returnTo=${encodeURIComponent(returnTo)}`} className="text-orange-600 hover:text-orange-700 font-medium transition-colors">
                 Sign in
               </Link>
             </p>
@@ -304,11 +253,13 @@ function RegisterForm() {
 
 const RegisterPage = () => {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loader size="lg" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <Loader size="lg" />
+        </div>
+      }
+    >
       <RegisterForm />
     </Suspense>
   );
