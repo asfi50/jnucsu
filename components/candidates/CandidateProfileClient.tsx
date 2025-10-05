@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import QRCode from '@/components/candidates/QRCode';
 import Footer from '@/components/layout/Footer';

@@ -1,24 +1,23 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { 
-  User, Mail, Phone, MapPin, Calendar, BookOpen, Edit3, Facebook, Linkedin, Twitter, Instagram, Globe, FileText
+  Mail, Phone, MapPin, Calendar, BookOpen, Edit3, Facebook, Linkedin, Twitter, Instagram, Globe, FileText
 } from 'lucide-react';
 
 export default function PublicUserProfilePage() {
   const params = useParams();
-  const router = useRouter();
   const { user, isAuthenticated } = useAuth();
   const userId = params.id as string;
   const isOwnProfile = isAuthenticated && user?.id === userId;
 
-  const [profileData, setProfileData] = useState({
+  const [profileData] = useState({
     id: userId,
     name: 'John Doe',
     email: 'john.doe@student.jnu.edu',

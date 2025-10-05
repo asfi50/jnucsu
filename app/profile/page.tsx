@@ -12,7 +12,7 @@ import {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, isLoading, isAuthenticated } = useAuth();
+  const { isLoading, isAuthenticated } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [profileImage, setProfileImage] = useState('/api/placeholder/150/150');
   const [formData, setFormData] = useState({
