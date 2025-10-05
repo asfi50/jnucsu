@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import config from "@/config";
 
-const { serverBaseUrl, adminToken, jwtSecret } = config;
+const { serverBaseUrl, adminToken } = config;
 
 export async function POST(request: Request) {
   try {
@@ -13,18 +11,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     // Prepare the payload for Directus
     const payload = {
-      fullName, // if using custom collection
       email,
-      password: hashedPassword,
+      password,
+      first_name: fullName,
+      last_name: "",
+      role: "9708200e-3280-47af-ac3d-58c756bdf6b0",
     };
 
     // Save user in Directus
-    const response = await fetch(`${serverBaseUrl}/items/users`, {
+    const response = await fetch(`${serverBaseUrl}/users`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -40,11 +37,10 @@ export async function POST(request: Request) {
     }
 
     // Create JWT token
-    const token = await jwt.sign({ id: data.data.id, email: data.data.email }, jwtSecret as string, { expiresIn: "7d" });
 
-    return NextResponse.json({ message: "User registered successfully", user: data.data, token }, { status: 201 });
-  } catch (error: any) {
+    return NextResponse.json({ message: "User registered successfully", user: data.data }, { status: 201 });
+  } catch (error: unknown) {
     console.error("Registration error:", error);
-    return NextResponse.json({ error: "Internal Server Error", details: error.message }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error", details: (error as Error).message }, { status: 500 });
   }
 }

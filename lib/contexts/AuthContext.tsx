@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useRouter } from "next/navigation";
-
+import Cookies from "js-cookie";
 interface User {
   id: string;
   name: string;
@@ -94,9 +94,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         avatar: undefined,
       };
 
-      setUser(data.user);
-      localStorage.setItem("jnucsu_user", JSON.stringify(data.user));
-      //addd token at cookis data.token
+      setUser(mockUser);
+      localStorage.setItem("jnucsu_user", JSON.stringify(mockUser));
+      //addd token at cookis data.tokenData.data.access_token
+      // Cookies.set("jnucsu_user_token", data.token, { expires: 7 });
 
       setIsLoading(false);
       return true;

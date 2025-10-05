@@ -1,10 +1,9 @@
 //email,password coming and password contains hashed password;doing login features
 
 import { NextResponse } from "next/server";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+
 import config from "@/config";
-const { serverBaseUrl, adminToken, jwtSecret } = config;
+const { serverBaseUrl } = config;
 
 export async function POST(request: Request) {
   try {
@@ -13,28 +12,32 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
     // Fetch user from Directus by email
-    const response = await fetch(`${serverBaseUrl}/items/users?filter[email][_eq]=${email}`, {
-      method: "GET",
+    const response = await fetch(`${serverBaseUrl}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (!response.ok) {
+      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
+    }
+
+    const data = await response.json();
+    console.log("Login data:", data);
+    const userResponse = await fetch(`${serverBaseUrl}/users/me?fields=*`, {
       headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${adminToken}`, // Admin token
+        Authorization: `Bearer ${data.data.access_token}`,
       },
     });
-    const data = await response.json();
-    if (!response.ok || data.data.length === 0) {
-      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
-    }
-    const user = data.data[0];
-    // Compare passwords
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    if (!passwordMatch) {
-      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
-    }
+
+    const userData = await userResponse.json();
+    console.log(userData);
+
     // Create JWT token
-    const token = await jwt.sign({ id: user.id, email: user.email }, jwtSecret as string, { expiresIn: "7d" });
-    return NextResponse.json({ message: "Login successful", user, token }, { status: 200 });
-  } catch (error: any) {
+    return NextResponse.json({ message: "Login successful", user: userData, tokenData: data }, { status: 200 });
+  } catch (error: unknown) {
     console.error("Login error:", error);
-    return NextResponse.json({ error: "Internal Server Error", details: error.message }, { status: 500 });
+    const errorMessage = typeof error === "object" && error !== null && "message" in error ? (error as { message: string }).message : String(error);
+    return NextResponse.json({ error: "Internal Server Error", details: errorMessage }, { status: 500 });
   }
 }
