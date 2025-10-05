@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { User, Edit, Eye, CheckCircle, Clock, XCircle, AlertTriangle, Award, Phone, Mail, MapPin, Calendar } from 'lucide-react';
+import { User, Edit, Eye, CheckCircle, Clock, XCircle, AlertTriangle, Award, Phone, Mail, MapPin, Calendar, Facebook, Linkedin, Twitter, Instagram, Globe } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
@@ -32,6 +32,11 @@ interface CandidateProfile {
   views: number;
   rejectionReason?: string;
   moderatorNotes?: string;
+  facebook?: string;
+  linkedin?: string;
+  twitter?: string;
+  instagram?: string;
+  website?: string;
 }
 
 const MyCandidateProfilePage = () => {
@@ -182,19 +187,19 @@ const MyCandidateProfilePage = () => {
   if (!profile) {
     return (
       <ProtectedRoute>
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 flex flex-col">
           <Header />
           
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-            <div className="text-center">
-              <Award className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">No Candidate Profile Found</h1>
-              <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
+          <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-16">
+            <div className="max-w-2xl w-full text-center">
+              <Award className="w-20 h-20 text-gray-400 mx-auto mb-6" />
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">No Candidate Profile Found</h1>
+              <p className="text-lg text-gray-600 mb-10 max-w-xl mx-auto">
                 You haven&apos;t created a candidate profile yet. Submit your profile to participate in the upcoming student union elections.
               </p>
               <Link href="/submit-candidate">
-                <Button className="flex items-center space-x-2">
-                  <Award className="w-4 h-4" />
+                <Button className="flex items-center space-x-2 mx-auto">
+                  <Award className="w-5 h-5" />
                   <span>Create Candidate Profile</span>
                 </Button>
               </Link>
@@ -419,6 +424,7 @@ const MyCandidateProfilePage = () => {
                     variant="outline"
                     onClick={handleToggleParticipation}
                     className={profile.isParticipating ? 'text-red-600 hover:text-red-700' : 'text-green-600 hover:text-green-700'}
+                    disabled={!profile.isParticipating && profile.status !== 'approved'}
                   >
                     {profile.isParticipating ? 'Mark as Not Participating' : 'Resume Participation'}
                   </Button>
@@ -452,6 +458,45 @@ const MyCandidateProfilePage = () => {
                 </div>
               </div>
             </div>
+
+            {/* Social Links */}
+            {(profile.facebook || profile.linkedin || profile.twitter || profile.instagram || profile.website) && (
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">Social Links & Website</h2>
+                <div className="flex flex-wrap gap-3">
+                  {profile.facebook && (
+                    <a href={profile.facebook} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:border-blue-500 hover:text-blue-500 transition-colors">
+                      <Facebook className="w-4 h-4" />
+                      <span>Facebook</span>
+                    </a>
+                  )}
+                  {profile.linkedin && (
+                    <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:border-blue-600 hover:text-blue-600 transition-colors">
+                      <Linkedin className="w-4 h-4" />
+                      <span>LinkedIn</span>
+                    </a>
+                  )}
+                  {profile.twitter && (
+                    <a href={profile.twitter} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:border-sky-500 hover:text-sky-500 transition-colors">
+                      <Twitter className="w-4 h-4" />
+                      <span>Twitter</span>
+                    </a>
+                  )}
+                  {profile.instagram && (
+                    <a href={profile.instagram} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:border-pink-500 hover:text-pink-500 transition-colors">
+                      <Instagram className="w-4 h-4" />
+                      <span>Instagram</span>
+                    </a>
+                  )}
+                  {profile.website && (
+                    <a href={profile.website} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:border-orange-500 hover:text-orange-500 transition-colors">
+                      <Globe className="w-4 h-4" />
+                      <span>Website</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Profile Management */}
             <div className="bg-white rounded-lg border border-gray-200 p-6">
