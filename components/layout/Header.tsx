@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Search, Menu, X, User, LogOut, Settings, Edit, ChevronDown } from "lucide-react";
+import { Search, Menu, X, User, LogOut, Settings, Edit, ChevronDown, Sparkles } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/lib/contexts/AuthContext";
 
@@ -70,6 +70,15 @@ export default function Header() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input type="text" placeholder="Search candidates..." className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none" />
             </div>
+
+            {/* AI Icon */}
+            <Link 
+              href="/ai" 
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors group"
+              title="AI Assistant"
+            >
+              <Sparkles className="w-5 h-5 text-orange-500 group-hover:text-orange-600" />
+            </Link>
             
             {isAuthenticated ? (
               // Profile dropdown for authenticated users
@@ -186,6 +195,10 @@ export default function Header() {
               </Link>
               <Link href="/about" className="text-gray-600 hover:text-gray-900 transition-colors" onClick={() => setIsMenuOpen(false)}>
                 About
+              </Link>
+              <Link href="/ai" className="flex items-center space-x-2 text-orange-500 hover:text-orange-600 transition-colors" onClick={() => setIsMenuOpen(false)}>
+                <Sparkles className="w-5 h-5" />
+                <span>AI Assistant</span>
               </Link>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />

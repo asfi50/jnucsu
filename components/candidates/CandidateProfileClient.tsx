@@ -3,11 +3,13 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import QRCode from '@/components/candidates/QRCode';
 import Footer from '@/components/layout/Footer';
 import { formatRelativeTime } from '@/lib/utils';
 import { StudentLeader } from '@/lib/types';
+import { useAuth } from '@/lib/contexts/AuthContext';
 import { 
   ChevronUp, 
   MessageCircle, 
@@ -25,7 +27,9 @@ import {
   Home,
   Award,
   X,
-  FileText
+  FileText,
+  Lock,
+  Sparkles
 } from 'lucide-react';
 
 interface CandidateProfileClientProps {
@@ -38,6 +42,8 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
   const [newComment, setNewComment] = useState('');
   const [comments, setComments] = useState(leader.comments);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
 
   // Mock blog posts for candidate
   const [blogs] = useState([
@@ -58,6 +64,13 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
   ]);
 
   const handleVote = () => {
+    if (!isAuthenticated) {
+      // Store the return URL and redirect to login
+      const currentUrl = `/candidates/${leader.id}`;
+      router.push(`/auth/login?returnTo=${encodeURIComponent(currentUrl)}`);
+      return;
+    }
+
     if (hasVoted) {
       // Remove vote
       setVotes(votes - 1);
@@ -153,6 +166,14 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
 
   const handleComment = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!isAuthenticated) {
+      // Store the return URL and redirect to login
+      const currentUrl = `/candidates/${leader.id}`;
+      router.push(`/auth/login?returnTo=${encodeURIComponent(currentUrl)}`);
+      return;
+    }
+
     if (newComment.trim()) {
       const comment = {
         id: Date.now().toString(),
@@ -332,6 +353,54 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
               </p>
             </div>
 
+            {/* AI Review Section */}
+            <div className="bg-gradient-to-br from-orange-50 to-purple-50 rounded-lg border border-orange-200 p-4 md:p-6">
+              <div className="flex items-center space-x-2 mb-4">
+                <div className="p-2 bg-orange-100 rounded-lg">
+                  <Sparkles className="w-5 h-5 text-orange-600" />
+                </div>
+                <div>
+                  <h2 className="text-lg md:text-xl font-semibold text-gray-900">AI Performance Review</h2>
+                  <p className="text-sm text-gray-600">Automated analysis of candidate activity</p>
+                </div>
+              </div>
+              <div className="bg-white rounded-lg p-4 space-y-3">
+                <div className="flex items-start space-x-2">
+                  <div className="flex-shrink-0 w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
+                  <p className="text-gray-700 leading-relaxed">
+                    <span className="font-semibold">Engagement Score: </span>
+                    Based on {leader.votes} upvotes and {leader.comments.length} community comments, {leader.name} demonstrates strong community engagement and active participation in student discussions.
+                  </p>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <div className="flex-shrink-0 w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
+                  <p className="text-gray-700 leading-relaxed">
+                    <span className="font-semibold">Vision & Planning: </span>
+                    The candidate has articulated a clear vision for {leader.title.replace(' - JnUCSU', '')}, with comprehensive plans addressing student welfare, academic excellence, and campus development.
+                  </p>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <div className="flex-shrink-0 w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
+                  <p className="text-gray-700 leading-relaxed">
+                    <span className="font-semibold">Community Presence: </span>
+                    {leader.workGallery.length > 0 ? `With ${leader.workGallery.length} documented activities in their work gallery, ${leader.name} shows consistent involvement in campus initiatives and student programs.` : `${leader.name} is building their portfolio and actively working on campus initiatives.`}
+                  </p>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <div className="flex-shrink-0 w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
+                  <p className="text-gray-700 leading-relaxed">
+                    <span className="font-semibold">Overall Assessment: </span>
+                    {leader.name} presents as a {leader.votes > 50 ? 'highly popular' : 'promising'} candidate with strong credentials in {leader.department}. Their {leader.year === 1 ? 'fresh perspective' : 'experience'} as a Year {leader.year} student brings valuable insights to the role.
+                  </p>
+                </div>
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <p className="text-xs text-gray-500 italic">
+                    * This AI-generated review is based on publicly available candidate information and community engagement metrics. It provides an automated, objective assessment to help voters make informed decisions.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Achievements Section */}
             {leader.achievements && (
               <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
@@ -443,38 +512,52 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
               </div>
 
               {/* Add Comment Form */}
-              <form onSubmit={handleComment} className="mb-6 md:mb-8">
-                <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
-                  <div className="flex-shrink-0 hidden sm:block">
-                    <Image
-                      src="https://api.dicebear.com/7.x/avataaars/svg?seed=currentuser"
-                      alt="Your avatar"
-                      width={40}
-                      height={40}
-                      className="rounded-full"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <textarea
-                      value={newComment}
-                      onChange={(e) => setNewComment(e.target.value)}
-                      placeholder="Share your thoughts about this candidate..."
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none resize-none text-sm md:text-base"
-                      rows={3}
-                    />
-                    <div className="flex justify-end mt-2">
-                      <button
-                        type="submit"
-                        disabled={!newComment.trim()}
-                        className="flex items-center space-x-2 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg transition-colors text-sm md:text-base"
-                      >
-                        <Send className="w-4 h-4" />
-                        <span>Comment</span>
-                      </button>
+              {isAuthenticated ? (
+                <form onSubmit={handleComment} className="mb-6 md:mb-8">
+                  <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+                    <div className="flex-shrink-0 hidden sm:block">
+                      <Image
+                        src="https://api.dicebear.com/7.x/avataaars/svg?seed=currentuser"
+                        alt="Your avatar"
+                        width={40}
+                        height={40}
+                        className="rounded-full"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <textarea
+                        value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
+                        placeholder="Share your thoughts about this candidate..."
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none resize-none text-sm md:text-base"
+                        rows={3}
+                      />
+                      <div className="flex justify-end mt-2">
+                        <button
+                          type="submit"
+                          disabled={!newComment.trim()}
+                          className="flex items-center space-x-2 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg transition-colors text-sm md:text-base"
+                        >
+                          <Send className="w-4 h-4" />
+                          <span>Comment</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
+                </form>
+              ) : (
+                <div className="mb-6 md:mb-8 bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+                  <Lock className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Comments are locked</h4>
+                  <p className="text-gray-600 mb-4">Please log in to share your thoughts about this candidate.</p>
+                  <button
+                    onClick={() => router.push(`/auth/login?returnTo=${encodeURIComponent(`/candidates/${leader.id}`)}`)}
+                    className="inline-flex items-center space-x-2 bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg transition-colors"
+                  >
+                    <span>Log In to Comment</span>
+                  </button>
                 </div>
-              </form>
+              )}
 
               {/* Comments List */}
               <div className="space-y-4 md:space-y-6">

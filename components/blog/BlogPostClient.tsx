@@ -3,10 +3,12 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { formatRelativeTime } from '@/lib/utils';
 import { BlogPost } from '@/lib/types';
+import { useAuth } from '@/lib/contexts/AuthContext';
 import { 
   ArrowLeft,
   Heart,
@@ -15,7 +17,8 @@ import {
   Clock,
   Calendar,
   Tag,
-  Send
+  Send,
+  Lock
 } from 'lucide-react';
 
 interface BlogPostClientProps {
@@ -38,8 +41,17 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
     createdAt: string;
     replies: unknown[];
   }>>([]);
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
 
   const handleLike = () => {
+    if (!isAuthenticated) {
+      // Store the return URL and redirect to login
+      const currentUrl = `/blog/${post.id}`;
+      router.push(`/auth/login?returnTo=${encodeURIComponent(currentUrl)}`);
+      return;
+    }
+
     if (!hasLiked) {
       setLikes(likes + 1);
       setHasLiked(true);
@@ -51,6 +63,14 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
 
   const handleComment = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!isAuthenticated) {
+      // Store the return URL and redirect to login
+      const currentUrl = `/blog/${post.id}`;
+      router.push(`/auth/login?returnTo=${encodeURIComponent(currentUrl)}`);
+      return;
+    }
+
     if (newComment.trim()) {
       const comment = {
         id: Date.now().toString(),
@@ -239,38 +259,52 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
           </div>
 
           {/* Add Comment Form */}
-          <form onSubmit={handleComment} className="mb-8">
-            <div className="flex space-x-4">
-              <div className="flex-shrink-0">
-                <Image
-                  src="https://api.dicebear.com/7.x/avataaars/svg?seed=currentuser"
-                  alt="Your avatar"
-                  width={40}
-                  height={40}
-                  className="rounded-full"
-                />
-              </div>
-              <div className="flex-1">
-                <textarea
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="Share your thoughts on this article..."
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none resize-none"
-                  rows={4}
-                />
-                <div className="flex justify-end mt-3">
-                  <button
-                    type="submit"
-                    disabled={!newComment.trim()}
-                    className="flex items-center space-x-2 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 text-white px-4 py-2 rounded-lg transition-colors"
-                  >
-                    <Send className="w-4 h-4" />
-                    <span>Post Comment</span>
-                  </button>
+          {isAuthenticated ? (
+            <form onSubmit={handleComment} className="mb-8">
+              <div className="flex space-x-4">
+                <div className="flex-shrink-0">
+                  <Image
+                    src="https://api.dicebear.com/7.x/avataaars/svg?seed=currentuser"
+                    alt="Your avatar"
+                    width={40}
+                    height={40}
+                    className="rounded-full"
+                  />
+                </div>
+                <div className="flex-1">
+                  <textarea
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    placeholder="Share your thoughts on this article..."
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none resize-none"
+                    rows={4}
+                  />
+                  <div className="flex justify-end mt-3">
+                    <button
+                      type="submit"
+                      disabled={!newComment.trim()}
+                      className="flex items-center space-x-2 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 text-white px-4 py-2 rounded-lg transition-colors"
+                    >
+                      <Send className="w-4 h-4" />
+                      <span>Post Comment</span>
+                    </button>
+                  </div>
                 </div>
               </div>
+            </form>
+          ) : (
+            <div className="mb-8 bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+              <Lock className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+              <h4 className="text-lg font-semibold text-gray-900 mb-2">Comments are locked</h4>
+              <p className="text-gray-600 mb-4">Please log in to share your thoughts on this article.</p>
+              <button
+                onClick={() => router.push(`/auth/login?returnTo=${encodeURIComponent(`/blog/${post.id}`)}`)}
+                className="inline-flex items-center space-x-2 bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg transition-colors"
+              >
+                <span>Log In to Comment</span>
+              </button>
             </div>
-          </form>
+          )}
 
           {/* Comments List */}
           <div className="space-y-6">
