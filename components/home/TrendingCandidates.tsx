@@ -36,7 +36,12 @@ function TrendingCard({ candidate }: TrendingCardProps) {
   const [hasVoted, setHasVoted] = useState(false);
 
   const handleVote = () => {
-    if (!hasVoted) {
+    if (hasVoted) {
+      // Remove vote
+      setVotes(votes - 1);
+      setHasVoted(false);
+    } else {
+      // Add vote
       setVotes(votes + 1);
       setHasVoted(true);
     }
@@ -86,6 +91,7 @@ function TrendingCard({ candidate }: TrendingCardProps) {
                   ? 'text-orange-600 bg-orange-50' 
                   : 'text-gray-600 hover:text-orange-600 hover:bg-orange-50'
               } px-3 py-2 rounded-lg`}
+              title={hasVoted ? 'Click to remove vote' : 'Click to upvote'}
             >
               <ChevronUp className="w-4 h-4" />
               <span className="font-medium">{votes}</span>
