@@ -130,17 +130,19 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
           {/* Author and Meta Info */}
           <div className="flex items-center justify-between py-4 border-y border-gray-200">
             <div className="flex items-center space-x-4">
-              <Image
-                src={post.author.avatar}
-                alt={post.author.name}
-                width={48}
-                height={48}
-                className="rounded-full"
-              />
+              <Link href={`/users/${post.author.id}`}>
+                <Image
+                  src={post.author.avatar}
+                  alt={post.author.name}
+                  width={48}
+                  height={48}
+                  className="rounded-full cursor-pointer hover:ring-2 hover:ring-orange-500 transition-all"
+                />
+              </Link>
               <div>
-                <div className="font-semibold text-gray-900">
+                <Link href={`/users/${post.author.id}`} className="font-semibold text-gray-900 hover:text-orange-600 transition-colors">
                   {post.author.name}
-                </div>
+                </Link>
                 <div className="flex items-center space-x-4 text-sm text-gray-500 mt-1">
                   <div className="flex items-center space-x-1">
                     <Calendar className="w-4 h-4" />
@@ -275,18 +277,20 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
             {comments.map((comment) => (
               <div key={comment.id} className="bg-white rounded-lg p-4 border border-gray-200">
                 <div className="flex space-x-3">
-                  <Image
-                    src={comment.author.avatar}
-                    alt={comment.author.name}
-                    width={40}
-                    height={40}
-                    className="rounded-full"
-                  />
+                  <Link href={`/users/${comment.author.id}`}>
+                    <Image
+                      src={comment.author.avatar}
+                      alt={comment.author.name}
+                      width={40}
+                      height={40}
+                      className="rounded-full cursor-pointer hover:ring-2 hover:ring-orange-500 transition-all"
+                    />
+                  </Link>
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-2">
-                      <span className="font-medium text-gray-900">
+                      <Link href={`/users/${comment.author.id}`} className="font-medium text-gray-900 hover:text-orange-600 transition-colors">
                         {comment.author.name}
-                      </span>
+                      </Link>
                       <span className="text-sm text-gray-500">
                         {formatRelativeTime(comment.createdAt)}
                       </span>
