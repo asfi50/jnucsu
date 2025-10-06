@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
-
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 interface User {
   id: string;
   name: string;
@@ -26,7 +26,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
@@ -43,13 +43,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // Check for existing session on mount
   useEffect(() => {
     const checkAuth = () => {
-      const storedUser = localStorage.getItem('jnucsu_user');
+      const storedUser = localStorage.getItem("jnucsu_user");
       if (storedUser) {
         try {
           setUser(JSON.parse(storedUser));
         } catch (error) {
-          console.error('Failed to parse stored user:', error);
-          localStorage.removeItem('jnucsu_user');
+          console.error("Failed to parse stored user:", error);
+          localStorage.removeItem("jnucsu_user");
         }
       }
       setIsLoading(false);
@@ -60,30 +60,49 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
-    
+
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const response = await fetch(`/api/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Login failed");
+      }
+
+      const data = await response.json();
+      console.log("Login response data:", data);
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
       // Mock user data - in real app, this would come from API
       // Using email and password for validation would happen here
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const _validationCheck = password; // Password would be used for authentication
       const mockUser: User = {
-        id: '1',
-        name: 'John Doe',
+        id: "1",
+        name: "John Doe",
         email: email,
-        role: 'Leader',
-        avatar: undefined
+        role: "Leader",
+        avatar: undefined,
       };
-      
+
       setUser(mockUser);
-      localStorage.setItem('jnucsu_user', JSON.stringify(mockUser));
-      
+      localStorage.setItem("jnucsu_user", JSON.stringify(mockUser));
+      //addd token at cookis data.tokenData.data.access_token
+      // Cookies.set("jnucsu_user_token", data.token, { expires: 7 });
+
       setIsLoading(false);
       return true;
     } catch (error) {
-      console.error('Login error:', error);
+      console.error("Login error:", error);
       setIsLoading(false);
       return false;
     }
@@ -91,26 +110,26 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const loginWithGoogle = async (): Promise<boolean> => {
     setIsLoading(true);
-    
+
     try {
       // Simulate Google OAuth
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       const mockUser: User = {
-        id: '1',
-        name: 'John Doe',
-        email: 'john.doe@student.jnu.edu',
-        role: 'Leader',
-        avatar: undefined
+        id: "1",
+        name: "John Doe",
+        email: "john.doe@student.jnu.edu",
+        role: "Leader",
+        avatar: undefined,
       };
-      
+
       setUser(mockUser);
-      localStorage.setItem('jnucsu_user', JSON.stringify(mockUser));
-      
+      localStorage.setItem("jnucsu_user", JSON.stringify(mockUser));
+
       setIsLoading(false);
       return true;
     } catch (error) {
-      console.error('Google login error:', error);
+      console.error("Google login error:", error);
       setIsLoading(false);
       return false;
     }
@@ -118,19 +137,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('jnucsu_user');
-    router.push('/auth/login');
+    localStorage.removeItem("jnucsu_user");
+    router.push("/auth/login");
   };
 
   const resetPassword = async (email: string): Promise<boolean> => {
     try {
       // Simulate password reset API call
       // In real implementation, email would be used to send reset link
-      console.log('Password reset requested for:', email);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log("Password reset requested for:", email);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       return true;
     } catch (error) {
-      console.error('Password reset error:', error);
+      console.error("Password reset error:", error);
       return false;
     }
   };
@@ -145,9 +164,5 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     resetPassword,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

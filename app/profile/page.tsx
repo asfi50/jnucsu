@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -14,7 +14,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const { isLoading, isAuthenticated } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
-  const [profileImage, setProfileImage] = useState('/api/placeholder/150/150');
+  const [profileImage, setProfileImage] = useState("/api/placeholder/150/150");
   const [formData, setFormData] = useState({
     name: 'John Doe',
     email: 'john.doe@student.jnu.edu',
@@ -34,23 +34,23 @@ export default function ProfilePage() {
   });
 
   const [gallery, setGallery] = useState([
-    { id: 1, url: '/api/placeholder/300/200', title: 'Student Union Meeting', description: 'Leading weekly student council discussions' },
-    { id: 2, url: '/api/placeholder/300/200', title: 'Campus Event Organization', description: 'Organizing annual cultural festival' },
-    { id: 3, url: '/api/placeholder/300/200', title: 'Community Service', description: 'Blood donation drive coordination' },
-    { id: 4, url: '/api/placeholder/300/200', title: 'Academic Workshop', description: 'Hosting skill development sessions' }
+    { id: 1, url: "/api/placeholder/300/200", title: "Student Union Meeting", description: "Leading weekly student council discussions" },
+    { id: 2, url: "/api/placeholder/300/200", title: "Campus Event Organization", description: "Organizing annual cultural festival" },
+    { id: 3, url: "/api/placeholder/300/200", title: "Community Service", description: "Blood donation drive coordination" },
+    { id: 4, url: "/api/placeholder/300/200", title: "Academic Workshop", description: "Hosting skill development sessions" },
   ]);
 
   const [newGalleryItem, setNewGalleryItem] = useState({
-    title: '',
-    description: '',
-    url: ''
+    title: "",
+    description: "",
+    url: "",
   });
 
   const [showAddGallery, setShowAddGallery] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.push('/auth/login');
+      router.push("/auth/login");
     }
   }, [isLoading, isAuthenticated, router]);
 
@@ -71,9 +71,9 @@ export default function ProfilePage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -89,7 +89,7 @@ export default function ProfilePage() {
   };
 
   const handleSave = () => {
-    console.log('Saving profile data:', formData);
+    console.log("Saving profile data:", formData);
     setIsEditing(false);
   };
 
@@ -97,32 +97,25 @@ export default function ProfilePage() {
     if (newGalleryItem.title && newGalleryItem.description) {
       const newItem = {
         id: gallery.length + 1,
-        url: newGalleryItem.url || '/api/placeholder/300/200',
+        url: newGalleryItem.url || "/api/placeholder/300/200",
         title: newGalleryItem.title,
-        description: newGalleryItem.description
+        description: newGalleryItem.description,
       };
       setGallery([...gallery, newItem]);
-      setNewGalleryItem({ title: '', description: '', url: '' });
+      setNewGalleryItem({ title: "", description: "", url: "" });
       setShowAddGallery(false);
     }
   };
 
   const handleRemoveGalleryItem = (id: number) => {
-    setGallery(gallery.filter(item => item.id !== id));
+    setGallery(gallery.filter((item) => item.id !== id));
   };
 
-  const roleOptions = [
-    'President', 'Vice President (VP)', 'General Secretary (GS)', 'Assistant General Secretary (AGS)',
-    'Treasurer', 'Sports Secretary', 'Cultural Secretary', 'Social Welfare Secretary'
-  ];
+  const roleOptions = ["President", "Vice President (VP)", "General Secretary (GS)", "Assistant General Secretary (AGS)", "Treasurer", "Sports Secretary", "Cultural Secretary", "Social Welfare Secretary"];
 
-  const departmentOptions = [
-    'Computer Science & Engineering', 'Electrical & Electronic Engineering', 'Business Administration',
-    'Economics', 'English', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'History',
-    'Political Science', 'Philosophy'
-  ];
+  const departmentOptions = ["Computer Science & Engineering", "Electrical & Electronic Engineering", "Business Administration", "Economics", "English", "Mathematics", "Physics", "Chemistry", "Biology", "History", "Political Science", "Philosophy"];
 
-  const yearOptions = ['1st Year', '2nd Year', '3rd Year', '4th Year', 'Masters'];
+  const yearOptions = ["1st Year", "2nd Year", "3rd Year", "4th Year", "Masters"];
 
   return (
     <>
@@ -182,51 +175,69 @@ export default function ProfilePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <User className="w-4 h-4 inline mr-2" />Full Name
+                    <User className="w-4 h-4 inline mr-2" />
+                    Full Name
                   </label>
                   <input type="text" name="name" value={formData.name} onChange={handleInputChange} disabled={!isEditing} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <Mail className="w-4 h-4 inline mr-2" />Email Address
+                    <Mail className="w-4 h-4 inline mr-2" />
+                    Email Address
                   </label>
                   <input type="email" name="email" value={formData.email} onChange={handleInputChange} disabled={!isEditing} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <Phone className="w-4 h-4 inline mr-2" />Phone Number
+                    <Phone className="w-4 h-4 inline mr-2" />
+                    Phone Number
                   </label>
                   <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} disabled={!isEditing} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <BookOpen className="w-4 h-4 inline mr-2" />Student ID
+                    <BookOpen className="w-4 h-4 inline mr-2" />
+                    Student ID
                   </label>
                   <input type="text" name="studentId" value={formData.studentId} onChange={handleInputChange} disabled={!isEditing} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Department</label>
                   <select name="department" value={formData.department} onChange={handleInputChange} disabled={!isEditing} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500">
-                    {departmentOptions.map(dept => (<option key={dept} value={dept}>{dept}</option>))}
+                    {departmentOptions.map((dept) => (
+                      <option key={dept} value={dept}>
+                        {dept}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <Calendar className="w-4 h-4 inline mr-2" />Academic Year
+                    <Calendar className="w-4 h-4 inline mr-2" />
+                    Academic Year
                   </label>
                   <select name="year" value={formData.year} onChange={handleInputChange} disabled={!isEditing} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500">
-                    {yearOptions.map(year => (<option key={year} value={year}>{year}</option>))}
+                    {yearOptions.map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Leadership Role</label>
                   <select name="role" value={formData.role} onChange={handleInputChange} disabled={!isEditing} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500">
-                    {roleOptions.map(role => (<option key={role} value={role}>{role}</option>))}
+                    {roleOptions.map((role) => (
+                      <option key={role} value={role}>
+                        {role}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <MapPin className="w-4 h-4 inline mr-2" />Address
+                    <MapPin className="w-4 h-4 inline mr-2" />
+                    Address
                   </label>
                   <input type="text" name="address" value={formData.address} onChange={handleInputChange} disabled={!isEditing} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500" />
                 </div>
@@ -240,7 +251,8 @@ export default function ProfilePage() {
 
             <div className="bg-white rounded-lg border border-gray-200 p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                <Target className="w-5 h-5 inline mr-2" />Future Plans After Elections
+                <Target className="w-5 h-5 inline mr-2" />
+                Future Plans After Elections
               </h2>
               <textarea name="futurePlans" value={formData.futurePlans} onChange={handleInputChange} disabled={!isEditing} rows={4} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500" placeholder="Share your vision and plans for after the elections. What do you hope to achieve? How will you contribute to the university community?" />
             </div>
@@ -296,11 +308,15 @@ export default function ProfilePage() {
                 <div className="mb-6 p-4 border border-orange-200 bg-orange-50 rounded-lg">
                   <h3 className="font-medium text-gray-900 mb-3">Add New Gallery Item</h3>
                   <div className="space-y-3">
-                    <input type="text" placeholder="Title" value={newGalleryItem.title} onChange={(e) => setNewGalleryItem({...newGalleryItem, title: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent" />
-                    <textarea placeholder="Description" value={newGalleryItem.description} onChange={(e) => setNewGalleryItem({...newGalleryItem, description: e.target.value})} rows={2} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent" />
+                    <input type="text" placeholder="Title" value={newGalleryItem.title} onChange={(e) => setNewGalleryItem({ ...newGalleryItem, title: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent" />
+                    <textarea placeholder="Description" value={newGalleryItem.description} onChange={(e) => setNewGalleryItem({ ...newGalleryItem, description: e.target.value })} rows={2} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent" />
                     <div className="flex space-x-2">
-                      <button onClick={handleAddGalleryItem} className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">Add Item</button>
-                      <button onClick={() => setShowAddGallery(false)} className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>
+                      <button onClick={handleAddGalleryItem} className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
+                        Add Item
+                      </button>
+                      <button onClick={() => setShowAddGallery(false)} className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                        Cancel
+                      </button>
                     </div>
                   </div>
                 </div>
