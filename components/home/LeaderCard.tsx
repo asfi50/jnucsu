@@ -2,9 +2,11 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ChevronUp, MessageCircle } from 'lucide-react';
 import { StudentLeader } from '@/lib/types';
 import { useState } from 'react';
+import { useAuth } from '@/lib/contexts/AuthContext';
 
 interface LeaderCardProps {
   leader: StudentLeader;
@@ -13,8 +15,17 @@ interface LeaderCardProps {
 export default function LeaderCard({ leader }: LeaderCardProps) {
   const [votes, setVotes] = useState(leader.votes);
   const [hasVoted, setHasVoted] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
 
   const handleVote = () => {
+    if (!isAuthenticated) {
+      // Store the return URL and redirect to login
+      const currentUrl = `/candidates/${leader.id}`;
+      router.push(`/auth/login?returnTo=${encodeURIComponent(currentUrl)}`);
+      return;
+    }
+
     if (hasVoted) {
       // Remove vote
       setVotes(votes - 1);
