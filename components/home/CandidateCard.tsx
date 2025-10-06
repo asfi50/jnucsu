@@ -8,11 +8,11 @@ import { StudentLeader } from '@/lib/types';
 import { useState } from 'react';
 import { useAuth } from '@/lib/contexts/AuthContext';
 
-interface LeaderCardProps {
+interface CandidateCardProps {
   leader: StudentLeader;
 }
 
-export default function LeaderCard({ leader }: LeaderCardProps) {
+export default function CandidateCard({ leader }: CandidateCardProps) {
   const [votes, setVotes] = useState(leader.votes);
   const [hasVoted, setHasVoted] = useState(false);
   const { isAuthenticated } = useAuth();

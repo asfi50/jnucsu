@@ -1,6 +1,6 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import LeaderCard from "@/components/home/LeaderCard";
+import CandidateCard from "@/components/home/CandidateCard";
 import CallToActionBanner from "@/components/ui/CallToActionBanner";
 import { dummyLeaders } from "@/lib/data";
 import { generateMetadata, generateStructuredData, KEYWORDS, combineKeywords } from "@/lib/seo";
@@ -84,7 +84,7 @@ export default function CandidatesPage() {
           {/* Candidates Grid */}
           <div className="space-y-4">
             {dummyLeaders.map((leader) => (
-              <LeaderCard key={leader.id} leader={leader} />
+              <CandidateCard key={leader.id} leader={leader} />
             ))}
           </div>
 

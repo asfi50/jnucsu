@@ -6,6 +6,8 @@ import { Heart, Clock } from 'lucide-react';
 import { BlogPost } from '@/lib/types';
 import { formatRelativeTime } from '@/lib/utils';
 import { useState } from 'react';
+import { useAuth } from '@/lib/contexts/AuthContext';
+import LoginModal from '@/components/ui/LoginModal';
 
 interface BlogCardProps {
   post: BlogPost;
@@ -15,8 +17,16 @@ interface BlogCardProps {
 export default function BlogCard({ post, featured = false }: BlogCardProps) {
   const [likes, setLikes] = useState(post.likes);
   const [hasLiked, setHasLiked] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   const handleLike = () => {
+    if (!isAuthenticated) {
+      // Show login modal
+      setShowLoginModal(true);
+      return;
+    }
+    
     if (!hasLiked) {
       setLikes(likes + 1);
       setHasLiked(true);
@@ -91,6 +101,14 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
             </div>
           </div>
         </div>
+        
+        {/* Login Modal */}
+        <LoginModal 
+          isOpen={showLoginModal}
+          onClose={() => setShowLoginModal(false)}
+          returnUrl={`/blog/${post.id}`}
+          message="Please log in to like or comment on this blog post."
+        />
       </article>
     );
   }
@@ -156,6 +174,14 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
           </div>
         </div>
       </div>
+      
+      {/* Login Modal */}
+      <LoginModal 
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        returnUrl={`/blog/${post.id}`}
+        message="Please log in to like or comment on this blog post."
+      />
     </article>
   );
 }
