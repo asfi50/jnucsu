@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
-import { useAuth } from "@/lib/contexts/AuthContext";
-import { Camera, User, Mail, Phone, MapPin, Calendar, BookOpen, Target, X, Plus, Save, Edit3 } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
+import { useAuth } from '@/lib/contexts/AuthContext';
+import { 
+  Camera, User, Mail, Phone, MapPin, Calendar, BookOpen, Target, X, Plus, Save, Edit3, Facebook, Linkedin, Twitter, Instagram, Globe
+} from 'lucide-react';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -14,16 +16,21 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [profileImage, setProfileImage] = useState("/api/placeholder/150/150");
   const [formData, setFormData] = useState({
-    name: "John Doe",
-    email: "john.doe@student.jnu.edu",
-    phone: "+880 123 456 789",
-    studentId: "JNU2021001",
-    department: "Computer Science & Engineering",
-    year: "4th Year",
-    role: "Vice President (VP)",
-    about: "Passionate student leader committed to creating positive change in our university community. With experience in organizing events, advocating for student rights, and fostering academic excellence.",
-    futurePlans: "After graduation, I plan to pursue a career in technology while continuing to contribute to educational development initiatives. I aim to establish scholarship programs for underprivileged students.",
-    address: "Dhaka, Bangladesh",
+    name: 'John Doe',
+    email: 'john.doe@student.jnu.edu',
+    phone: '+880 123 456 789',
+    studentId: 'JNU2021001',
+    department: 'Computer Science & Engineering',
+    year: '4th Year',
+    role: 'Vice President (VP)',
+    about: 'Passionate student leader committed to creating positive change in our university community. With experience in organizing events, advocating for student rights, and fostering academic excellence.',
+    futurePlans: 'After graduation, I plan to pursue a career in technology while continuing to contribute to educational development initiatives. I aim to establish scholarship programs for underprivileged students.',
+    address: 'Dhaka, Bangladesh',
+    facebook: '',
+    linkedin: '',
+    twitter: '',
+    instagram: '',
+    website: ''
   });
 
   const [gallery, setGallery] = useState([
@@ -248,6 +255,42 @@ export default function ProfilePage() {
                 Future Plans After Elections
               </h2>
               <textarea name="futurePlans" value={formData.futurePlans} onChange={handleInputChange} disabled={!isEditing} rows={4} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500" placeholder="Share your vision and plans for after the elections. What do you hope to achieve? How will you contribute to the university community?" />
+            </div>
+
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Social Links</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <Facebook className="w-4 h-4 inline mr-2" />Facebook Profile
+                  </label>
+                  <input type="url" name="facebook" value={formData.facebook} onChange={handleInputChange} disabled={!isEditing} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500" placeholder="https://facebook.com/yourprofile" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <Linkedin className="w-4 h-4 inline mr-2" />LinkedIn Profile
+                  </label>
+                  <input type="url" name="linkedin" value={formData.linkedin} onChange={handleInputChange} disabled={!isEditing} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500" placeholder="https://linkedin.com/in/yourprofile" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <Twitter className="w-4 h-4 inline mr-2" />Twitter Profile
+                  </label>
+                  <input type="url" name="twitter" value={formData.twitter} onChange={handleInputChange} disabled={!isEditing} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500" placeholder="https://twitter.com/yourprofile" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <Instagram className="w-4 h-4 inline mr-2" />Instagram Profile
+                  </label>
+                  <input type="url" name="instagram" value={formData.instagram} onChange={handleInputChange} disabled={!isEditing} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500" placeholder="https://instagram.com/yourprofile" />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <Globe className="w-4 h-4 inline mr-2" />Personal Website
+                  </label>
+                  <input type="url" name="website" value={formData.website} onChange={handleInputChange} disabled={!isEditing} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500" placeholder="https://yourwebsite.com" />
+                </div>
+              </div>
             </div>
 
             <div className="bg-white rounded-lg border border-gray-200 p-6">

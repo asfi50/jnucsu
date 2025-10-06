@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import QRCode from '@/components/candidates/QRCode';
 import Footer from '@/components/layout/Footer';
@@ -23,7 +24,8 @@ import {
   Mail,
   Home,
   Award,
-  X
+  X,
+  FileText
 } from 'lucide-react';
 
 interface CandidateProfileClientProps {
@@ -36,6 +38,24 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
   const [newComment, setNewComment] = useState('');
   const [comments, setComments] = useState(leader.comments);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  // Mock blog posts for candidate
+  const [blogs] = useState([
+    {
+      id: '1',
+      title: 'My Vision for Student Welfare',
+      excerpt: 'As a candidate, I want to share my plans for improving student welfare on campus.',
+      publishedAt: '2024-01-20T10:00:00Z',
+      tags: ['Leadership', 'Welfare']
+    },
+    {
+      id: '2',
+      title: 'Building a Better Campus Community',
+      excerpt: 'My thoughts on creating an inclusive environment for all students.',
+      publishedAt: '2024-01-15T10:00:00Z',
+      tags: ['Community', 'Inclusion']
+    }
+  ]);
 
   const handleVote = () => {
     if (hasVoted) {
@@ -379,6 +399,40 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
               </div>
             )}
 
+            {/* Blog Posts Section */}
+            <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
+              <div className="flex items-center space-x-2 mb-4 md:mb-6">
+                <FileText className="w-5 h-5 text-orange-600" />
+                <h2 className="text-lg md:text-xl font-semibold text-gray-900">
+                  Blog Posts ({blogs.length})
+                </h2>
+              </div>
+              {blogs.length > 0 ? (
+                <div className="space-y-4">
+                  {blogs.map((blog) => (
+                    <Link key={blog.id} href={`/blog/${blog.id}`}>
+                      <div className="border-b border-gray-100 pb-4 last:border-b-0 hover:bg-gray-50 transition-colors p-3 rounded-lg">
+                        <h3 className="font-semibold text-gray-900 mb-1 text-sm md:text-base">{blog.title}</h3>
+                        <p className="text-xs md:text-sm text-gray-600 mb-2">{blog.excerpt}</p>
+                        <div className="flex items-center space-x-4 text-xs text-gray-500">
+                          <span>{new Date(blog.publishedAt).toLocaleDateString()}</span>
+                          <div className="flex gap-2">
+                            {blog.tags.map(tag => (
+                              <span key={tag} className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full">
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-500 text-center py-8 text-sm md:text-base">No blog posts yet.</p>
+              )}
+            </div>
+
             {/* Comments Section */}
             <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
               <div className="flex items-center space-x-2 mb-4 md:mb-6">
@@ -428,19 +482,21 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
                   <div key={comment.id} className="border-b border-gray-100 pb-4 md:pb-6 last:border-b-0">
                     <div className="flex space-x-3 md:space-x-4">
                       <div className="flex-shrink-0">
-                        <Image
-                          src={comment.author.avatar}
-                          alt={comment.author.name}
-                          width={40}
-                          height={40}
-                          className="rounded-full"
-                        />
+                        <Link href={`/users/${comment.author.id}`}>
+                          <Image
+                            src={comment.author.avatar}
+                            alt={comment.author.name}
+                            width={40}
+                            height={40}
+                            className="rounded-full cursor-pointer hover:ring-2 hover:ring-orange-500 transition-all"
+                          />
+                        </Link>
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 mb-1">
-                          <span className="font-medium text-gray-900 text-sm md:text-base">
+                          <Link href={`/users/${comment.author.id}`} className="font-medium text-gray-900 text-sm md:text-base hover:text-orange-600 transition-colors">
                             {comment.author.name}
-                          </span>
+                          </Link>
                           <span className="text-xs md:text-sm text-gray-500">
                             {formatRelativeTime(comment.createdAt)}
                           </span>
@@ -455,19 +511,21 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
                             {comment.replies.map((reply) => (
                               <div key={reply.id} className="flex space-x-2 md:space-x-3">
                                 <div className="flex-shrink-0">
-                                  <Image
-                                    src={reply.author.avatar}
-                                    alt={reply.author.name}
-                                    width={32}
-                                    height={32}
-                                    className="rounded-full"
-                                  />
+                                  <Link href={`/users/${reply.author.id}`}>
+                                    <Image
+                                      src={reply.author.avatar}
+                                      alt={reply.author.name}
+                                      width={32}
+                                      height={32}
+                                      className="rounded-full cursor-pointer hover:ring-2 hover:ring-orange-500 transition-all"
+                                    />
+                                  </Link>
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 mb-1">
-                                    <span className="font-medium text-gray-900 text-xs md:text-sm">
+                                    <Link href={`/users/${reply.author.id}`} className="font-medium text-gray-900 text-xs md:text-sm hover:text-orange-600 transition-colors">
                                       {reply.author.name}
-                                    </span>
+                                    </Link>
                                     <span className="text-xs text-gray-500">
                                       {formatRelativeTime(reply.createdAt)}
                                     </span>

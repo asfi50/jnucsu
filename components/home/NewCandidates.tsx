@@ -2,7 +2,8 @@
 
 import { StudentLeader } from '@/lib/types';
 import CompactCandidateCard from './CompactCandidateCard';
-import { Users } from 'lucide-react';
+import { Users, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
 interface NewCandidatesProps {
   candidates: StudentLeader[];
@@ -25,6 +26,14 @@ export default function NewCandidates({ candidates }: NewCandidatesProps) {
         {candidates.map((candidate) => (
           <CompactCandidateCard key={candidate.id} candidate={candidate} />
         ))}
+      </div>
+
+      {/* View all candidates button */}
+      <div className="mt-6 text-center">
+        <Link href="/candidates" className="inline-flex items-center space-x-2 text-orange-600 hover:text-orange-700 font-medium transition-colors group">
+          <span>View all candidates</span>
+          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+        </Link>
       </div>
     </section>
   );
