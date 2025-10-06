@@ -418,16 +418,36 @@ const MyCandidateProfilePage = () => {
                     <p className={`font-medium ${profile.isParticipating ? 'text-green-600' : 'text-red-600'}`}>
                       {profile.isParticipating ? 'Actively Participating' : 'Not Participating'}
                     </p>
+                    {!profile.isParticipating && (
+                      <p className="text-sm text-red-600 mt-1">
+                        ⚠️ Your candidate profile is hidden from public view
+                      </p>
+                    )}
                   </div>
                   
-                  <Button
-                    variant="outline"
-                    onClick={handleToggleParticipation}
-                    className={profile.isParticipating ? 'text-red-600 hover:text-red-700' : 'text-green-600 hover:text-green-700'}
-                    disabled={!profile.isParticipating && profile.status !== 'approved'}
-                  >
-                    {profile.isParticipating ? 'Mark as Not Participating' : 'Resume Participation'}
-                  </Button>
+                  {profile.isParticipating ? (
+                    <div className="text-right">
+                      <Button
+                        variant="outline"
+                        onClick={handleToggleParticipation}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        Mark as Not Participating
+                      </Button>
+                      <p className="text-xs text-gray-500 mt-1 max-w-xs">
+                        Disabling will hide your profile from public
+                      </p>
+                    </div>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      onClick={handleToggleParticipation}
+                      className="text-green-600 hover:text-green-700"
+                      disabled={profile.status !== 'approved'}
+                    >
+                      Resume Participation
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>

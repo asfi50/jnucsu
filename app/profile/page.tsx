@@ -7,7 +7,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { 
-  Camera, User, Mail, Phone, MapPin, Calendar, BookOpen, Target, X, Plus, Save, Edit3, Facebook, Linkedin, Twitter, Instagram, Globe
+  Camera, User, Mail, Phone, MapPin, Calendar, BookOpen, X, Plus, Save, Edit3, Facebook, Linkedin, Twitter, Instagram, Globe
 } from 'lucide-react';
 
 export default function ProfilePage() {
@@ -22,9 +22,7 @@ export default function ProfilePage() {
     studentId: 'JNU2021001',
     department: 'Computer Science & Engineering',
     year: '4th Year',
-    role: 'Vice President (VP)',
     about: 'Passionate student leader committed to creating positive change in our university community. With experience in organizing events, advocating for student rights, and fostering academic excellence.',
-    futurePlans: 'After graduation, I plan to pursue a career in technology while continuing to contribute to educational development initiatives. I aim to establish scholarship programs for underprivileged students.',
     address: 'Dhaka, Bangladesh',
     facebook: '',
     linkedin: '',
@@ -111,8 +109,6 @@ export default function ProfilePage() {
     setGallery(gallery.filter((item) => item.id !== id));
   };
 
-  const roleOptions = ["President", "Vice President (VP)", "General Secretary (GS)", "Assistant General Secretary (AGS)", "Treasurer", "Sports Secretary", "Cultural Secretary", "Social Welfare Secretary"];
-
   const departmentOptions = ["Computer Science & Engineering", "Electrical & Electronic Engineering", "Business Administration", "Economics", "English", "Mathematics", "Physics", "Chemistry", "Biology", "History", "Political Science", "Philosophy"];
 
   const yearOptions = ["1st Year", "2nd Year", "3rd Year", "4th Year", "Masters"];
@@ -164,7 +160,6 @@ export default function ProfilePage() {
                 </div>
                 <div>
                   <h3 className="font-medium text-gray-900">{formData.name}</h3>
-                  <p className="text-sm text-gray-600">{formData.role}</p>
                   <p className="text-sm text-gray-500">{formData.department}</p>
                 </div>
               </div>
@@ -225,16 +220,6 @@ export default function ProfilePage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Leadership Role</label>
-                  <select name="role" value={formData.role} onChange={handleInputChange} disabled={!isEditing} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500">
-                    {roleOptions.map((role) => (
-                      <option key={role} value={role}>
-                        {role}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <MapPin className="w-4 h-4 inline mr-2" />
                     Address
@@ -246,15 +231,7 @@ export default function ProfilePage() {
 
             <div className="bg-white rounded-lg border border-gray-200 p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">About Me</h2>
-              <textarea name="about" value={formData.about} onChange={handleInputChange} disabled={!isEditing} rows={4} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500" placeholder="Tell us about yourself, your leadership experience, and what drives your passion for student advocacy..." />
-            </div>
-
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                <Target className="w-5 h-5 inline mr-2" />
-                Future Plans After Elections
-              </h2>
-              <textarea name="futurePlans" value={formData.futurePlans} onChange={handleInputChange} disabled={!isEditing} rows={4} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500" placeholder="Share your vision and plans for after the elections. What do you hope to achieve? How will you contribute to the university community?" />
+              <textarea name="about" value={formData.about} onChange={handleInputChange} disabled={!isEditing} rows={4} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500" placeholder="Tell us about yourself, your interests, and what you're passionate about..." />
             </div>
 
             <div className="bg-white rounded-lg border border-gray-200 p-6">
