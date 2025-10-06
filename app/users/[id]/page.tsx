@@ -25,9 +25,7 @@ export default function PublicUserProfilePage() {
     studentId: 'JNU2021001',
     department: 'Computer Science & Engineering',
     year: '4th Year',
-    role: 'Vice President (VP)',
     about: 'Passionate student leader committed to creating positive change in our university community.',
-    futurePlans: 'After graduation, I plan to pursue a career in technology while continuing to contribute to educational development initiatives.',
     address: 'Dhaka, Bangladesh',
     avatar: '/api/placeholder/150/150',
     facebook: 'https://facebook.com/johndoe',
@@ -92,7 +90,6 @@ export default function PublicUserProfilePage() {
                   </div>
                   <div>
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{profileData.name}</h1>
-                    <p className="text-gray-600">{profileData.role}</p>
                     <p className="text-sm text-gray-500">{profileData.department}</p>
                   </div>
                 </div>
@@ -184,14 +181,6 @@ export default function PublicUserProfilePage() {
               <h2 className="text-lg font-semibold text-gray-900 mb-4">About</h2>
               <p className="text-gray-700 leading-relaxed">{profileData.about}</p>
             </div>
-
-            {/* Future Plans */}
-            {profileData.futurePlans && (
-              <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Future Plans</h2>
-                <p className="text-gray-700 leading-relaxed">{profileData.futurePlans}</p>
-              </div>
-            )}
 
             {/* Blog Posts */}
             <div className="bg-white rounded-lg border border-gray-200 p-6">

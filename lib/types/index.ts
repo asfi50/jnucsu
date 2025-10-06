@@ -20,6 +20,7 @@ export interface StudentLeader {
   email?: string;
   address?: string;
   achievements?: string;
+  candidateComments?: Comment[]; // Comments made by the candidate
 }
 
 // Comment types
@@ -29,6 +30,11 @@ export interface Comment {
   content: string;
   createdAt: string;
   replies: Comment[];
+  context?: {
+    type: 'blog' | 'candidate';
+    title: string;
+    url: string;
+  };
 }
 
 // User types

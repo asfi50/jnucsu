@@ -63,6 +63,44 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
     }
   ]);
 
+  // Mock candidate's comments made across the site
+  const [candidateComments] = useState(leader.candidateComments || [
+    {
+      id: 'c1',
+      author: {
+        id: leader.id,
+        name: leader.name,
+        avatar: leader.avatar,
+        email: leader.email || 'candidate@jnu.ac.bd'
+      },
+      content: 'Great initiative! I believe student welfare should always be our top priority. Looking forward to contributing to this discussion.',
+      createdAt: '2024-01-18T14:30:00Z',
+      replies: [],
+      context: {
+        type: 'blog' as const,
+        title: 'Improving Campus Facilities',
+        url: '/blog/5'
+      }
+    },
+    {
+      id: 'c2',
+      author: {
+        id: leader.id,
+        name: leader.name,
+        avatar: leader.avatar,
+        email: leader.email || 'candidate@jnu.ac.bd'
+      },
+      content: 'I appreciate the diverse perspectives being shared here. This is exactly the kind of dialogue we need.',
+      createdAt: '2024-01-16T09:15:00Z',
+      replies: [],
+      context: {
+        type: 'candidate' as const,
+        title: 'Discussion on Student Rights',
+        url: '/candidates/3'
+      }
+    }
+  ]);
+
   const handleVote = () => {
     if (!isAuthenticated) {
       // Store the return URL and redirect to login
@@ -502,12 +540,67 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
               )}
             </div>
 
+            {/* Candidate's Comments Across Site */}
+            <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
+              <div className="flex items-center space-x-2 mb-4 md:mb-6">
+                <MessageCircle className="w-5 h-5 text-orange-600" />
+                <h2 className="text-lg md:text-xl font-semibold text-gray-900">
+                  {leader.name}&apos;s Comments ({candidateComments.length})
+                </h2>
+              </div>
+              {candidateComments.length > 0 ? (
+                <div className="space-y-4">
+                  {candidateComments.map((comment) => (
+                    <div key={comment.id} className="border-b border-gray-100 pb-4 last:border-b-0">
+                      <div className="flex space-x-3 md:space-x-4">
+                        <div className="flex-shrink-0">
+                          <Image
+                            src={comment.author.avatar}
+                            alt={comment.author.name}
+                            width={40}
+                            height={40}
+                            className="rounded-full"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
+                            <div className="flex items-center space-x-2">
+                              <span className="font-medium text-gray-900 text-sm md:text-base">
+                                {comment.author.name}
+                              </span>
+                              <span className="text-xs md:text-sm text-gray-500">
+                                commented on
+                              </span>
+                            </div>
+                            <span className="text-xs md:text-sm text-gray-500">
+                              {formatRelativeTime(comment.createdAt)}
+                            </span>
+                          </div>
+                          {comment.context && (
+                            <Link href={comment.context.url} className="inline-flex items-center text-xs md:text-sm text-orange-600 hover:text-orange-700 mb-2">
+                              <FileText className="w-3 h-3 mr-1" />
+                              {comment.context.title}
+                            </Link>
+                          )}
+                          <p className="text-gray-700 leading-relaxed text-sm md:text-base break-words bg-gray-50 p-3 rounded-lg">
+                            {comment.content}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-500 text-center py-8 text-sm md:text-base">No comments yet.</p>
+              )}
+            </div>
+
             {/* Comments Section */}
             <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
               <div className="flex items-center space-x-2 mb-4 md:mb-6">
                 <MessageCircle className="w-5 h-5 text-gray-600" />
                 <h2 className="text-lg md:text-xl font-semibold text-gray-900">
-                  Comments ({comments.length})
+                  Comments on this Candidate ({comments.length})
                 </h2>
               </div>
 
