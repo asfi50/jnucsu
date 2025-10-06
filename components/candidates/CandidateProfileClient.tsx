@@ -3,10 +3,10 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import QRCode from '@/components/candidates/QRCode';
 import Footer from '@/components/layout/Footer';
+import LoginModal from '@/components/ui/LoginModal';
 import { formatRelativeTime } from '@/lib/utils';
 import { StudentLeader } from '@/lib/types';
 import { useAuth } from '@/lib/contexts/AuthContext';
@@ -42,8 +42,8 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
   const [newComment, setNewComment] = useState('');
   const [comments, setComments] = useState(leader.comments);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const { isAuthenticated } = useAuth();
-  const router = useRouter();
 
   // Mock blog posts for candidate
   const [blogs] = useState([
@@ -103,9 +103,8 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
 
   const handleVote = () => {
     if (!isAuthenticated) {
-      // Store the return URL and redirect to login
-      const currentUrl = `/candidates/${leader.id}`;
-      router.push(`/auth/login?returnTo=${encodeURIComponent(currentUrl)}`);
+      // Show login modal instead of redirecting
+      setShowLoginModal(true);
       return;
     }
 
@@ -206,9 +205,8 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
     e.preventDefault();
     
     if (!isAuthenticated) {
-      // Store the return URL and redirect to login
-      const currentUrl = `/candidates/${leader.id}`;
-      router.push(`/auth/login?returnTo=${encodeURIComponent(currentUrl)}`);
+      // Show login modal instead of redirecting
+      setShowLoginModal(true);
       return;
     }
 
@@ -644,7 +642,7 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
                   <h4 className="text-lg font-semibold text-gray-900 mb-2">Comments are locked</h4>
                   <p className="text-gray-600 mb-4">Please log in to share your thoughts about this candidate.</p>
                   <button
-                    onClick={() => router.push(`/auth/login?returnTo=${encodeURIComponent(`/candidates/${leader.id}`)}`)}
+                    onClick={() => setShowLoginModal(true)}
                     className="inline-flex items-center space-x-2 bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg transition-colors"
                   >
                     <span>Log In to Comment</span>
@@ -820,6 +818,14 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
       </div>
       
       <Footer />
+      
+      {/* Login Modal */}
+      <LoginModal 
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        returnUrl={`/candidates/${leader.id}`}
+        message="Please log in to upvote or comment on this candidate profile."
+      />
     </div>
   );
 }

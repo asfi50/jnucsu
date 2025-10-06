@@ -165,6 +165,15 @@ export default function Header() {
 
           {/* Mobile menu button and profile icon */}
           <div className="md:hidden flex items-center space-x-2">
+            {/* AI Icon - Now visible in mobile header */}
+            <Link 
+              href="/ai" 
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              title="AI Assistant"
+            >
+              <Sparkles className="w-5 h-5 text-orange-500" />
+            </Link>
+            
             {isAuthenticated && (
               <button 
                 onClick={() => setIsMobileProfileOpen(!isMobileProfileOpen)}
@@ -195,10 +204,6 @@ export default function Header() {
               </Link>
               <Link href="/about" className="text-gray-600 hover:text-gray-900 transition-colors" onClick={() => setIsMenuOpen(false)}>
                 About
-              </Link>
-              <Link href="/ai" className="flex items-center space-x-2 text-orange-500 hover:text-orange-600 transition-colors" onClick={() => setIsMenuOpen(false)}>
-                <Sparkles className="w-5 h-5" />
-                <span>AI Assistant</span>
               </Link>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
