@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { ChevronUp, MessageCircle } from 'lucide-react';
 import { StudentLeader } from '@/lib/types';
 import { useState } from 'react';
+import { useAuth } from '@/lib/contexts/AuthContext';
+import LoginModal from '@/components/ui/LoginModal';
 
 interface CompactCandidateCardProps {
   candidate: StudentLeader;
@@ -13,8 +15,15 @@ interface CompactCandidateCardProps {
 export default function CompactCandidateCard({ candidate }: CompactCandidateCardProps) {
   const [votes, setVotes] = useState(candidate.votes);
   const [hasVoted, setHasVoted] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   const handleVote = () => {
+    if (!isAuthenticated) {
+      setShowLoginModal(true);
+      return;
+    }
+
     if (hasVoted) {
       // Remove vote
       setVotes(votes - 1);
@@ -23,6 +32,12 @@ export default function CompactCandidateCard({ candidate }: CompactCandidateCard
       // Add vote
       setVotes(votes + 1);
       setHasVoted(true);
+    }
+  };
+
+  const handleCommentClick = () => {
+    if (!isAuthenticated) {
+      setShowLoginModal(true);
     }
   };
 
@@ -72,7 +87,10 @@ export default function CompactCandidateCard({ candidate }: CompactCandidateCard
                 </button>
                 
                 <button
-                  onClick={(e) => e.preventDefault()}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleCommentClick();
+                  }}
                   className="flex items-center space-x-1 text-sm text-gray-600 hover:text-orange-600 transition-colors px-2 py-1 rounded hover:bg-orange-50"
                 >
                   <MessageCircle className="w-4 h-4" />
@@ -83,6 +101,14 @@ export default function CompactCandidateCard({ candidate }: CompactCandidateCard
           </div>
         </div>
       </div>
+      
+      {/* Login Modal */}
+      <LoginModal 
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        returnUrl={`/candidates/${candidate.id}`}
+        message="Please log in to upvote or comment on this candidate."
+      />
     </Link>
   );
 }

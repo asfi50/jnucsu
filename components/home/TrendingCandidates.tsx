@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { ChevronUp, Flame } from 'lucide-react';
 import { StudentLeader } from '@/lib/types';
 import { useState } from 'react';
+import { useAuth } from '@/lib/contexts/AuthContext';
+import LoginModal from '@/components/ui/LoginModal';
 
 interface TrendingCandidatesProps {
   candidates: StudentLeader[];
@@ -34,8 +36,15 @@ interface TrendingCardProps {
 function TrendingCard({ candidate }: TrendingCardProps) {
   const [votes, setVotes] = useState(candidate.votes);
   const [hasVoted, setHasVoted] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   const handleVote = () => {
+    if (!isAuthenticated) {
+      setShowLoginModal(true);
+      return;
+    }
+
     if (hasVoted) {
       // Remove vote
       setVotes(votes - 1);
@@ -99,6 +108,14 @@ function TrendingCard({ candidate }: TrendingCardProps) {
           </div>
         </div>
       </div>
+      
+      {/* Login Modal */}
+      <LoginModal 
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        returnUrl={`/candidates/${candidate.id}`}
+        message="Please log in to upvote this candidate."
+      />
     </Link>
   );
 }

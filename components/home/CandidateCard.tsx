@@ -2,11 +2,11 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { ChevronUp, MessageCircle } from 'lucide-react';
 import { StudentLeader } from '@/lib/types';
 import { useState } from 'react';
 import { useAuth } from '@/lib/contexts/AuthContext';
+import LoginModal from '@/components/ui/LoginModal';
 
 interface CandidateCardProps {
   leader: StudentLeader;
@@ -15,14 +15,12 @@ interface CandidateCardProps {
 export default function CandidateCard({ leader }: CandidateCardProps) {
   const [votes, setVotes] = useState(leader.votes);
   const [hasVoted, setHasVoted] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const { isAuthenticated } = useAuth();
-  const router = useRouter();
 
   const handleVote = () => {
     if (!isAuthenticated) {
-      // Store the return URL and redirect to login
-      const currentUrl = `/candidates/${leader.id}`;
-      router.push(`/auth/login?returnTo=${encodeURIComponent(currentUrl)}`);
+      setShowLoginModal(true);
       return;
     }
 
@@ -34,6 +32,12 @@ export default function CandidateCard({ leader }: CandidateCardProps) {
       // Add vote
       setVotes(votes + 1);
       setHasVoted(true);
+    }
+  };
+
+  const handleCommentClick = () => {
+    if (!isAuthenticated) {
+      setShowLoginModal(true);
     }
   };
 
@@ -103,10 +107,16 @@ export default function CandidateCard({ leader }: CandidateCardProps) {
               </button>
 
               {/* Comment Count */}
-              <div className="flex items-center space-x-1 text-gray-500">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleCommentClick();
+                }}
+                className="flex items-center space-x-1 text-gray-500 hover:text-orange-600 transition-colors"
+              >
                 <MessageCircle className="w-4 h-4" />
                 <span className="text-sm">{leader.comments.length}</span>
-              </div>
+              </button>
 
               {/* View Profile Link */}
               <Link
@@ -119,6 +129,14 @@ export default function CandidateCard({ leader }: CandidateCardProps) {
           </div>
         </div>
       </div>
+      
+      {/* Login Modal */}
+      <LoginModal 
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        returnUrl={`/candidates/${leader.id}`}
+        message="Please log in to upvote or comment on this candidate."
+      />
     </div>
   );
 }
