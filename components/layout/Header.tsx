@@ -1,15 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { Search, Menu, X, User, LogOut, Settings, Edit, ChevronDown, Sparkles } from "lucide-react";
+import { Search, Menu, X, User, LogOut, Settings, Edit, ChevronDown, Sparkles, Bell } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/lib/contexts/AuthContext";
+import { useNotifications } from "@/lib/contexts/NotificationContext";
+import NotificationPanel from "@/components/notifications/NotificationPanel";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isMobileProfileOpen, setIsMobileProfileOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const { user, logout, isAuthenticated } = useAuth();
+  const { unreadCount } = useNotifications();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const getUserInitials = (name: string) => {
@@ -79,6 +83,28 @@ export default function Header() {
             >
               <Sparkles className="w-5 h-5 text-orange-500 group-hover:text-orange-600" />
             </Link>
+
+            {/* Notification Icon */}
+            {isAuthenticated && (
+              <div className="relative">
+                <button
+                  onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors relative"
+                  title="Notifications"
+                >
+                  <Bell className="w-5 h-5 text-gray-600" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </button>
+                <NotificationPanel 
+                  isOpen={isNotificationOpen} 
+                  onClose={() => setIsNotificationOpen(false)} 
+                />
+              </div>
+            )}
             
             {isAuthenticated ? (
               // Profile dropdown for authenticated users
@@ -173,6 +199,28 @@ export default function Header() {
             >
               <Sparkles className="w-5 h-5 text-orange-500" />
             </Link>
+
+            {/* Notification Icon for Mobile */}
+            {isAuthenticated && (
+              <div className="relative">
+                <button
+                  onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors relative"
+                  title="Notifications"
+                >
+                  <Bell className="w-5 h-5 text-gray-600" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </button>
+                <NotificationPanel 
+                  isOpen={isNotificationOpen} 
+                  onClose={() => setIsNotificationOpen(false)} 
+                />
+              </div>
+            )}
             
             {isAuthenticated && (
               <button 

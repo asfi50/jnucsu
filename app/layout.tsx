@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ToastProvider } from "@/components/ui/ToastProvider";
 import { AuthProvider } from "@/lib/contexts/AuthContext";
+import { NotificationProvider } from "@/lib/contexts/NotificationContext";
 import { generateMetadata, generateStructuredData, KEYWORDS, combineKeywords } from "@/lib/seo";
 
 // Using system fonts instead of Google Fonts for better reliability
@@ -65,7 +66,9 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         <AuthProvider>
-          <ToastProvider>{children}</ToastProvider>
+          <NotificationProvider>
+            <ToastProvider>{children}</ToastProvider>
+          </NotificationProvider>
         </AuthProvider>
       </body>
     </html>

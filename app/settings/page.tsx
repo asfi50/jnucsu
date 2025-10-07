@@ -1,17 +1,25 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { QRCodeSVG } from "qrcode.react";
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { useAuth } from '@/lib/contexts/AuthContext';
+import { useNotifications } from '@/lib/contexts/NotificationContext';
 
 export default function SettingsPage() {
   const router = useRouter();
   const { user, isLoading, isAuthenticated } = useAuth();
+  const { settings, updateSettings } = useNotifications();
+  const [notificationSettings, setNotificationSettings] = useState(settings);
   const isVerified = true; // you can fetch this dynamically later
   const profileLink = "https://yourapp.com/profile/john-doe"; // dynamic user link
+
+  // Update local state when context settings change
+  useEffect(() => {
+    setNotificationSettings(settings);
+  }, [settings]);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -153,6 +161,94 @@ export default function SettingsPage() {
                   <h4 className="font-medium text-gray-900">Messages</h4>
                   <p className="text-sm text-gray-600">Check your inbox</p>
                 </button>
+              </div>
+            </div>
+
+            {/* Notification Settings */}
+            <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Notification Preferences</h3>
+              <p className="text-sm text-gray-600 mb-6">Choose what notifications you want to receive</p>
+              
+              <div className="space-y-4">
+                <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                  <div className="flex-1">
+                    <h4 className="text-sm font-medium text-gray-900">Blog Comments</h4>
+                    <p className="text-xs text-gray-500 mt-1">Get notified when someone comments on your blog posts</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer ml-4">
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      checked={notificationSettings.blogComments}
+                      onChange={(e) => {
+                        const newSettings = { ...notificationSettings, blogComments: e.target.checked };
+                        setNotificationSettings(newSettings);
+                        updateSettings(newSettings);
+                      }}
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+                  </label>
+                </div>
+
+                <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                  <div className="flex-1">
+                    <h4 className="text-sm font-medium text-gray-900">Candidate Profile Comments</h4>
+                    <p className="text-xs text-gray-500 mt-1">Get notified when someone comments on your candidate page</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer ml-4">
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      checked={notificationSettings.candidateComments}
+                      onChange={(e) => {
+                        const newSettings = { ...notificationSettings, candidateComments: e.target.checked };
+                        setNotificationSettings(newSettings);
+                        updateSettings(newSettings);
+                      }}
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+                  </label>
+                </div>
+
+                <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                  <div className="flex-1">
+                    <h4 className="text-sm font-medium text-gray-900">Message Replies</h4>
+                    <p className="text-xs text-gray-500 mt-1">Get notified when someone replies to your messages</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer ml-4">
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      checked={notificationSettings.messageReplies}
+                      onChange={(e) => {
+                        const newSettings = { ...notificationSettings, messageReplies: e.target.checked };
+                        setNotificationSettings(newSettings);
+                        updateSettings(newSettings);
+                      }}
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+                  </label>
+                </div>
+
+                <div className="flex items-center justify-between py-3">
+                  <div className="flex-1">
+                    <h4 className="text-sm font-medium text-gray-900">Mentions</h4>
+                    <p className="text-xs text-gray-500 mt-1">Get notified when someone mentions you in a comment</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer ml-4">
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      checked={notificationSettings.mentions}
+                      onChange={(e) => {
+                        const newSettings = { ...notificationSettings, mentions: e.target.checked };
+                        setNotificationSettings(newSettings);
+                        updateSettings(newSettings);
+                      }}
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+                  </label>
+                </div>
               </div>
             </div>
           </div>
