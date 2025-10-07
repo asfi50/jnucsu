@@ -67,3 +67,22 @@ export interface Vote {
   type: 'upvote' | 'downvote';
   createdAt: string;
 }
+
+// Notification types
+export interface Notification {
+  id: string;
+  type: 'blog_comment' | 'candidate_comment' | 'message_reply' | 'mention';
+  title: string;
+  message: string;
+  read: boolean;
+  createdAt: string;
+  link?: string;
+  actor?: User; // The user who triggered the notification
+}
+
+export interface NotificationSettings {
+  blogComments: boolean;
+  candidateComments: boolean;
+  messageReplies: boolean;
+  mentions: boolean;
+}
