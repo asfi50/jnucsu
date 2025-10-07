@@ -202,24 +202,18 @@ export default function Header() {
 
             {/* Notification Icon for Mobile */}
             {isAuthenticated && (
-              <div className="relative">
-                <button
-                  onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors relative"
-                  title="Notifications"
-                >
-                  <Bell className="w-5 h-5 text-gray-600" />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                      {unreadCount > 9 ? '9+' : unreadCount}
-                    </span>
-                  )}
-                </button>
-                <NotificationPanel 
-                  isOpen={isNotificationOpen} 
-                  onClose={() => setIsNotificationOpen(false)} 
-                />
-              </div>
+              <button
+                onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors relative"
+                title="Notifications"
+              >
+                <Bell className="w-5 h-5 text-gray-600" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </button>
             )}
             
             {isAuthenticated && (
@@ -329,6 +323,16 @@ export default function Header() {
                 Logout
               </button>
             </div>
+          </div>
+        )}
+
+        {/* Mobile notifications dropdown */}
+        {isNotificationOpen && isAuthenticated && (
+          <div className="md:hidden py-4 border-t border-gray-200">
+            <NotificationPanel 
+              isOpen={isNotificationOpen} 
+              onClose={() => setIsNotificationOpen(false)} 
+            />
           </div>
         )}
       </div>
