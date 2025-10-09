@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { ChevronUp, MessageCircle } from 'lucide-react';
-import { StudentLeader } from '@/lib/types';
-import { useState } from 'react';
-import { useAuth } from '@/lib/contexts/AuthContext';
-import LoginModal from '@/components/ui/LoginModal';
+import Image from "next/image";
+import Link from "next/link";
+import { ChevronUp, MessageCircle } from "lucide-react";
+import { StudentLeader } from "@/lib/types";
+import { useState } from "react";
+import { useAuth } from "@/context/auth-context";
+import LoginModal from "@/components/ui/LoginModal";
 
 interface CandidateCardProps {
   leader: StudentLeader;
@@ -60,16 +60,13 @@ export default function CandidateCard({ leader }: CandidateCardProps) {
 
           {/* Leader Info */}
           <div className="w-full">
-            <Link 
-              href={`/candidates/${leader.id}`}
-              className="group"
-            >
+            <Link href={`/candidates/${leader.id}`} className="group">
               <h3 className="text-xl font-bold text-gray-900 group-hover:text-orange-600 transition-colors mb-1">
                 {leader.name}
               </h3>
             </Link>
             <p className="text-orange-600 font-semibold mb-2">
-              Competing for {leader.title.replace(' - JnUCSU', '')}
+              Competing for {leader.title.replace(" - JnUCSU", "")}
             </p>
             <p className="text-sm text-gray-500 mb-3">
               {leader.department} • Year {leader.year}
@@ -96,11 +93,11 @@ export default function CandidateCard({ leader }: CandidateCardProps) {
               <button
                 onClick={handleVote}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
-                  hasVoted 
-                    ? 'bg-orange-100 text-orange-600' 
-                    : 'bg-gray-50 hover:bg-orange-50 text-gray-600 hover:text-orange-600'
+                  hasVoted
+                    ? "bg-orange-100 text-orange-600"
+                    : "bg-gray-50 hover:bg-orange-50 text-gray-600 hover:text-orange-600"
                 }`}
-                title={hasVoted ? 'Click to remove vote' : 'Click to upvote'}
+                title={hasVoted ? "Click to remove vote" : "Click to upvote"}
               >
                 <ChevronUp className="w-4 h-4" />
                 <span className="font-semibold">{votes}</span>
@@ -129,9 +126,9 @@ export default function CandidateCard({ leader }: CandidateCardProps) {
           </div>
         </div>
       </div>
-      
+
       {/* Login Modal */}
-      <LoginModal 
+      <LoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
         returnUrl={`/candidates/${leader.id}`}

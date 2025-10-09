@@ -1,18 +1,20 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { ChevronUp, MessageCircle } from 'lucide-react';
-import { StudentLeader } from '@/lib/types';
-import { useState } from 'react';
-import { useAuth } from '@/lib/contexts/AuthContext';
-import LoginModal from '@/components/ui/LoginModal';
+import Image from "next/image";
+import Link from "next/link";
+import { ChevronUp, MessageCircle } from "lucide-react";
+import { StudentLeader } from "@/lib/types";
+import { useState } from "react";
+import { useAuth } from "@/context/auth-context";
+import LoginModal from "@/components/ui/LoginModal";
 
 interface CompactCandidateCardProps {
   candidate: StudentLeader;
 }
 
-export default function CompactCandidateCard({ candidate }: CompactCandidateCardProps) {
+export default function CompactCandidateCard({
+  candidate,
+}: CompactCandidateCardProps) {
   const [votes, setVotes] = useState(candidate.votes);
   const [hasVoted, setHasVoted] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -66,9 +68,9 @@ export default function CompactCandidateCard({ candidate }: CompactCandidateCard
                   {candidate.name}
                 </h3>
                 <p className="text-orange-600 font-medium text-sm truncate">
-                  {candidate.title.replace(' - JnUCSU', '')}
+                  {candidate.title.replace(" - JnUCSU", "")}
                 </p>
-                
+
                 {/* Action Buttons */}
                 <div className="flex items-center space-x-4 mt-2">
                   <button
@@ -77,16 +79,18 @@ export default function CompactCandidateCard({ candidate }: CompactCandidateCard
                       handleVote();
                     }}
                     className={`flex items-center space-x-1 text-sm transition-colors ${
-                      hasVoted 
-                        ? 'text-orange-600 bg-orange-50 font-medium' 
-                        : 'text-gray-600 hover:text-orange-600 hover:bg-orange-50'
+                      hasVoted
+                        ? "text-orange-600 bg-orange-50 font-medium"
+                        : "text-gray-600 hover:text-orange-600 hover:bg-orange-50"
                     } px-2 py-1 rounded`}
-                    title={hasVoted ? 'Click to remove vote' : 'Click to upvote'}
+                    title={
+                      hasVoted ? "Click to remove vote" : "Click to upvote"
+                    }
                   >
                     <ChevronUp className="w-4 h-4" />
                     <span>{votes}</span>
                   </button>
-                  
+
                   <button
                     onClick={(e) => {
                       e.preventDefault();
@@ -103,9 +107,9 @@ export default function CompactCandidateCard({ candidate }: CompactCandidateCard
           </div>
         </div>
       </Link>
-      
+
       {/* Login Modal */}
-      <LoginModal 
+      <LoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
         returnUrl={`/candidates/${candidate.id}`}

@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import Header from '@/components/layout/Header';
-import QRCode from '@/components/candidates/QRCode';
-import Footer from '@/components/layout/Footer';
-import LoginModal from '@/components/ui/LoginModal';
-import { formatRelativeTime } from '@/lib/utils';
-import { StudentLeader } from '@/lib/types';
-import { useAuth } from '@/lib/contexts/AuthContext';
-import { 
-  ChevronUp, 
-  MessageCircle, 
-  Share2, 
+import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import Header from "@/components/layout/Header";
+import QRCode from "@/components/candidates/QRCode";
+import Footer from "@/components/layout/Footer";
+import LoginModal from "@/components/ui/LoginModal";
+import { formatRelativeTime } from "@/lib/utils";
+import { StudentLeader } from "@/lib/types";
+import { useAuth } from "@/context/auth-context";
+import {
+  ChevronUp,
+  MessageCircle,
+  Share2,
   Calendar,
   GraduationCap,
   MapPin,
@@ -29,17 +29,19 @@ import {
   X,
   FileText,
   Lock,
-  Sparkles
-} from 'lucide-react';
+  Sparkles,
+} from "lucide-react";
 
 interface CandidateProfileClientProps {
   leader: StudentLeader;
 }
 
-export default function CandidateProfileClient({ leader }: CandidateProfileClientProps) {
+export default function CandidateProfileClient({
+  leader,
+}: CandidateProfileClientProps) {
   const [votes, setVotes] = useState(leader.votes);
   const [hasVoted, setHasVoted] = useState(false);
-  const [newComment, setNewComment] = useState('');
+  const [newComment, setNewComment] = useState("");
   const [comments, setComments] = useState(leader.comments);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -48,58 +50,64 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
   // Mock blog posts for candidate
   const [blogs] = useState([
     {
-      id: '1',
-      title: 'My Vision for Student Welfare',
-      excerpt: 'As a candidate, I want to share my plans for improving student welfare on campus.',
-      publishedAt: '2024-01-20T10:00:00Z',
-      tags: ['Leadership', 'Welfare']
+      id: "1",
+      title: "My Vision for Student Welfare",
+      excerpt:
+        "As a candidate, I want to share my plans for improving student welfare on campus.",
+      publishedAt: "2024-01-20T10:00:00Z",
+      tags: ["Leadership", "Welfare"],
     },
     {
-      id: '2',
-      title: 'Building a Better Campus Community',
-      excerpt: 'My thoughts on creating an inclusive environment for all students.',
-      publishedAt: '2024-01-15T10:00:00Z',
-      tags: ['Community', 'Inclusion']
-    }
+      id: "2",
+      title: "Building a Better Campus Community",
+      excerpt:
+        "My thoughts on creating an inclusive environment for all students.",
+      publishedAt: "2024-01-15T10:00:00Z",
+      tags: ["Community", "Inclusion"],
+    },
   ]);
 
   // Mock candidate's comments made across the site
-  const [candidateComments] = useState(leader.candidateComments || [
-    {
-      id: 'c1',
-      author: {
-        id: leader.id,
-        name: leader.name,
-        avatar: leader.avatar,
-        email: leader.email || 'candidate@jnu.ac.bd'
+  const [candidateComments] = useState(
+    leader.candidateComments || [
+      {
+        id: "c1",
+        author: {
+          id: leader.id,
+          name: leader.name,
+          avatar: leader.avatar,
+          email: leader.email || "candidate@jnu.ac.bd",
+        },
+        content:
+          "Great initiative! I believe student welfare should always be our top priority. Looking forward to contributing to this discussion.",
+        createdAt: "2024-01-18T14:30:00Z",
+        replies: [],
+        context: {
+          type: "blog" as const,
+          title: "Improving Campus Facilities",
+          url: "/blog/5",
+        },
       },
-      content: 'Great initiative! I believe student welfare should always be our top priority. Looking forward to contributing to this discussion.',
-      createdAt: '2024-01-18T14:30:00Z',
-      replies: [],
-      context: {
-        type: 'blog' as const,
-        title: 'Improving Campus Facilities',
-        url: '/blog/5'
-      }
-    },
-    {
-      id: 'c2',
-      author: {
-        id: leader.id,
-        name: leader.name,
-        avatar: leader.avatar,
-        email: leader.email || 'candidate@jnu.ac.bd'
+      {
+        id: "c2",
+        author: {
+          id: leader.id,
+          name: leader.name,
+          avatar: leader.avatar,
+          email: leader.email || "candidate@jnu.ac.bd",
+        },
+        content:
+          "I appreciate the diverse perspectives being shared here. This is exactly the kind of dialogue we need.",
+        createdAt: "2024-01-16T09:15:00Z",
+        replies: [],
+        context: {
+          type: "candidate" as const,
+          title: "Discussion on Student Rights",
+          url: "/candidates/3",
+        },
       },
-      content: 'I appreciate the diverse perspectives being shared here. This is exactly the kind of dialogue we need.',
-      createdAt: '2024-01-16T09:15:00Z',
-      replies: [],
-      context: {
-        type: 'candidate' as const,
-        title: 'Discussion on Student Rights',
-        url: '/candidates/3'
-      }
-    }
-  ]);
+    ]
+  );
 
   const handleVote = () => {
     if (!isAuthenticated) {
@@ -128,37 +136,37 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
           url: window.location.href,
         });
       } catch (error) {
-        console.log('Error sharing:', error);
+        console.log("Error sharing:", error);
       }
     } else {
       // Fallback: Copy to clipboard
       navigator.clipboard.writeText(window.location.href);
-      alert('Link copied to clipboard!');
+      alert("Link copied to clipboard!");
     }
   };
 
   const handleDownloadIDCard = async () => {
     try {
-      const { default: jsPDF } = await import('jspdf');
+      const { default: jsPDF } = await import("jspdf");
       const pdf = new jsPDF({
-        orientation: 'landscape',
-        unit: 'mm',
-        format: [85.6, 53.98] // Credit card size
+        orientation: "landscape",
+        unit: "mm",
+        format: [85.6, 53.98], // Credit card size
       });
 
       // Background
       pdf.setFillColor(255, 120, 60); // Orange
-      pdf.rect(0, 0, 85.6, 53.98, 'F');
+      pdf.rect(0, 0, 85.6, 53.98, "F");
 
       // White content area
       pdf.setFillColor(255, 255, 255);
-      pdf.roundedRect(3, 3, 79.6, 47.98, 2, 2, 'F');
+      pdf.roundedRect(3, 3, 79.6, 47.98, 2, 2, "F");
 
       // Title
       pdf.setFontSize(10);
       pdf.setTextColor(255, 120, 60);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('JnUCSU Candidate ID', 42.8, 8, { align: 'center' });
+      pdf.setFont("helvetica", "bold");
+      pdf.text("JnUCSU Candidate ID", 42.8, 8, { align: "center" });
 
       // Name
       pdf.setFontSize(12);
@@ -168,7 +176,7 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
       // Position
       pdf.setFontSize(8);
       pdf.setTextColor(255, 120, 60);
-      pdf.text(leader.title.replace(' - JnUCSU', ''), 6, 21);
+      pdf.text(leader.title.replace(" - JnUCSU", ""), 6, 21);
 
       // Details
       pdf.setFontSize(7);
@@ -181,29 +189,31 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
       const qrSize = 30;
       const qrX = 85.6 - qrSize - 5;
       const qrY = (53.98 - qrSize) / 2;
-      
+
       pdf.setDrawColor(200, 200, 200);
       pdf.rect(qrX, qrY, qrSize, qrSize);
-      
+
       // QR code URL text
       pdf.setFontSize(5);
-      pdf.text('Scan for profile', qrX + qrSize/2, qrY + qrSize + 2, { align: 'center' });
+      pdf.text("Scan for profile", qrX + qrSize / 2, qrY + qrSize + 2, {
+        align: "center",
+      });
 
       // Footer
       pdf.setFontSize(6);
       pdf.setTextColor(150, 150, 150);
-      pdf.text('Jagannath University CSU', 42.8, 51, { align: 'center' });
+      pdf.text("Jagannath University CSU", 42.8, 51, { align: "center" });
 
-      pdf.save(`${leader.name.replace(/\s+/g, '_')}_ID_Card.pdf`);
+      pdf.save(`${leader.name.replace(/\s+/g, "_")}_ID_Card.pdf`);
     } catch (error) {
-      console.error('Error generating PDF:', error);
-      alert('Error generating ID card. Please try again.');
+      console.error("Error generating PDF:", error);
+      alert("Error generating ID card. Please try again.");
     }
   };
 
   const handleComment = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!isAuthenticated) {
       // Show login modal instead of redirecting
       setShowLoginModal(true);
@@ -214,24 +224,24 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
       const comment = {
         id: Date.now().toString(),
         author: {
-          id: '1',
-          name: 'Anonymous User',
-          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=anonymous',
-          email: 'anonymous@jnu.ac.bd'
+          id: "1",
+          name: "Anonymous User",
+          avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=anonymous",
+          email: "anonymous@jnu.ac.bd",
         },
         content: newComment,
         createdAt: new Date().toISOString(),
-        replies: []
+        replies: [],
       };
       setComments([comment, ...comments]);
-      setNewComment('');
+      setNewComment("");
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 md:gap-8">
           {/* Main Content */}
@@ -244,20 +254,22 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
                   <button
                     onClick={handleVote}
                     className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
-                      hasVoted 
-                        ? 'bg-orange-100 text-orange-600' 
-                        : 'hover:bg-gray-100 text-gray-600'
+                      hasVoted
+                        ? "bg-orange-100 text-orange-600"
+                        : "hover:bg-gray-100 text-gray-600"
                     }`}
                   >
                     <ChevronUp className="w-5 h-5" />
                     <div className="text-left">
                       <div className="text-lg font-bold">{votes}</div>
-                      <div className="text-xs">{hasVoted ? 'Upvoted' : 'Upvote'}</div>
+                      <div className="text-xs">
+                        {hasVoted ? "Upvoted" : "Upvote"}
+                      </div>
                     </div>
                   </button>
-                  
+
                   <div className="flex items-center space-x-2">
-                    <button 
+                    <button
                       onClick={handleShare}
                       className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                     >
@@ -271,14 +283,16 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
                   <button
                     onClick={handleVote}
                     className={`flex flex-col items-center p-3 rounded-lg transition-colors ${
-                      hasVoted 
-                        ? 'bg-orange-100 text-orange-600' 
-                        : 'hover:bg-gray-100 text-gray-600'
+                      hasVoted
+                        ? "bg-orange-100 text-orange-600"
+                        : "hover:bg-gray-100 text-gray-600"
                     }`}
                   >
                     <ChevronUp className="w-6 h-6" />
                     <span className="text-lg font-bold">{votes}</span>
-                    <span className="text-xs">{hasVoted ? 'Upvoted' : 'Upvote'}</span>
+                    <span className="text-xs">
+                      {hasVoted ? "Upvoted" : "Upvote"}
+                    </span>
                   </button>
                 </div>
 
@@ -300,16 +314,20 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
                           {leader.name}
                         </h1>
                         <p className="text-base md:text-lg text-orange-600 font-semibold mb-3">
-                          Competing for {leader.title.replace(' - JnUCSU', '')}
+                          Competing for {leader.title.replace(" - JnUCSU", "")}
                         </p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 text-sm text-gray-600">
                           <div className="flex items-center justify-center md:justify-start space-x-1">
                             <GraduationCap className="w-4 h-4 flex-shrink-0" />
-                            <span className="truncate">{leader.department}</span>
+                            <span className="truncate">
+                              {leader.department}
+                            </span>
                           </div>
                           <div className="flex items-center justify-center md:justify-start space-x-1">
                             <MapPin className="w-4 h-4 flex-shrink-0" />
-                            <span className="truncate">{leader.university}</span>
+                            <span className="truncate">
+                              {leader.university}
+                            </span>
                           </div>
                           <div className="flex items-center justify-center md:justify-start space-x-1">
                             <Calendar className="w-4 h-4 flex-shrink-0" />
@@ -325,7 +343,7 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
 
                     {/* Desktop: Action Buttons */}
                     <div className="hidden md:flex items-center space-x-2">
-                      <button 
+                      <button
                         onClick={handleShare}
                         className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                         title="Share profile"
@@ -382,7 +400,9 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
             <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
               <div className="flex items-center space-x-2 mb-4">
                 <Target className="w-5 h-5 text-orange-600" />
-                <h2 className="text-lg md:text-xl font-semibold text-gray-900">Future Plans</h2>
+                <h2 className="text-lg md:text-xl font-semibold text-gray-900">
+                  Future Plans
+                </h2>
               </div>
               <p className="text-gray-700 leading-relaxed">
                 {leader.futurePlans}
@@ -396,8 +416,12 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
                   <Sparkles className="w-5 h-5 text-orange-600" />
                 </div>
                 <div>
-                  <h2 className="text-lg md:text-xl font-semibold text-gray-900">AI Performance Review</h2>
-                  <p className="text-sm text-gray-600">Automated analysis of candidate activity</p>
+                  <h2 className="text-lg md:text-xl font-semibold text-gray-900">
+                    AI Performance Review
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    Automated analysis of candidate activity
+                  </p>
                 </div>
               </div>
               <div className="bg-white rounded-lg p-4 space-y-3">
@@ -405,33 +429,50 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
                   <div className="flex-shrink-0 w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
                   <p className="text-gray-700 leading-relaxed">
                     <span className="font-semibold">Engagement Score: </span>
-                    Based on {leader.votes} upvotes and {leader.comments.length} community comments, {leader.name} demonstrates strong community engagement and active participation in student discussions.
+                    Based on {leader.votes} upvotes and {leader.comments.length}{" "}
+                    community comments, {leader.name} demonstrates strong
+                    community engagement and active participation in student
+                    discussions.
                   </p>
                 </div>
                 <div className="flex items-start space-x-2">
                   <div className="flex-shrink-0 w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
                   <p className="text-gray-700 leading-relaxed">
                     <span className="font-semibold">Vision & Planning: </span>
-                    The candidate has articulated a clear vision for {leader.title.replace(' - JnUCSU', '')}, with comprehensive plans addressing student welfare, academic excellence, and campus development.
+                    The candidate has articulated a clear vision for{" "}
+                    {leader.title.replace(" - JnUCSU", "")}, with comprehensive
+                    plans addressing student welfare, academic excellence, and
+                    campus development.
                   </p>
                 </div>
                 <div className="flex items-start space-x-2">
                   <div className="flex-shrink-0 w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
                   <p className="text-gray-700 leading-relaxed">
                     <span className="font-semibold">Community Presence: </span>
-                    {leader.workGallery.length > 0 ? `With ${leader.workGallery.length} documented activities in their work gallery, ${leader.name} shows consistent involvement in campus initiatives and student programs.` : `${leader.name} is building their portfolio and actively working on campus initiatives.`}
+                    {leader.workGallery.length > 0
+                      ? `With ${leader.workGallery.length} documented activities in their work gallery, ${leader.name} shows consistent involvement in campus initiatives and student programs.`
+                      : `${leader.name} is building their portfolio and actively working on campus initiatives.`}
                   </p>
                 </div>
                 <div className="flex items-start space-x-2">
                   <div className="flex-shrink-0 w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
                   <p className="text-gray-700 leading-relaxed">
                     <span className="font-semibold">Overall Assessment: </span>
-                    {leader.name} presents as a {leader.votes > 50 ? 'highly popular' : 'promising'} candidate with strong credentials in {leader.department}. Their {leader.year === 1 ? 'fresh perspective' : 'experience'} as a Year {leader.year} student brings valuable insights to the role.
+                    {leader.name} presents as a{" "}
+                    {leader.votes > 50 ? "highly popular" : "promising"}{" "}
+                    candidate with strong credentials in {leader.department}.
+                    Their{" "}
+                    {leader.year === 1 ? "fresh perspective" : "experience"} as
+                    a Year {leader.year} student brings valuable insights to the
+                    role.
                   </p>
                 </div>
                 <div className="mt-4 pt-4 border-t border-gray-200">
                   <p className="text-xs text-gray-500 italic">
-                    * This AI-generated review is based on publicly available candidate information and community engagement metrics. It provides an automated, objective assessment to help voters make informed decisions.
+                    * This AI-generated review is based on publicly available
+                    candidate information and community engagement metrics. It
+                    provides an automated, objective assessment to help voters
+                    make informed decisions.
                   </p>
                 </div>
               </div>
@@ -442,7 +483,9 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
               <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
                 <div className="flex items-center space-x-2 mb-4">
                   <Award className="w-5 h-5 text-orange-600" />
-                  <h2 className="text-lg md:text-xl font-semibold text-gray-900">Achievements</h2>
+                  <h2 className="text-lg md:text-xl font-semibold text-gray-900">
+                    Achievements
+                  </h2>
                 </div>
                 <p className="text-gray-700 leading-relaxed whitespace-pre-line">
                   {leader.achievements}
@@ -454,12 +497,14 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
             <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
               <div className="flex items-center space-x-2 mb-4 md:mb-6">
                 <ImageIcon className="w-5 h-5 text-orange-600" />
-                <h2 className="text-lg md:text-xl font-semibold text-gray-900">Work Gallery</h2>
+                <h2 className="text-lg md:text-xl font-semibold text-gray-900">
+                  Work Gallery
+                </h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {leader.workGallery.map((image, index) => (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className="relative group cursor-pointer"
                     onClick={() => setSelectedImage(image)}
                   >
@@ -482,7 +527,7 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
 
             {/* Image Lightbox Modal */}
             {selectedImage && (
-              <div 
+              <div
                 className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
                 onClick={() => setSelectedImage(null)}
               >
@@ -517,13 +562,22 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
                   {blogs.map((blog) => (
                     <Link key={blog.id} href={`/blog/${blog.id}`}>
                       <div className="border-b border-gray-100 pb-4 last:border-b-0 hover:bg-gray-50 transition-colors p-3 rounded-lg">
-                        <h3 className="font-semibold text-gray-900 mb-1 text-sm md:text-base">{blog.title}</h3>
-                        <p className="text-xs md:text-sm text-gray-600 mb-2">{blog.excerpt}</p>
+                        <h3 className="font-semibold text-gray-900 mb-1 text-sm md:text-base">
+                          {blog.title}
+                        </h3>
+                        <p className="text-xs md:text-sm text-gray-600 mb-2">
+                          {blog.excerpt}
+                        </p>
                         <div className="flex items-center space-x-4 text-xs text-gray-500">
-                          <span>{new Date(blog.publishedAt).toLocaleDateString()}</span>
+                          <span>
+                            {new Date(blog.publishedAt).toLocaleDateString()}
+                          </span>
                           <div className="flex gap-2">
-                            {blog.tags.map(tag => (
-                              <span key={tag} className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full">
+                            {blog.tags.map((tag) => (
+                              <span
+                                key={tag}
+                                className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full"
+                              >
                                 {tag}
                               </span>
                             ))}
@@ -534,7 +588,9 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 text-center py-8 text-sm md:text-base">No blog posts yet.</p>
+                <p className="text-gray-500 text-center py-8 text-sm md:text-base">
+                  No blog posts yet.
+                </p>
               )}
             </div>
 
@@ -549,7 +605,10 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
               {candidateComments.length > 0 ? (
                 <div className="space-y-4">
                   {candidateComments.map((comment) => (
-                    <div key={comment.id} className="border-b border-gray-100 pb-4 last:border-b-0">
+                    <div
+                      key={comment.id}
+                      className="border-b border-gray-100 pb-4 last:border-b-0"
+                    >
                       <div className="flex space-x-3 md:space-x-4">
                         <div className="flex-shrink-0">
                           <Image
@@ -575,7 +634,10 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
                             </span>
                           </div>
                           {comment.context && (
-                            <Link href={comment.context.url} className="inline-flex items-center text-xs md:text-sm text-orange-600 hover:text-orange-700 mb-2">
+                            <Link
+                              href={comment.context.url}
+                              className="inline-flex items-center text-xs md:text-sm text-orange-600 hover:text-orange-700 mb-2"
+                            >
                               <FileText className="w-3 h-3 mr-1" />
                               {comment.context.title}
                             </Link>
@@ -589,7 +651,9 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 text-center py-8 text-sm md:text-base">No comments yet.</p>
+                <p className="text-gray-500 text-center py-8 text-sm md:text-base">
+                  No comments yet.
+                </p>
               )}
             </div>
 
@@ -639,8 +703,12 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
               ) : (
                 <div className="mb-6 md:mb-8 bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
                   <Lock className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Comments are locked</h4>
-                  <p className="text-gray-600 mb-4">Please log in to share your thoughts about this candidate.</p>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                    Comments are locked
+                  </h4>
+                  <p className="text-gray-600 mb-4">
+                    Please log in to share your thoughts about this candidate.
+                  </p>
                   <button
                     onClick={() => setShowLoginModal(true)}
                     className="inline-flex items-center space-x-2 bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg transition-colors"
@@ -653,7 +721,10 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
               {/* Comments List */}
               <div className="space-y-4 md:space-y-6">
                 {comments.map((comment) => (
-                  <div key={comment.id} className="border-b border-gray-100 pb-4 md:pb-6 last:border-b-0">
+                  <div
+                    key={comment.id}
+                    className="border-b border-gray-100 pb-4 md:pb-6 last:border-b-0"
+                  >
                     <div className="flex space-x-3 md:space-x-4">
                       <div className="flex-shrink-0">
                         <Link href={`/users/${comment.author.id}`}>
@@ -668,7 +739,10 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 mb-1">
-                          <Link href={`/users/${comment.author.id}`} className="font-medium text-gray-900 text-sm md:text-base hover:text-orange-600 transition-colors">
+                          <Link
+                            href={`/users/${comment.author.id}`}
+                            className="font-medium text-gray-900 text-sm md:text-base hover:text-orange-600 transition-colors"
+                          >
                             {comment.author.name}
                           </Link>
                           <span className="text-xs md:text-sm text-gray-500">
@@ -683,7 +757,10 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
                         {comment.replies.length > 0 && (
                           <div className="mt-3 md:mt-4 ml-3 md:ml-4 space-y-3 md:space-y-4 border-l-2 border-gray-200 pl-3 md:pl-4">
                             {comment.replies.map((reply) => (
-                              <div key={reply.id} className="flex space-x-2 md:space-x-3">
+                              <div
+                                key={reply.id}
+                                className="flex space-x-2 md:space-x-3"
+                              >
                                 <div className="flex-shrink-0">
                                   <Link href={`/users/${reply.author.id}`}>
                                     <Image
@@ -697,7 +774,10 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 mb-1">
-                                    <Link href={`/users/${reply.author.id}`} className="font-medium text-gray-900 text-xs md:text-sm hover:text-orange-600 transition-colors">
+                                    <Link
+                                      href={`/users/${reply.author.id}`}
+                                      className="font-medium text-gray-900 text-xs md:text-sm hover:text-orange-600 transition-colors"
+                                    >
                                       {reply.author.name}
                                     </Link>
                                     <span className="text-xs text-gray-500">
@@ -720,7 +800,9 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
                 {comments.length === 0 && (
                   <div className="text-center py-8 text-gray-500">
                     <MessageCircle className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                    <p className="text-sm md:text-base">No comments yet. Be the first to share your thoughts!</p>
+                    <p className="text-sm md:text-base">
+                      No comments yet. Be the first to share your thoughts!
+                    </p>
                   </div>
                 )}
               </div>
@@ -739,8 +821,12 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
                   <p className="text-xs text-gray-600">Scan to visit profile</p>
                 </div>
                 <div className="flex-shrink-0">
-                  <QRCode 
-                    url={typeof window !== 'undefined' ? `${window.location.origin}/candidates/${leader.id}` : `https://jnucsu.vercel.app/candidates/${leader.id}`}
+                  <QRCode
+                    url={
+                      typeof window !== "undefined"
+                        ? `${window.location.origin}/candidates/${leader.id}`
+                        : `https://jnucsu.vercel.app/candidates/${leader.id}`
+                    }
                     title=""
                     size={100}
                   />
@@ -760,8 +846,12 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
               <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-4 text-center">
                 Share Profile
               </h3>
-              <QRCode 
-                url={typeof window !== 'undefined' ? `${window.location.origin}/candidates/${leader.id}` : `https://jnucsu.vercel.app/candidates/${leader.id}`}
+              <QRCode
+                url={
+                  typeof window !== "undefined"
+                    ? `${window.location.origin}/candidates/${leader.id}`
+                    : `https://jnucsu.vercel.app/candidates/${leader.id}`
+                }
                 title={`${leader.name}'s profile`}
                 size={160}
               />
@@ -781,16 +871,28 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
               </h3>
               <div className="space-y-3 md:space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm md:text-base">Total Votes</span>
-                  <span className="font-semibold text-orange-600 text-sm md:text-base">{votes}</span>
+                  <span className="text-gray-600 text-sm md:text-base">
+                    Total Votes
+                  </span>
+                  <span className="font-semibold text-orange-600 text-sm md:text-base">
+                    {votes}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm md:text-base">Comments</span>
-                  <span className="font-semibold text-sm md:text-base">{comments.length}</span>
+                  <span className="text-gray-600 text-sm md:text-base">
+                    Comments
+                  </span>
+                  <span className="font-semibold text-sm md:text-base">
+                    {comments.length}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm md:text-base">Academic Year</span>
-                  <span className="font-semibold text-sm md:text-base">{leader.year}</span>
+                  <span className="text-gray-600 text-sm md:text-base">
+                    Academic Year
+                  </span>
+                  <span className="font-semibold text-sm md:text-base">
+                    {leader.year}
+                  </span>
                 </div>
               </div>
             </div>
@@ -804,7 +906,7 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
                 <button className="w-full border border-gray-300 hover:border-gray-400 text-gray-700 py-2 px-4 rounded-lg transition-colors text-sm md:text-base">
                   Message
                 </button>
-                <button 
+                <button
                   onClick={handleShare}
                   className="w-full border border-gray-300 hover:border-gray-400 text-gray-700 py-2 px-4 rounded-lg transition-colors text-sm md:text-base flex items-center justify-center space-x-2"
                 >
@@ -816,11 +918,11 @@ export default function CandidateProfileClient({ leader }: CandidateProfileClien
           </div>
         </div>
       </div>
-      
+
       <Footer />
-      
+
       {/* Login Modal */}
-      <LoginModal 
+      <LoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
         returnUrl={`/candidates/${leader.id}`}

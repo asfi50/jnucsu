@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
-import LoginModal from '@/components/ui/LoginModal';
-import { formatRelativeTime } from '@/lib/utils';
-import { BlogPost } from '@/lib/types';
-import { useAuth } from '@/lib/contexts/AuthContext';
-import { 
+import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+import LoginModal from "@/components/ui/LoginModal";
+import { formatRelativeTime } from "@/lib/utils";
+import { BlogPost } from "@/lib/types";
+import { useAuth } from "@/context/auth-context";
+import {
   ArrowLeft,
   Heart,
   MessageCircle,
@@ -18,8 +18,8 @@ import {
   Calendar,
   Tag,
   Send,
-  Lock
-} from 'lucide-react';
+  Lock,
+} from "lucide-react";
 
 interface BlogPostClientProps {
   post: BlogPost;
@@ -28,19 +28,21 @@ interface BlogPostClientProps {
 export default function BlogPostClient({ post }: BlogPostClientProps) {
   const [likes, setLikes] = useState(post.likes);
   const [hasLiked, setHasLiked] = useState(false);
-  const [newComment, setNewComment] = useState('');
-  const [comments, setComments] = useState<Array<{
-    id: string;
-    author: {
+  const [newComment, setNewComment] = useState("");
+  const [comments, setComments] = useState<
+    Array<{
       id: string;
-      name: string;
-      avatar: string;
-      email: string;
-    };
-    content: string;
-    createdAt: string;
-    replies: unknown[];
-  }>>([]);
+      author: {
+        id: string;
+        name: string;
+        avatar: string;
+        email: string;
+      };
+      content: string;
+      createdAt: string;
+      replies: unknown[];
+    }>
+  >([]);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const { isAuthenticated } = useAuth();
 
@@ -62,7 +64,7 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
 
   const handleComment = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!isAuthenticated) {
       // Show login modal instead of redirecting
       setShowLoginModal(true);
@@ -73,33 +75,33 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
       const comment = {
         id: Date.now().toString(),
         author: {
-          id: '1',
-          name: 'Anonymous User',
-          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=anonymous',
-          email: 'anonymous@jnu.ac.bd'
+          id: "1",
+          name: "Anonymous User",
+          avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=anonymous",
+          email: "anonymous@jnu.ac.bd",
         },
         content: newComment,
         createdAt: new Date().toISOString(),
-        replies: []
+        replies: [],
       };
       setComments([comment, ...comments]);
-      setNewComment('');
+      setNewComment("");
     }
   };
 
   // Generate estimated reading time
   const wordsPerMinute = 200;
-  const wordCount = post.content?.split(' ').length || 500;
+  const wordCount = post.content?.split(" ").length || 500;
   const readingTime = Math.ceil(wordCount / wordsPerMinute);
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      
+
       <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
         <div className="mb-6">
-          <Link 
+          <Link
             href="/blog"
             className="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
           >
@@ -158,17 +160,20 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
                 />
               </Link>
               <div>
-                <Link href={`/users/${post.author.id}`} className="font-semibold text-gray-900 hover:text-orange-600 transition-colors">
+                <Link
+                  href={`/users/${post.author.id}`}
+                  className="font-semibold text-gray-900 hover:text-orange-600 transition-colors"
+                >
                   {post.author.name}
                 </Link>
                 <div className="flex items-center space-x-4 text-sm text-gray-500 mt-1">
                   <div className="flex items-center space-x-1">
                     <Calendar className="w-4 h-4" />
                     <time dateTime={post.publishedAt}>
-                      {new Date(post.publishedAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
+                      {new Date(post.publishedAt).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
                       })}
                     </time>
                   </div>
@@ -185,15 +190,17 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
               <button
                 onClick={handleLike}
                 className={`flex items-center space-x-1 px-3 py-2 rounded-lg transition-colors ${
-                  hasLiked 
-                    ? 'bg-red-50 text-red-600' 
-                    : 'hover:bg-gray-100 text-gray-600'
+                  hasLiked
+                    ? "bg-red-50 text-red-600"
+                    : "hover:bg-gray-100 text-gray-600"
                 }`}
               >
-                <Heart className={`w-4 h-4 ${hasLiked ? 'fill-current' : ''}`} />
+                <Heart
+                  className={`w-4 h-4 ${hasLiked ? "fill-current" : ""}`}
+                />
                 <span className="font-medium">{likes}</span>
               </button>
-              
+
               <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
                 <Share2 className="w-4 h-4 text-gray-600" />
               </button>
@@ -206,20 +213,33 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
           <div className="text-gray-700 leading-relaxed space-y-6">
             {/* Since we don't have actual content, we'll simulate it */}
             <p>
-              {post.content || `This is the full content for "${post.title}". The article explores various aspects of ${post.tags.join(', ').toLowerCase()} and provides insights into student leadership and campus life at Jagannath University.`}
+              {post.content ||
+                `This is the full content for "${
+                  post.title
+                }". The article explores various aspects of ${post.tags
+                  .join(", ")
+                  .toLowerCase()} and provides insights into student leadership and campus life at Jagannath University.`}
             </p>
-            
+
             {/* Add more realistic content blocks */}
             <p>
-              At Jagannath University Central Students&apos; Union, we believe in fostering a culture of leadership, innovation, and community engagement. This article delves into the various initiatives and programs that make our institution a beacon of hope for future leaders.
+              At Jagannath University Central Students&apos; Union, we believe
+              in fostering a culture of leadership, innovation, and community
+              engagement. This article delves into the various initiatives and
+              programs that make our institution a beacon of hope for future
+              leaders.
             </p>
-            
+
             <blockquote className="border-l-4 border-orange-500 pl-4 italic text-gray-600">
-              &quot;Leadership is not about being in charge. It&apos;s about taking care of those in your charge.&quot; - This philosophy guides every decision we make at JnUCSU.
+              &quot;Leadership is not about being in charge. It&apos;s about
+              taking care of those in your charge.&quot; - This philosophy
+              guides every decision we make at JnUCSU.
             </blockquote>
-            
+
             <p>
-              Through various programs and initiatives, we continue to build a stronger, more inclusive community that empowers every student to reach their full potential.
+              Through various programs and initiatives, we continue to build a
+              stronger, more inclusive community that empowers every student to
+              reach their full potential.
             </p>
           </div>
         </div>
@@ -293,8 +313,12 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
           ) : (
             <div className="mb-8 bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
               <Lock className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-              <h4 className="text-lg font-semibold text-gray-900 mb-2">Comments are locked</h4>
-              <p className="text-gray-600 mb-4">Please log in to share your thoughts on this article.</p>
+              <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                Comments are locked
+              </h4>
+              <p className="text-gray-600 mb-4">
+                Please log in to share your thoughts on this article.
+              </p>
               <button
                 onClick={() => setShowLoginModal(true)}
                 className="inline-flex items-center space-x-2 bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg transition-colors"
@@ -307,7 +331,10 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
           {/* Comments List */}
           <div className="space-y-6">
             {comments.map((comment) => (
-              <div key={comment.id} className="bg-white rounded-lg p-4 border border-gray-200">
+              <div
+                key={comment.id}
+                className="bg-white rounded-lg p-4 border border-gray-200"
+              >
                 <div className="flex space-x-3">
                   <Link href={`/users/${comment.author.id}`}>
                     <Image
@@ -320,7 +347,10 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
                   </Link>
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-2">
-                      <Link href={`/users/${comment.author.id}`} className="font-medium text-gray-900 hover:text-orange-600 transition-colors">
+                      <Link
+                        href={`/users/${comment.author.id}`}
+                        className="font-medium text-gray-900 hover:text-orange-600 transition-colors"
+                      >
                         {comment.author.name}
                       </Link>
                       <span className="text-sm text-gray-500">
@@ -344,11 +374,11 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
           </div>
         </section>
       </article>
-      
+
       <Footer />
-      
+
       {/* Login Modal */}
-      <LoginModal 
+      <LoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
         returnUrl={`/blog/${post.id}`}
