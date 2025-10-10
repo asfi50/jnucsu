@@ -28,6 +28,7 @@ function RegisterForm() {
     confirmPassword?: string;
   }>({});
   const { showToast } = useToast();
+  const { signInWithGoogle } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnTo = searchParams.get("returnTo") || "/";
@@ -118,13 +119,11 @@ function RegisterForm() {
     setLoading(true);
 
     try {
-      // Simulate Google registration
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
+      await signInWithGoogle();
       showToast({
         type: "success",
-        title: "Google Registration Successful!",
-        message: "Welcome to JnUCSU.",
+        title: "Redirecting to Google...",
+        message: "Please complete your registration with Google.",
       });
     } catch (error) {
       console.error("Google registration error:", error);

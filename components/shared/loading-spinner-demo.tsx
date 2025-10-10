@@ -10,26 +10,14 @@ const LoadingSpinnerDemo = () => {
 
   const demos = [
     {
-      id: "primary-md",
-      name: "Primary Medium",
-      props: { variant: "primary" as const, size: "md" as const },
-    },
-    {
-      id: "secondary-lg",
-      name: "Secondary Large",
-      props: { variant: "secondary" as const, size: "lg" as const },
-    },
-    {
-      id: "minimal-sm",
-      name: "Minimal Small",
-      props: { variant: "minimal" as const, size: "sm" as const },
+      id: "default",
+      name: "Default",
+      props: {},
     },
     {
       id: "custom-text",
       name: "Custom Text",
       props: {
-        variant: "primary" as const,
-        size: "md" as const,
         customText: "Processing your data",
       },
     },
@@ -37,8 +25,6 @@ const LoadingSpinnerDemo = () => {
       id: "no-text",
       name: "No Text",
       props: {
-        variant: "primary" as const,
-        size: "lg" as const,
         showText: false,
       },
     },
@@ -91,12 +77,7 @@ const LoadingSpinnerDemo = () => {
 
       {/* Full Screen Demo */}
       {activeDemo === "fullscreen" && (
-        <LoadingSpinner
-          variant="primary"
-          size="lg"
-          fullScreen
-          customText="This is a full-screen loading overlay"
-        />
+        <LoadingSpinner customText="This is a full-screen loading overlay" />
       )}
 
       {/* Usage Examples */}

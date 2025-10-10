@@ -21,7 +21,7 @@ function LoginForm() {
     {}
   );
   const { showToast } = useToast();
-  const { login, loading: isLoading } = useAuth();
+  const { login, signInWithGoogle, loading: isLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnTo = searchParams.get("returnTo") || "/";
@@ -78,34 +78,23 @@ function LoginForm() {
     }
   };
 
-  // const handleGoogleLogin = async () => {
-  //   try {
-  //     const success = await loginWithGoogle();
-
-  //     if (success) {
-  //       showToast({
-  //         type: "success",
-  //         title: "Google Login Successful!",
-  //         message: "Welcome to JnUCSU.",
-  //       });
-
-  //       router.push(returnTo);
-  //     } else {
-  //       showToast({
-  //         type: "error",
-  //         title: "Google Login Failed",
-  //         message: "Something went wrong. Please try again.",
-  //       });
-  //     }
-  //   } catch (error) {
-  //     console.error("Google login error:", error);
-  //     showToast({
-  //       type: "error",
-  //       title: "Google Login Failed",
-  //       message: "Something went wrong. Please try again.",
-  //     });
-  //   }
-  // };
+  const handleGoogleLogin = async () => {
+    try {
+      await signInWithGoogle();
+      showToast({
+        type: "success",
+        title: "Redirecting to Google...",
+        message: "Please complete your sign-in with Google.",
+      });
+    } catch (error) {
+      console.error("Google login error:", error);
+      showToast({
+        type: "error",
+        title: "Google Login Failed",
+        message: "Something went wrong. Please try again.",
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -224,7 +213,7 @@ function LoginForm() {
             <Button
               type="button"
               variant="outline"
-              // onClick={handleGoogleLogin}
+              onClick={handleGoogleLogin}
               loading={isLoading}
               className="w-full mt-4"
               size="lg"

@@ -31,6 +31,8 @@ interface AuthContextType {
     password: string,
     isRememberMe: boolean
   ) => Promise<boolean>;
+  signInWithGoogle: () => Promise<void>;
+  resetPassword: (email: string) => Promise<boolean>;
   logout: () => void;
   loading: boolean;
   user: User | null;
@@ -194,6 +196,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Google Sign-In function
+  const signInWithGoogle = async (): Promise<void> => {
+    try {
+      // Store the current page as redirect target
+      localStorage.setItem("google_auth_redirect", window.location.pathname);
+
+      // Use our API route to handle the redirect
+      window.location.href = `/api/auth/google?redirect=${encodeURIComponent(
+        window.location.origin
+      )}`;
+    } catch (error) {
+      console.error("Google sign-in error:", error);
+      throw error;
+    }
+  };
+
+  // Reset password function
+  const resetPassword = async (email: string): Promise<boolean> => {
+    try {
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      await res.json();
+      return res.ok;
+    } catch (error) {
+      console.error("Reset password error:", error);
+      return false;
+    }
+  };
+
   // Logout function
   const logout = () => {
     setAccessToken(null);
@@ -214,6 +248,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     accessToken,
     setAccessToken,
     login,
+    signInWithGoogle,
+    resetPassword,
     logout,
     loading,
     isAuthenticated,

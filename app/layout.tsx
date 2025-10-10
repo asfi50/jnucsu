@@ -9,6 +9,8 @@ import {
   combineKeywords,
 } from "@/lib/seo";
 import { AuthProvider } from "@/context/auth-context";
+import { Suspense } from "react";
+import OAuthHandler from "@/components/auth/OAuthHandler";
 
 // Using system fonts instead of Google Fonts for better reliability
 const fontVariables =
@@ -104,7 +106,12 @@ export default function RootLayout({
       <body className="antialiased">
         <AuthProvider>
           <NotificationProvider>
-            <ToastProvider>{children}</ToastProvider>
+            <ToastProvider>
+              <Suspense fallback={null}>
+                <OAuthHandler />
+              </Suspense>
+              {children}
+            </ToastProvider>
           </NotificationProvider>
         </AuthProvider>
       </body>
