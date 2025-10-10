@@ -24,10 +24,18 @@ export interface UserProfile {
   updatedAt: string;
 }
 
+export interface Position {
+  id: number;
+  name: string;
+  order: number;
+  allocated_slots: number;
+}
+
 export interface ElectionProfile {
   id: string;
   personal: UserProfile;
   position: string;
+  positionDetails?: Position; // Reference to the position details
   biography: string;
   manifesto: string;
   experience?: string;

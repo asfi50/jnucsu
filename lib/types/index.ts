@@ -1,3 +1,11 @@
+// Position types
+export interface Position {
+  id: number;
+  name: string;
+  order: number;
+  allocated_slots: number;
+}
+
 // Student Leader types
 export interface StudentLeader {
   id: string;
@@ -31,7 +39,7 @@ export interface Comment {
   createdAt: string;
   replies: Comment[];
   context?: {
-    type: 'blog' | 'candidate';
+    type: "blog" | "candidate";
     title: string;
     url: string;
   };
@@ -64,14 +72,14 @@ export interface Vote {
   id: string;
   userId: string;
   leaderId: string;
-  type: 'upvote' | 'downvote';
+  type: "upvote" | "downvote";
   createdAt: string;
 }
 
 // Notification types
 export interface Notification {
   id: string;
-  type: 'blog_comment' | 'candidate_comment' | 'message_reply' | 'mention';
+  type: "blog_comment" | "candidate_comment" | "message_reply" | "mention";
   title: string;
   message: string;
   read: boolean;
