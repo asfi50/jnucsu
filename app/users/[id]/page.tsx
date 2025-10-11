@@ -21,57 +21,34 @@ import {
   Globe,
   FileText,
 } from "lucide-react";
+import { PublicProfile } from "@/lib/types/profile.types";
 
 export default function PublicUserProfilePage() {
   const params = useParams();
   const { user, isAuthenticated } = useAuth();
   const userId = params.id as string;
   const isOwnProfile = isAuthenticated && user?.id === userId;
-
-  const [profileData] = useState({
-    id: userId,
-    name: "John Doe",
-    email: "john.doe@student.jnu.edu",
-    phone: "+880 123 456 789",
-    studentId: "JNU2021001",
-    department: "Computer Science & Engineering",
-    year: "4th Year",
-    about:
-      "Passionate student leader committed to creating positive change in our university community.",
-    address: "Dhaka, Bangladesh",
-    avatar: "/api/placeholder/150/150",
-    facebook: "https://facebook.com/johndoe",
-    linkedin: "https://linkedin.com/in/johndoe",
-    twitter: "",
-    instagram: "",
-    website: "https://johndoe.com",
-    blogs: [
-      {
-        id: "1",
-        title: "Building a Better Campus Community",
-        excerpt:
-          "My thoughts on creating an inclusive environment for all students.",
-        publishedAt: "2024-01-15T10:00:00Z",
-        tags: ["Leadership", "Community"],
-      },
-      {
-        id: "2",
-        title: "The Future of Student Governance",
-        excerpt:
-          "Exploring new approaches to student representation and advocacy.",
-        publishedAt: "2024-01-10T10:00:00Z",
-        tags: ["Governance", "Innovation"],
-      },
-    ],
-  });
-
   const [loading, setLoading] = useState(true);
+  const [profileData, setProfileData] = useState<PublicProfile | null>(null);
 
   useEffect(() => {
-    // Simulate API call to fetch user profile
-    setTimeout(() => {
-      setLoading(false);
-    }, 500);
+    async function fetchProfile() {
+      setLoading(true);
+      try {
+        const response = await fetch(`/api/user/profile/${userId}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch profile");
+        }
+        const data = await response.json();
+        setProfileData(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchProfile();
   }, [userId]);
 
   if (loading) {
@@ -101,8 +78,8 @@ export default function PublicUserProfilePage() {
                 <div className="flex items-center space-x-6">
                   <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100">
                     <Image
-                      src={profileData.avatar}
-                      alt={profileData.name}
+                      src={profileData?.avatar || "/default-avatar.png"}
+                      alt={profileData?.name || "User Avatar"}
                       width={96}
                       height={96}
                       className="w-full h-full object-cover"
@@ -110,10 +87,10 @@ export default function PublicUserProfilePage() {
                   </div>
                   <div>
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                      {profileData.name}
+                      {profileData?.name}
                     </h1>
                     <p className="text-sm text-gray-500">
-                      {profileData.department}
+                      {profileData?.department}
                     </p>
                   </div>
                 </div>
@@ -131,15 +108,15 @@ export default function PublicUserProfilePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div className="flex items-center space-x-2 text-sm text-gray-600">
                   <Mail className="w-4 h-4 text-orange-600" />
-                  <span>{profileData.email}</span>
+                  <span>{profileData?.email}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm text-gray-600">
                   <BookOpen className="w-4 h-4 text-orange-600" />
-                  <span>ID: {profileData.studentId}</span>
+                  <span>ID: {profileData?.studentId}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm text-gray-600">
                   <Calendar className="w-4 h-4 text-orange-600" />
-                  <span>{profileData.year}</span>
+                  <span>{profileData?.year}</span>
                 </div>
               </div>
 
@@ -152,30 +129,26 @@ export default function PublicUserProfilePage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex items-center space-x-2 text-sm text-gray-600">
                       <Phone className="w-4 h-4 text-orange-600" />
-                      <span>{profileData.phone}</span>
+                      <span>{profileData?.phone}</span>
                     </div>
                     <div className="flex items-center space-x-2 text-sm text-gray-600">
                       <MapPin className="w-4 h-4 text-orange-600" />
-                      <span>{profileData.address}</span>
+                      <span>{profileData?.address}</span>
                     </div>
                   </div>
                 </div>
               )}
 
               {/* Social Links */}
-              {(profileData.facebook ||
-                profileData.linkedin ||
-                profileData.twitter ||
-                profileData.instagram ||
-                profileData.website) && (
+              {profileData?.links && (
                 <div className="border-t pt-4 mt-4">
                   <h3 className="text-sm font-semibold text-gray-700 mb-3">
                     Connect
                   </h3>
                   <div className="flex flex-wrap gap-3">
-                    {profileData.facebook && (
+                    {profileData?.links?.facebook && (
                       <a
-                        href={profileData.facebook}
+                        href={profileData.links.facebook}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center space-x-2 px-3 py-2 border border-gray-300 rounded-lg hover:border-blue-500 hover:text-blue-500 transition-colors"
@@ -184,9 +157,9 @@ export default function PublicUserProfilePage() {
                         <span className="text-sm">Facebook</span>
                       </a>
                     )}
-                    {profileData.linkedin && (
+                    {profileData?.links?.linkedin && (
                       <a
-                        href={profileData.linkedin}
+                        href={profileData.links.linkedin}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center space-x-2 px-3 py-2 border border-gray-300 rounded-lg hover:border-blue-600 hover:text-blue-600 transition-colors"
@@ -195,9 +168,9 @@ export default function PublicUserProfilePage() {
                         <span className="text-sm">LinkedIn</span>
                       </a>
                     )}
-                    {profileData.twitter && (
+                    {profileData?.links?.twitter && (
                       <a
-                        href={profileData.twitter}
+                        href={profileData.links.twitter}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center space-x-2 px-3 py-2 border border-gray-300 rounded-lg hover:border-sky-500 hover:text-sky-500 transition-colors"
@@ -206,9 +179,9 @@ export default function PublicUserProfilePage() {
                         <span className="text-sm">Twitter</span>
                       </a>
                     )}
-                    {profileData.instagram && (
+                    {profileData?.links?.instagram && (
                       <a
-                        href={profileData.instagram}
+                        href={profileData.links.instagram}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center space-x-2 px-3 py-2 border border-gray-300 rounded-lg hover:border-pink-500 hover:text-pink-500 transition-colors"
@@ -217,9 +190,9 @@ export default function PublicUserProfilePage() {
                         <span className="text-sm">Instagram</span>
                       </a>
                     )}
-                    {profileData.website && (
+                    {profileData?.links?.website && (
                       <a
-                        href={profileData.website}
+                        href={profileData.links.website}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center space-x-2 px-3 py-2 border border-gray-300 rounded-lg hover:border-orange-500 hover:text-orange-500 transition-colors"
@@ -239,7 +212,7 @@ export default function PublicUserProfilePage() {
                 About
               </h2>
               <p className="text-gray-700 leading-relaxed">
-                {profileData.about}
+                {profileData?.about}
               </p>
             </div>
 
@@ -248,12 +221,12 @@ export default function PublicUserProfilePage() {
               <div className="flex items-center space-x-2 mb-6">
                 <FileText className="w-5 h-5 text-orange-600" />
                 <h2 className="text-lg font-semibold text-gray-900">
-                  Blog Posts ({profileData.blogs.length})
+                  Blog Posts ({profileData?.blogs?.length})
                 </h2>
               </div>
-              {profileData.blogs.length > 0 ? (
+              {(profileData?.blogs?.length ?? 0) > 0 ? (
                 <div className="space-y-4">
-                  {profileData.blogs.map((blog) => (
+                  {(profileData?.blogs ?? []).map((blog) => (
                     <Link key={blog.id} href={`/blog/${blog.id}`}>
                       <div className="border-b border-gray-100 pb-4 last:border-b-0 hover:bg-gray-50 transition-colors p-3 rounded-lg">
                         <h3 className="font-semibold text-gray-900 mb-1">

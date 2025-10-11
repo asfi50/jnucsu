@@ -48,3 +48,66 @@ export interface ElectionProfile {
   createdAt: string;
   updatedAt: string;
 }
+export interface PublicProfileBlog {
+  id: string;
+  title: string;
+  excerpt: string;
+  publishedAt: string;
+  tags: string[];
+}
+export interface PublicProfile {
+  id: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  studentId?: string;
+  department?: string;
+  year?: string;
+  about?: string;
+  address?: string;
+  avatar?: string;
+  links?: {
+    facebook?: string;
+    twitter?: string;
+    linkedin?: string;
+    instagram?: string;
+    website?: string;
+  };
+  blogs?: PublicProfileBlog[];
+}
+
+export interface PublicProfileApiResponse {
+  id: string;
+  name: string;
+  user?: {
+    email: string;
+  };
+  phone?: string;
+  student_id?: string;
+  department?: {
+    name: string;
+  };
+  academic_year?: string;
+  about?: string;
+  address?: string;
+  image?: string;
+  facebook?: string;
+  linkedin?: string;
+  instagram?: string;
+  website?: string;
+  links?: {
+    facebook?: string;
+    twitter?: string;
+    linkedin?: string;
+    instagram?: string;
+    website?: string;
+  };
+  blogs?: Array<{
+    id: string;
+    title: string;
+    excerpt: string;
+    status: string;
+    date_published?: string;
+    tags?: string[];
+  }>;
+}

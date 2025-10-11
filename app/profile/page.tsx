@@ -26,10 +26,12 @@ import {
 } from "lucide-react";
 import useAxios from "@/hooks/use-axios";
 import { useToast } from "@/components/ui/ToastProvider";
+import { useData } from "@/context/data-context";
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { loading, isAuthenticated, userProfile, departments } = useAuth();
+  const { loading, isAuthenticated, userProfile } = useAuth();
+  const { departments, departmentsLoading, departmentsError } = useData();
   const [image_url, setProfileImage] = useState<string | null>(
     userProfile?.image || null
   );
@@ -367,6 +369,11 @@ export default function ProfilePage() {
                     disabled={!isEditing}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500"
                   >
+                    <option value="">Select Department</option>
+                    {departmentsLoading && <option value="">Loading...</option>}
+                    {departmentsError && (
+                      <option value="">Error loading departments</option>
+                    )}
                     {departments?.map((dept) => (
                       <option key={dept.id} value={dept.id}>
                         {dept.name}

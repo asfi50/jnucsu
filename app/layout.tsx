@@ -9,6 +9,7 @@ import {
   combineKeywords,
 } from "@/lib/seo";
 import { AuthProvider } from "@/context/auth-context";
+import { DataProvider } from "@/context/data-context";
 import { Suspense } from "react";
 import OAuthHandler from "@/components/auth/OAuthHandler";
 
@@ -105,14 +106,16 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         <AuthProvider>
-          <NotificationProvider>
-            <ToastProvider>
-              <Suspense fallback={null}>
-                <OAuthHandler />
-              </Suspense>
-              {children}
-            </ToastProvider>
-          </NotificationProvider>
+          <DataProvider>
+            <NotificationProvider>
+              <ToastProvider>
+                <Suspense fallback={null}>
+                  <OAuthHandler />
+                </Suspense>
+                {children}
+              </ToastProvider>
+            </NotificationProvider>
+          </DataProvider>
         </AuthProvider>
       </body>
     </html>

@@ -40,7 +40,6 @@ interface AuthContextType {
   setAccessToken: React.Dispatch<React.SetStateAction<string | null>>;
   isAuthenticated: boolean;
   userProfile: UserProfile | null;
-  departments: Department[] | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -51,27 +50,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true); // Start with true for initial load
-  const [departments, setDepartments] = useState<Department[] | null>(null);
 
   const router = useRouter();
-
-  // Fetch departments on mount
-  useEffect(() => {
-    const fetchDepartments = async () => {
-      try {
-        const res = await fetch("/api/departments");
-        const data = await res.json();
-        if (res.ok) {
-          setDepartments(data);
-        } else {
-          console.error("Failed to fetch departments:", data.message);
-        }
-      } catch (error) {
-        console.error("Error fetching departments:", error);
-      }
-    };
-    fetchDepartments();
-  }, []);
 
   // Validate token by checking iat/exp
   const validateToken = (token: string): boolean => {
@@ -254,7 +234,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loading,
     isAuthenticated,
     userProfile,
-    departments,
   };
 
   return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>;

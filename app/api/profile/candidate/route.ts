@@ -16,7 +16,7 @@ export async function GET(req: Request) {
 
   try {
     const candidateRes = await fetch(
-      `${config.serverBaseUrl}/items/candidate_page?filter[profile][_eq]=${info.profileId}&fields=*,user.*,profile.*.*`,
+      `${config.serverBaseUrl}/items/candidate_page?filter[profile][_eq]=${info.profileId}&fields=*,user.*,profile.*.*,position.*`,
       {
         method: "GET",
         headers: {

@@ -7,7 +7,6 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import LoginModal from "@/components/ui/LoginModal";
 import { formatRelativeTime } from "@/lib/utils";
-import { BlogPost } from "@/lib/types";
 import { useAuth } from "@/context/auth-context";
 import {
   ArrowLeft,
@@ -19,7 +18,14 @@ import {
   Tag,
   Send,
   Lock,
+  Eye,
+  Facebook,
+  X,
+  Linkedin,
 } from "lucide-react";
+import { useToast } from "../ui/ToastProvider";
+import useAxios from "@/hooks/use-axios";
+import { BlogComment, BlogPost } from "@/lib/types/blogs.types";
 
 interface BlogPostClientProps {
   post: BlogPost;
@@ -27,24 +33,15 @@ interface BlogPostClientProps {
 
 export default function BlogPostClient({ post }: BlogPostClientProps) {
   const [likes, setLikes] = useState(post.likes);
-  const [hasLiked, setHasLiked] = useState(false);
+  const [hasLiked, setHasLiked] = useState(post.is_reacted || false);
   const [newComment, setNewComment] = useState("");
-  const [comments, setComments] = useState<
-    Array<{
-      id: string;
-      author: {
-        id: string;
-        name: string;
-        avatar: string;
-        email: string;
-      };
-      content: string;
-      createdAt: string;
-      replies: unknown[];
-    }>
-  >([]);
+  const [comments, setComments] = useState<BlogComment[]>([
+    ...(post.comments ? post.comments : []),
+  ]);
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, userProfile } = useAuth();
+  const { showToast } = useToast();
+  const axios = useAxios();
 
   const handleLike = () => {
     if (!isAuthenticated) {
@@ -62,7 +59,7 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
     }
   };
 
-  const handleComment = (e: React.FormEvent) => {
+  const handleComment = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!isAuthenticated) {
@@ -75,10 +72,12 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
       const comment = {
         id: Date.now().toString(),
         author: {
-          id: "1",
-          name: "Anonymous User",
-          avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=anonymous",
-          email: "anonymous@jnu.ac.bd",
+          id: userProfile?.id || "1",
+          name: userProfile?.name || "Anonymous User",
+          avatar:
+            userProfile?.image ||
+            "https://api.dicebear.com/7.x/avataaars/svg?seed=anonymous",
+          email: userProfile?.email || "anonymous@jnu.ac.bd",
         },
         content: newComment,
         createdAt: new Date().toISOString(),
@@ -86,6 +85,70 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
       };
       setComments([comment, ...comments]);
       setNewComment("");
+      await axios
+        .post(`/api/comment`, {
+          content: newComment,
+          blogId: post.id,
+        })
+        .then(() => {
+          showToast({
+            message: "Comment posted successfully!",
+            type: "success",
+            title: "",
+          });
+        })
+        .catch(() => {
+          showToast({
+            message: "Failed to post comment. Please try again.",
+            type: "error",
+            title: "",
+          });
+        });
+    }
+  };
+
+  const handleShare = (platform: string) => {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent(`Check out this article: ${post.title}`);
+    let shareUrl = "";
+    switch (platform) {
+      case "facebook":
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+        break;
+      case "twitter":
+        shareUrl = `https://x.com/intent/tweet?url=${url}&text=${text}`;
+        break;
+      case "linkedin":
+        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
+        break;
+      default:
+        shareUrl = url;
+        break;
+    }
+
+    if (shareUrl) {
+      window.open(shareUrl, "_blank");
+    }
+  };
+
+  const copyBlogId = () => {
+    navigator.clipboard.writeText(post.id);
+    showToast({
+      message: "Blog ID copied to clipboard!",
+      type: "success",
+      title: "",
+    });
+  };
+
+  const shareBlog = async () => {
+    if (navigator.share) {
+      navigator.share({
+        title: post.title,
+        text: post.excerpt,
+        url: window.location.href,
+      });
+    } else {
+      copyBlogId();
     }
   };
 
@@ -166,7 +229,7 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
                 >
                   {post.author.name}
                 </Link>
-                <div className="flex items-center space-x-4 text-sm text-gray-500 mt-1">
+                <div className="lg:flex items-center space-y-2 lg:space-y-0 space-x-4 text-sm text-gray-500 mt-1">
                   <div className="flex items-center space-x-1">
                     <Calendar className="w-4 h-4" />
                     <time dateTime={post.publishedAt}>
@@ -186,10 +249,10 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
             </div>
 
             {/* Social Actions */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3">
               <button
                 onClick={handleLike}
-                className={`flex items-center space-x-1 px-3 py-2 rounded-lg transition-colors ${
+                className={`flex items-center space-x-1 py-2 rounded-lg transition-colors ${
                   hasLiked
                     ? "bg-red-50 text-red-600"
                     : "hover:bg-gray-100 text-gray-600"
@@ -201,7 +264,15 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
                 <span className="font-medium">{likes}</span>
               </button>
 
-              <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+              <div className="flex items-center space-x-1  py-2 rounded-lg bg-gray-50 text-gray-600">
+                <Eye className="w-4 h-4" />
+                <span className="font-medium">{post.views ?? 0}</span>
+              </div>
+
+              <button
+                onClick={async () => shareBlog()}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
                 <Share2 className="w-4 h-4 text-gray-600" />
               </button>
             </div>
@@ -210,37 +281,8 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
 
         {/* Article Content */}
         <div className="prose prose-lg max-w-none">
-          <div className="text-gray-700 leading-relaxed space-y-6">
-            {/* Since we don't have actual content, we'll simulate it */}
-            <p>
-              {post.content ||
-                `This is the full content for "${
-                  post.title
-                }". The article explores various aspects of ${post.tags
-                  .join(", ")
-                  .toLowerCase()} and provides insights into student leadership and campus life at Jagannath University.`}
-            </p>
-
-            {/* Add more realistic content blocks */}
-            <p>
-              At Jagannath University Central Students&apos; Union, we believe
-              in fostering a culture of leadership, innovation, and community
-              engagement. This article delves into the various initiatives and
-              programs that make our institution a beacon of hope for future
-              leaders.
-            </p>
-
-            <blockquote className="border-l-4 border-orange-500 pl-4 italic text-gray-600">
-              &quot;Leadership is not about being in charge. It&apos;s about
-              taking care of those in your charge.&quot; - This philosophy
-              guides every decision we make at JnUCSU.
-            </blockquote>
-
-            <p>
-              Through various programs and initiatives, we continue to build a
-              stronger, more inclusive community that empowers every student to
-              reach their full potential.
-            </p>
+          <div className="text-gray-700 leading-relaxed space-y-6 whitespace-pre-wrap">
+            {post.content}
           </div>
         </div>
 
@@ -250,17 +292,23 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-500">Share this article:</span>
               <div className="flex items-center space-x-2">
-                <button className="p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
-                  <span className="sr-only">Share on Facebook</span>
-                  📘
+                <button
+                  onClick={() => handleShare("facebook")}
+                  className="p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                >
+                  <Facebook className="w-4 h-4" />
                 </button>
-                <button className="p-2 bg-sky-500 text-white rounded hover:bg-sky-600 transition-colors">
-                  <span className="sr-only">Share on Twitter</span>
-                  🐦
+                <button
+                  onClick={() => handleShare("twitter")}
+                  className="p-2 bg-sky-500 text-white rounded hover:bg-sky-600 transition-colors"
+                >
+                  <X className="w-4 h-4" />
                 </button>
-                <button className="p-2 bg-blue-800 text-white rounded hover:bg-blue-900 transition-colors">
-                  <span className="sr-only">Share on LinkedIn</span>
-                  💼
+                <button
+                  onClick={() => handleShare("linkedin")}
+                  className="p-2 bg-blue-800 text-white rounded hover:bg-blue-900 transition-colors"
+                >
+                  <Linkedin className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -282,11 +330,15 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
               <div className="flex space-x-4">
                 <div className="flex-shrink-0">
                   <Image
-                    src="https://api.dicebear.com/7.x/avataaars/svg?seed=currentuser"
+                    src={
+                      userProfile?.image ||
+                      "https://api.dicebear.com/7.x/avataaars/svg?seed=currentuser"
+                    }
                     alt="Your avatar"
                     width={40}
                     height={40}
                     className="rounded-full"
+                    unoptimized
                   />
                 </div>
                 <div className="flex-1">

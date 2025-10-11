@@ -11,6 +11,7 @@ import Button from "@/components/ui/Button";
 import MarkdownEditor from "@/components/ui/MarkdownEditor";
 import { useToast } from "@/components/ui/ToastProvider";
 import useAxios from "@/hooks/use-axios";
+import { compressImage, fileToBase64 } from "@/lib/utils/image-compression";
 
 export interface Category {
   id: string;
@@ -25,11 +26,13 @@ const SubmitBlogPage = () => {
     tags: [] as string[],
     category: "",
     thumbnail: null as File | null,
-    status: "draft" as "draft" | "published",
+    thumbnailBase64: null as string | null,
+    status: "draft" as "draft" | "pending",
   });
   const [currentTag, setCurrentTag] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
+  const [compressing, setCompressing] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -91,34 +94,13 @@ const SubmitBlogPage = () => {
     setLoading(true);
 
     try {
-      let thumbnailUrl = null;
-
-      // Upload thumbnail if a file is selected
-      if (formData.thumbnail) {
-        const thumbnailFormData = new FormData();
-        thumbnailFormData.append("file", formData.thumbnail);
-
-        const uploadResponse = await fetch("/api/upload/photo", {
-          method: "POST",
-          body: thumbnailFormData,
-        });
-
-        if (!uploadResponse.ok) {
-          const error = await uploadResponse.json();
-          throw new Error(error.error || "Thumbnail upload failed");
-        }
-
-        const uploadData = await uploadResponse.json();
-        thumbnailUrl = uploadData.url;
-      }
-
       const blogData = {
         title: formData.title,
         content: formData.content,
         excerpt: formData.excerpt,
         tags: formData.tags,
         category: formData.category,
-        thumbnail: thumbnailUrl,
+        thumbnail: formData.thumbnailBase64, // Send base64 data instead of URL
         status: formData.status,
       };
       const response = await axios.post("/api/blog/new", blogData);
@@ -127,13 +109,13 @@ const SubmitBlogPage = () => {
       }
 
       const action =
-        formData.status === "published" ? "published" : "saved as draft";
+        formData.status === "pending" ? "pending" : "saved as draft";
 
       showToast({
         type: "success",
         title: `Blog Post ${action.charAt(0).toUpperCase() + action.slice(1)}!`,
         message:
-          formData.status === "published"
+          formData.status === "pending"
             ? "Your blog post has been submitted for review and will be published once approved."
             : "Your blog post has been saved as draft. You can publish it later from My Blogs.",
       });
@@ -174,27 +156,66 @@ const SubmitBlogPage = () => {
     }
   };
 
-  const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleThumbnailChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        // 5MB limit
-        setErrors((prev) => ({
-          ...prev,
-          thumbnail: "Image must be less than 5MB",
-        }));
-        return;
-      }
+    if (!file) return;
 
-      // Store the file object and create preview
-      setFormData((prev) => ({ ...prev, thumbnail: file }));
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      setErrors((prev) => ({
+        ...prev,
+        thumbnail: "Please select a valid image file",
+      }));
+      return;
+    }
 
-      // Create local preview URL
-      const previewUrl = URL.createObjectURL(file);
+    // Validate original file size (10MB limit for original file)
+    if (file.size > 10 * 1024 * 1024) {
+      setErrors((prev) => ({
+        ...prev,
+        thumbnail: "Image must be less than 10MB",
+      }));
+      return;
+    }
+
+    setCompressing(true);
+    setErrors((prev) => ({ ...prev, thumbnail: "" }));
+
+    try {
+      // Compress the image
+      const compressedFile = await compressImage(file, 1200, 800, 0.8);
+
+      // Convert compressed file to base64
+      const base64Data = await fileToBase64(compressedFile);
+
+      // Store both the original file and base64 data
+      setFormData((prev) => ({
+        ...prev,
+        thumbnail: file,
+        thumbnailBase64: base64Data,
+      }));
+
+      // Create preview URL from compressed file
+      const previewUrl = URL.createObjectURL(compressedFile);
       setThumbnailPreview(previewUrl);
 
-      // Clear error
-      setErrors((prev) => ({ ...prev, thumbnail: "" }));
+      console.log(
+        `Original size: ${(file.size / 1024 / 1024).toFixed(
+          2
+        )}MB, Compressed size: ${(compressedFile.size / 1024 / 1024).toFixed(
+          2
+        )}MB`
+      );
+    } catch (error) {
+      console.error("Image compression failed:", error);
+      setErrors((prev) => ({
+        ...prev,
+        thumbnail: "Failed to process image. Please try another image.",
+      }));
+    } finally {
+      setCompressing(false);
     }
   };
 
@@ -204,7 +225,11 @@ const SubmitBlogPage = () => {
       URL.revokeObjectURL(thumbnailPreview);
     }
 
-    setFormData((prev) => ({ ...prev, thumbnail: null }));
+    setFormData((prev) => ({
+      ...prev,
+      thumbnail: null,
+      thumbnailBase64: null,
+    }));
     setThumbnailPreview(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -326,7 +351,16 @@ const SubmitBlogPage = () => {
                     Thumbnail Image
                   </label>
                   <div className="space-y-4">
-                    {thumbnailPreview ? (
+                    {compressing ? (
+                      <div className="w-full h-32 border-2 border-dashed border-orange-300 rounded-lg flex items-center justify-center bg-orange-50">
+                        <div className="text-center">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto mb-2"></div>
+                          <p className="text-sm text-orange-600">
+                            Compressing image...
+                          </p>
+                        </div>
+                      </div>
+                    ) : thumbnailPreview ? (
                       <div className="relative inline-block">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
@@ -341,11 +375,20 @@ const SubmitBlogPage = () => {
                         >
                           <X className="w-4 h-4" />
                         </button>
+                        <div className="mt-2 text-xs text-green-600">
+                          ✓ Image compressed and ready
+                        </div>
                       </div>
                     ) : (
                       <div
-                        onClick={() => fileInputRef.current?.click()}
-                        className="w-full h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition-colors"
+                        onClick={() =>
+                          !compressing && fileInputRef.current?.click()
+                        }
+                        className={`w-full h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center transition-colors ${
+                          !compressing
+                            ? "cursor-pointer hover:border-orange-400 hover:bg-orange-50"
+                            : "cursor-not-allowed opacity-50"
+                        }`}
                       >
                         <div className="text-center">
                           <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
@@ -353,7 +396,7 @@ const SubmitBlogPage = () => {
                             Click to upload thumbnail
                           </p>
                           <p className="text-xs text-gray-500">
-                            PNG, JPG up to 5MB
+                            PNG, JPG up to 10MB (will be compressed)
                           </p>
                         </div>
                       </div>
@@ -470,19 +513,23 @@ const SubmitBlogPage = () => {
                     setFormData((prev) => ({ ...prev, status: "draft" }));
                     submitForm();
                   }}
-                  disabled={loading}
+                  disabled={loading || compressing}
                 >
-                  Save as Draft
+                  {compressing ? "Processing..." : "Save as Draft"}
                 </Button>
                 <Button
                   type="submit"
                   loading={loading}
-                  disabled={loading}
+                  disabled={loading || compressing}
                   onClick={() =>
-                    setFormData((prev) => ({ ...prev, status: "published" }))
+                    setFormData((prev) => ({ ...prev, status: "pending" }))
                   }
                 >
-                  {loading ? "Publishing..." : "Publish for Review"}
+                  {compressing
+                    ? "Processing..."
+                    : loading
+                    ? "Publishing..."
+                    : "Publish for Review"}
                 </Button>
               </div>
             </div>

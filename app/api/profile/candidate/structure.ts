@@ -10,7 +10,7 @@ export function mapApiResponseToCandidateProfile(
   return {
     id: apiResponse.id,
     userId: profile.id,
-    position: apiResponse.position,
+    position: apiResponse.position.name,
     biography: apiResponse.biography,
     manifesto: apiResponse.manifesto,
     experience: apiResponse.experience,

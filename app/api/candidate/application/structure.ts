@@ -7,7 +7,7 @@ export function mapApiResponseToCandidateProfile(
   const profile = apiResponse.profile || {};
 
   return {
-    position: apiResponse.position,
+    position: apiResponse.position.name,
     biography: apiResponse.biography,
     manifesto: apiResponse.manifesto,
     experience: apiResponse.experience,

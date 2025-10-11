@@ -13,6 +13,7 @@ import { useToast } from "@/components/ui/ToastProvider";
 import { useAuth } from "@/context/auth-context";
 import LoadingSpinner from "@/components/shared/loading-spinner";
 import useAxios from "@/hooks/use-axios";
+import { useData } from "@/context/data-context";
 
 export interface CandidateFormData {
   position: string;
@@ -47,9 +48,17 @@ const SubmitCandidatePage = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isApplied, setIsApplied] = useState(false);
   const { showToast } = useToast();
-  const { userProfile, loading: authLoading, departments } = useAuth();
+  const { userProfile, loading: authLoading } = useAuth();
   const router = useRouter();
   const axios = useAxios();
+  const {
+    positions,
+    positionsLoading,
+    positionsError,
+    departments,
+    departmentsLoading,
+    departmentsError,
+  } = useData();
 
   useEffect(() => {
     if (userProfile) {
@@ -85,23 +94,6 @@ const SubmitCandidatePage = () => {
     };
     checkExistingApplication();
   }, [authLoading, axios, userProfile]);
-
-  const positions = [
-    "Vice President",
-    "General Secretary",
-    "Joint General Secretary",
-    "Secretary of History and Heritage",
-    "Secretary of Education and Research",
-    "Secretary of Common Room and Cafeteria",
-    "Secretary of International Affairs",
-    "Secretary of Literature, Publications and Culture",
-    "Finance Secretary",
-    "Sports Secretary",
-    "Student Transport Secretary",
-    "Social Service Secretary",
-    "Library and Seminar Secretary",
-    "Executive Member",
-  ];
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -286,11 +278,19 @@ const SubmitCandidatePage = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   >
                     <option value="">Select Department</option>
-                    {departments?.map((dept) => (
-                      <option key={dept.id} value={dept.id}>
-                        {dept.name}
-                      </option>
-                    ))}
+                    {departmentsLoading ? (
+                      <option value="">Loading...</option>
+                    ) : departmentsError ? (
+                      <option value="">Error...</option>
+                    ) : (
+                      <>
+                        {departments?.map((dept) => (
+                          <option key={dept.id} value={dept.id}>
+                            {dept.name}
+                          </option>
+                        ))}
+                      </>
+                    )}
                   </select>
                   {errors.did && (
                     <p className="mt-1 text-sm text-red-600">{errors.did}</p>
@@ -322,20 +322,31 @@ const SubmitCandidatePage = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Position
                   </label>
-                  <select
-                    value={formData.position}
-                    onChange={(e) =>
-                      handleInputChange("position", e.target.value)
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  >
-                    <option value="">Select Position</option>
-                    {positions.map((position) => (
-                      <option key={position} value={position}>
-                        {position}
-                      </option>
-                    ))}
-                  </select>
+                  {positionsLoading ? (
+                    <>
+                      <option value="">Loading...</option>
+                    </>
+                  ) : positionsError ? (
+                    <>
+                      <option value="">Error loading positions</option>
+                    </>
+                  ) : (
+                    <select
+                      value={formData.position}
+                      onChange={(e) =>
+                        handleInputChange("position", e.target.value)
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    >
+                      <option value="">Select Position</option>
+                      {positions?.map((position) => (
+                        <option key={position.id} value={position.id}>
+                          {position.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+
                   {errors.position && (
                     <p className="mt-1 text-sm text-red-600">
                       {errors.position}

@@ -53,20 +53,6 @@ export interface User {
   email: string;
 }
 
-// Blog types
-export interface BlogPost {
-  id: string;
-  title: string;
-  content: string;
-  excerpt: string;
-  author: User;
-  coverImage: string;
-  tags: string[];
-  publishedAt: string;
-  readTime: number;
-  likes: number;
-}
-
 // Vote types
 export interface Vote {
   id: string;

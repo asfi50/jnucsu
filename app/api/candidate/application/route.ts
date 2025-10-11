@@ -1,7 +1,6 @@
 import { config } from "@/config";
 import { VerifyAuthToken } from "@/middleware/verify-token";
 import { NextResponse } from "next/server";
-import { mapApiResponseToCandidateProfile } from "./structure";
 
 export async function POST(req: Request) {
   const authResult = await VerifyAuthToken(req);
@@ -161,7 +160,7 @@ export async function GET(req: Request) {
 
   try {
     const applicationRes = await fetch(
-      `${config.serverBaseUrl}/items/candidate_page?filter[profile][_eq]=${info.profileId}&fields=*,user.*,profile.*.*`,
+      `${config.serverBaseUrl}/items/candidate_page?filter[profile][_eq]=${info.profileId}&fields=*,user.*,profile.*.*,position.*`,
       {
         method: "GET",
         headers: {
@@ -177,10 +176,11 @@ export async function GET(req: Request) {
         { status: 404 }
       );
     }
-    return NextResponse.json(
-      mapApiResponseToCandidateProfile(applicationData.data[0]),
-      { status: 200 }
-    );
+    // return NextResponse.json(
+    //   mapApiResponseToCandidateProfile(applicationData.data[0]),
+    //   { status: 200 }
+    // );
+    return NextResponse.json(applicationData.data[0], { status: 200 });
   } catch (error) {
     console.error("Error fetching application data:", error);
     return NextResponse.json(

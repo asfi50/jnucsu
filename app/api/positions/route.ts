@@ -1,4 +1,5 @@
 import { config } from "@/config";
+import { VerifyAuthToken } from "@/middleware/verify-token";
 import { NextResponse } from "next/server";
 
 // GET: Fetch all positions
@@ -38,6 +39,15 @@ export async function GET() {
 
 // POST: Create a new position (admin only)
 export async function POST(request: Request) {
+  const authResult = await VerifyAuthToken(request);
+  if (authResult instanceof Response) return authResult;
+  const { token, info } = authResult;
+  if (!token) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+  if (!info.userId) {
+    return NextResponse.json({ message: "User not found" }, { status: 404 });
+  }
   try {
     const body = await request.json();
     const { name, order, allocated_slots } = body;
@@ -66,6 +76,7 @@ export async function POST(request: Request) {
         name,
         order,
         allocated_slots,
+        user_created: info.userId,
       }),
     });
 
@@ -95,6 +106,15 @@ export async function POST(request: Request) {
 
 // PUT: Update a position (admin only)
 export async function PUT(request: Request) {
+  const authResult = await VerifyAuthToken(request);
+  if (authResult instanceof Response) return authResult;
+  const { token, info } = authResult;
+  if (!token) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+  if (!info.userId) {
+    return NextResponse.json({ message: "User not found" }, { status: 404 });
+  }
   try {
     const body = await request.json();
     const { id, name, order, allocated_slots } = body;
@@ -107,6 +127,7 @@ export async function PUT(request: Request) {
     }
 
     const updateData: Partial<{
+      user_updated: string;
       name: string;
       order: number;
       allocated_slots: number;
@@ -136,7 +157,7 @@ export async function PUT(request: Request) {
         "Content-Type": "application/json",
         Authorization: `Bearer ${config.adminToken}`,
       },
-      body: JSON.stringify(updateData),
+      body: JSON.stringify({ ...updateData, user_updated: info.userId }),
     });
 
     if (!res.ok) {
@@ -165,6 +186,15 @@ export async function PUT(request: Request) {
 
 // DELETE: Delete a position (admin only)
 export async function DELETE(request: Request) {
+  const authResult = await VerifyAuthToken(request);
+  if (authResult instanceof Response) return authResult;
+  const { token, info } = authResult;
+  if (!token) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+  if (!info.userId) {
+    return NextResponse.json({ message: "User not found" }, { status: 404 });
+  }
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");

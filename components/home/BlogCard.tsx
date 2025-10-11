@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, Clock } from "lucide-react";
-import { BlogPost } from "@/lib/types";
+import { BlogPost } from "@/lib/types/blogs.types";
 import { formatRelativeTime } from "@/lib/utils";
 import { useState } from "react";
 import LoginModal from "@/components/ui/LoginModal";
