@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { Heart, Clock } from 'lucide-react';
-import { BlogPost } from '@/lib/types';
-import { formatRelativeTime } from '@/lib/utils';
-import { useState } from 'react';
-import { useAuth } from '@/lib/contexts/AuthContext';
-import LoginModal from '@/components/ui/LoginModal';
+import Image from "next/image";
+import Link from "next/link";
+import { Heart, Clock } from "lucide-react";
+import { BlogPost } from "@/lib/types/blogs.types";
+import { formatRelativeTime } from "@/lib/utils";
+import { useState } from "react";
+import LoginModal from "@/components/ui/LoginModal";
+import { useAuth } from "@/context/auth-context";
 
 interface BlogCardProps {
   post: BlogPost;
@@ -26,7 +26,7 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
       setShowLoginModal(true);
       return;
     }
-    
+
     if (!hasLiked) {
       setLikes(likes + 1);
       setHasLiked(true);
@@ -58,16 +58,14 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
               </span>
             ))}
           </div>
-          
+
           <Link href={`/blog/${post.id}`} className="group">
             <h2 className="text-xl font-bold text-gray-900 group-hover:text-orange-600 transition-colors leading-tight mb-2">
               {post.title}
             </h2>
           </Link>
-          
-          <p className="text-gray-600 mb-4 leading-relaxed">
-            {post.excerpt}
-          </p>
+
+          <p className="text-gray-600 mb-4 leading-relaxed">{post.excerpt}</p>
 
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -80,7 +78,9 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
               />
               <div className="text-sm">
                 <p className="text-gray-900 font-medium">{post.author.name}</p>
-                <p className="text-gray-500">{formatRelativeTime(post.publishedAt)}</p>
+                <p className="text-gray-500">
+                  {formatRelativeTime(post.publishedAt)}
+                </p>
               </div>
             </div>
 
@@ -92,18 +92,20 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
               <button
                 onClick={handleLike}
                 className={`flex items-center space-x-1 transition-colors ${
-                  hasLiked ? 'text-red-500' : 'hover:text-red-500'
+                  hasLiked ? "text-red-500" : "hover:text-red-500"
                 }`}
               >
-                <Heart className={`w-4 h-4 ${hasLiked ? 'fill-current' : ''}`} />
+                <Heart
+                  className={`w-4 h-4 ${hasLiked ? "fill-current" : ""}`}
+                />
                 <span>{likes}</span>
               </button>
             </div>
           </div>
         </div>
-        
+
         {/* Login Modal */}
-        <LoginModal 
+        <LoginModal
           isOpen={showLoginModal}
           onClose={() => setShowLoginModal(false)}
           returnUrl={`/blog/${post.id}`}
@@ -134,13 +136,13 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
             </span>
           ))}
         </div>
-        
+
         <Link href={`/blog/${post.id}`} className="group">
           <h3 className="font-semibold text-gray-900 group-hover:text-orange-600 transition-colors leading-tight mb-2">
             {post.title}
           </h3>
         </Link>
-        
+
         <p className="text-gray-600 text-sm mb-3 leading-relaxed line-clamp-2">
           {post.excerpt}
         </p>
@@ -165,18 +167,18 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
             <button
               onClick={handleLike}
               className={`flex items-center space-x-1 transition-colors ${
-                hasLiked ? 'text-red-500' : 'hover:text-red-500'
+                hasLiked ? "text-red-500" : "hover:text-red-500"
               }`}
             >
-              <Heart className={`w-3 h-3 ${hasLiked ? 'fill-current' : ''}`} />
+              <Heart className={`w-3 h-3 ${hasLiked ? "fill-current" : ""}`} />
               <span>{likes}</span>
             </button>
           </div>
         </div>
       </div>
-      
+
       {/* Login Modal */}
-      <LoginModal 
+      <LoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
         returnUrl={`/blog/${post.id}`}

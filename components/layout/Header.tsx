@@ -1,10 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { Search, Menu, X, User, LogOut, Settings, Edit, ChevronDown, Sparkles, Bell } from "lucide-react";
+import {
+  Search,
+  Menu,
+  X,
+  User,
+  LogOut,
+  Settings,
+  Edit,
+  ChevronDown,
+  Sparkles,
+  Bell,
+} from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-import { useAuth } from "@/lib/contexts/AuthContext";
-import { useNotifications } from "@/lib/contexts/NotificationContext";
+import { useAuth } from "@/context/auth-context";
+import { useNotifications } from "@/context/NotificationContext";
 import NotificationPanel from "@/components/notifications/NotificationPanel";
 
 export default function Header() {
@@ -12,15 +23,15 @@ export default function Header() {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isMobileProfileOpen, setIsMobileProfileOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-  const { user, logout, isAuthenticated } = useAuth();
+  const { logout, isAuthenticated, userProfile } = useAuth();
   const { unreadCount } = useNotifications();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const getUserInitials = (name: string) => {
     return name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
       .toUpperCase()
       .slice(0, 2);
   };
@@ -34,14 +45,17 @@ export default function Header() {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsProfileDropdownOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -51,19 +65,30 @@ export default function Header() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <div className="bg-orange-500 text-white font-bold text-xl px-3 py-1 rounded">JnU</div>
+            <div className="bg-orange-500 text-white font-bold text-xl px-3 py-1 rounded">
+              JnU
+            </div>
             <span className="font-semibold text-gray-900">CSU</span>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/candidates" className="text-gray-600 hover:text-gray-900 transition-colors">
+            <Link
+              href="/candidates"
+              className="text-gray-600 hover:text-gray-900 transition-colors"
+            >
               Candidates
             </Link>
-            <Link href="/blog" className="text-gray-600 hover:text-gray-900 transition-colors">
+            <Link
+              href="/blog"
+              className="text-gray-600 hover:text-gray-900 transition-colors"
+            >
               Blog
             </Link>
-            <Link href="/about" className="text-gray-600 hover:text-gray-900 transition-colors">
+            <Link
+              href="/about"
+              className="text-gray-600 hover:text-gray-900 transition-colors"
+            >
               About
             </Link>
           </nav>
@@ -72,12 +97,16 @@ export default function Header() {
           <div className="hidden md:flex items-center space-x-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input type="text" placeholder="Search candidates..." className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none" />
+              <input
+                type="text"
+                placeholder="Search candidates..."
+                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+              />
             </div>
 
             {/* AI Icon */}
-            <Link 
-              href="/ai" 
+            <Link
+              href="/ai"
               className="p-2 rounded-lg hover:bg-gray-100 transition-colors group"
               title="AI Assistant"
             >
@@ -95,27 +124,29 @@ export default function Header() {
                   <Bell className="w-5 h-5 text-gray-600" />
                   {unreadCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                      {unreadCount > 9 ? '9+' : unreadCount}
+                      {unreadCount > 9 ? "9+" : unreadCount}
                     </span>
                   )}
                 </button>
-                <NotificationPanel 
-                  isOpen={isNotificationOpen} 
-                  onClose={() => setIsNotificationOpen(false)} 
+                <NotificationPanel
+                  isOpen={isNotificationOpen}
+                  onClose={() => setIsNotificationOpen(false)}
                 />
               </div>
             )}
-            
+
             {isAuthenticated ? (
               // Profile dropdown for authenticated users
               <div className="relative" ref={dropdownRef}>
                 <button
-                  onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                  onClick={() =>
+                    setIsProfileDropdownOpen(!isProfileDropdownOpen)
+                  }
                   className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
                     <span className="text-white text-sm font-medium">
-                      {getUserInitials(user?.name || 'U')}
+                      {getUserInitials(userProfile?.name.charAt(0) || "U")}
                     </span>
                   </div>
                   <ChevronDown className="w-4 h-4 text-gray-600" />
@@ -124,46 +155,50 @@ export default function Header() {
                 {isProfileDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                     <div className="px-4 py-2 border-b border-gray-100">
-                      <p className="text-sm font-medium text-gray-900">{user?.name}</p>
-                      <p className="text-xs text-gray-500">{user?.email}</p>
+                      <p className="text-sm font-medium text-gray-900">
+                        {userProfile?.name}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {userProfile?.email}
+                      </p>
                     </div>
-                    
-                    <Link 
-                      href="/profile" 
+
+                    <Link
+                      href="/profile"
                       className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                       onClick={() => setIsProfileDropdownOpen(false)}
                     >
                       <User className="w-4 h-4 mr-3" />
                       Update Profile
                     </Link>
-                    
-                    <Link 
-                      href="/my-candidate-profile" 
+
+                    <Link
+                      href="/my-candidate-profile"
                       className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                       onClick={() => setIsProfileDropdownOpen(false)}
                     >
                       <Edit className="w-4 h-4 mr-3" />
                       My Candidate Profile
                     </Link>
-                    
-                    <Link 
-                      href="/my-blogs" 
+
+                    <Link
+                      href="/my-blogs"
                       className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                       onClick={() => setIsProfileDropdownOpen(false)}
                     >
                       <Edit className="w-4 h-4 mr-3" />
                       My Blogs
                     </Link>
-                    
-                    <Link 
-                      href="/settings" 
+
+                    <Link
+                      href="/settings"
                       className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                       onClick={() => setIsProfileDropdownOpen(false)}
                     >
                       <Settings className="w-4 h-4 mr-3" />
                       Settings
                     </Link>
-                    
+
                     <div className="border-t border-gray-100 mt-2 pt-2">
                       <button
                         onClick={handleLogout}
@@ -179,10 +214,16 @@ export default function Header() {
             ) : (
               // Login/Register for unauthenticated users
               <>
-                <Link href="/auth/login" className="text-gray-600 hover:text-gray-900 transition-colors px-3 py-2">
+                <Link
+                  href="/auth/login"
+                  className="text-gray-600 hover:text-gray-900 transition-colors px-3 py-2"
+                >
                   Login
                 </Link>
-                <Link href="/auth/register" className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors">
+                <Link
+                  href="/auth/register"
+                  className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors"
+                >
                   Sign Up
                 </Link>
               </>
@@ -192,8 +233,8 @@ export default function Header() {
           {/* Mobile menu button and profile icon */}
           <div className="md:hidden flex items-center space-x-2">
             {/* AI Icon - Now visible in mobile header */}
-            <Link 
-              href="/ai" 
+            <Link
+              href="/ai"
               className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
               title="AI Assistant"
             >
@@ -211,31 +252,35 @@ export default function Header() {
                   <Bell className="w-5 h-5 text-gray-600" />
                   {unreadCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                      {unreadCount > 9 ? '9+' : unreadCount}
+                      {unreadCount > 9 ? "9+" : unreadCount}
                     </span>
                   )}
                 </button>
-                <NotificationPanel 
-                  isOpen={isNotificationOpen} 
-                  onClose={() => setIsNotificationOpen(false)} 
+                <NotificationPanel
+                  isOpen={isNotificationOpen}
+                  onClose={() => setIsNotificationOpen(false)}
                 />
               </div>
             )}
-            
+
             {isAuthenticated && (
-              <button 
+              <button
                 onClick={() => setIsMobileProfileOpen(!isMobileProfileOpen)}
                 className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
               >
                 <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
                   <span className="text-white text-sm font-medium">
-                    {getUserInitials(user?.name || 'U')}
+                    {getUserInitials(userProfile?.name.charAt(0) || "U")}
                   </span>
                 </div>
               </button>
             )}
             <button className="p-2" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
             </button>
           </div>
         </div>
@@ -244,27 +289,51 @@ export default function Header() {
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-200">
             <div className="flex flex-col space-y-4">
-              <Link href="/candidates" className="text-gray-600 hover:text-gray-900 transition-colors" onClick={() => setIsMenuOpen(false)}>
+              <Link
+                href="/candidates"
+                className="text-gray-600 hover:text-gray-900 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
                 Candidates
               </Link>
-              <Link href="/blog" className="text-gray-600 hover:text-gray-900 transition-colors" onClick={() => setIsMenuOpen(false)}>
+              <Link
+                href="/blog"
+                className="text-gray-600 hover:text-gray-900 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
                 Blog
               </Link>
-              <Link href="/about" className="text-gray-600 hover:text-gray-900 transition-colors" onClick={() => setIsMenuOpen(false)}>
+              <Link
+                href="/about"
+                className="text-gray-600 hover:text-gray-900 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
                 About
               </Link>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <input type="text" placeholder="Search candidates..." className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none" />
+                <input
+                  type="text"
+                  placeholder="Search candidates..."
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                />
               </div>
-              
+
               {!isAuthenticated && (
                 // Mobile login/register for unauthenticated users
                 <>
-                  <Link href="/auth/login" className="text-gray-600 hover:text-gray-900 transition-colors" onClick={() => setIsMenuOpen(false)}>
+                  <Link
+                    href="/auth/login"
+                    className="text-gray-600 hover:text-gray-900 transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
                     Login
                   </Link>
-                  <Link href="/auth/register" className="bg-orange-500 text-white px-4 py-2 rounded-lg text-center" onClick={() => setIsMenuOpen(false)}>
+                  <Link
+                    href="/auth/register"
+                    className="bg-orange-500 text-white px-4 py-2 rounded-lg text-center"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
                     Sign Up
                   </Link>
                 </>
@@ -279,42 +348,46 @@ export default function Header() {
             <div className="flex items-center space-x-3 px-3 py-2 mb-4">
               <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
                 <span className="text-white text-sm font-medium">
-                  {getUserInitials(user?.name || 'U')}
+                  {getUserInitials(userProfile?.name.charAt(0) || "U")}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">{user?.name}</p>
-                <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                <p className="text-sm font-medium text-gray-900 truncate">
+                  {userProfile?.name}
+                </p>
+                <p className="text-xs text-gray-500 truncate">
+                  {userProfile?.email}
+                </p>
               </div>
             </div>
-            
+
             <div className="space-y-2">
-              <Link 
-                href="/profile" 
+              <Link
+                href="/profile"
                 className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
                 onClick={() => setIsMobileProfileOpen(false)}
               >
                 <User className="w-4 h-4 mr-3" />
                 Update Profile
               </Link>
-              <Link 
-                href="/my-candidate-profile" 
+              <Link
+                href="/my-candidate-profile"
                 className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
                 onClick={() => setIsMobileProfileOpen(false)}
               >
                 <Edit className="w-4 h-4 mr-3" />
                 My Candidate Profile
               </Link>
-              <Link 
-                href="/my-blogs" 
+              <Link
+                href="/my-blogs"
                 className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
                 onClick={() => setIsMobileProfileOpen(false)}
               >
                 <Edit className="w-4 h-4 mr-3" />
                 My Blogs
               </Link>
-              <Link 
-                href="/settings" 
+              <Link
+                href="/settings"
                 className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
                 onClick={() => setIsMobileProfileOpen(false)}
               >

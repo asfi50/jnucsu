@@ -1,0 +1,202 @@
+[
+  {
+    "name": "Biochemistry & Molecular Biology",
+    "acronym": "bmb",
+    "id": "0736104d-0f23-4761-8e3e-9402ce704c71"
+  },
+  {
+    "name": "Management Studies",
+    "acronym": "mgt",
+    "id": "098bec42-23ea-4216-a231-36fddea1e0b8"
+  },
+  {
+    "name": "Accounting & Information System",
+    "acronym": "ais",
+    "id": "0bcf81a7-8b0d-403e-9734-81480d3a5104"
+  },
+  {
+    "name": "Statistics",
+    "acronym": "stat",
+    "id": "1893b134-9bcd-4af2-a8c0-e41bcc07ae03"
+  },
+  {
+    "name": "Anthropology",
+    "acronym": "anp",
+    "id": "255fe3a4-7fb3-42fb-bf08-07be29377553"
+  },
+  {
+    "name": "Botany",
+    "acronym": "bot",
+    "id": "25c7a2e1-0825-4e8d-a28c-4f83d4d34378"
+  },
+  {
+    "name": "Mass Communication and Journalism",
+    "acronym": "mcj",
+    "id": "287a4fa8-c0ec-4cae-adc0-396119168011"
+  },
+  {
+    "name": "Institute of Education and Research",
+    "acronym": "ier",
+    "id": "28b14a40-24c4-469b-ae2f-eac4e855ea1b"
+  },
+  {
+    "name": "Bangla",
+    "acronym": "bng",
+    "id": "2ad6537c-316b-47fd-9345-6b7b8cd659fb"
+  },
+  {
+    "name": "Social Work",
+    "acronym": "sw",
+    "id": "2f0b7c85-ba23-4ef6-addc-bae4516f6401"
+  },
+  {
+    "name": "Microbiology",
+    "acronym": "mic",
+    "id": "2fe04f65-28a7-418c-953e-1b8ff4e1b6e1"
+  },
+  {
+    "name": "History",
+    "acronym": "his",
+    "id": "3249c1be-f631-46c3-b479-1408b8b50bfd"
+  },
+  {
+    "name": "Islamic Studies",
+    "acronym": "is",
+    "id": "3483bd31-bda6-4097-8871-d1495cdfaa62"
+  },
+  {
+    "name": "Computer Science & Engineering",
+    "acronym": "cse",
+    "id": "3ecd11fd-47be-4516-85cd-072c5551bc17"
+  },
+  {
+    "name": "Film and Television",
+    "acronym": "ftv",
+    "id": "434c1ca2-6a5a-47ab-ba2c-e266869abad5"
+  },
+  {
+    "name": "Institute of Modern Languages",
+    "acronym": "iml",
+    "id": "4540aecf-3f20-4586-bd69-46c3eaa66022"
+  },
+  {
+    "name": "Law",
+    "acronym": "law",
+    "id": "47256d98-ce90-44b5-84ea-a461d0aec70b"
+  },
+  {
+    "name": "Finance",
+    "acronym": "fin",
+    "id": "48e3a7c8-e0be-4ba1-9031-4b9847a92817"
+  },
+  {
+    "name": "Physics",
+    "acronym": "phy",
+    "id": "56c027da-eeb3-48ad-9714-02a52cecb70a"
+  },
+  {
+    "name": "Genetic Engineering and Biotechnology",
+    "acronym": "geb",
+    "id": "684ae154-7c78-4447-8556-6ad8660c6a6a"
+  },
+  {
+    "name": "Printmaking",
+    "acronym": "pm",
+    "id": "687b57ba-dbe9-4315-ae7d-3a90589edccf"
+  },
+  {
+    "name": "Philosophy",
+    "acronym": "phi",
+    "id": "768527bf-d0b0-4446-8985-bb9254ab9948"
+  },
+  {
+    "name": "Economics",
+    "acronym": "eco",
+    "id": "770cdb80-90bb-4dc4-8519-dfc1f5bd3f3c"
+  },
+  {
+    "name": "3D Art and Design",
+    "acronym": "3d",
+    "id": "786a0d0c-28b1-45c7-9d61-8f6ae33b17e1"
+  },
+  {
+    "name": "Drawing and Painting",
+    "acronym": "dp",
+    "id": "79d2a080-6c84-44d9-80c3-1564d50ba449"
+  },
+  {
+    "name": "Political Science",
+    "acronym": "pol",
+    "id": "a089a765-c568-4d8d-b6c8-a19cc5d07116"
+  },
+  {
+    "name": "Islamic History & Culture",
+    "acronym": "ihc",
+    "id": "a640d939-6258-4d14-9777-8e5cd411f2e7"
+  },
+  {
+    "name": "Geography & Environment",
+    "acronym": "geo",
+    "id": "b0f91137-4633-4156-9927-e4448e9ef3c2"
+  },
+  {
+    "name": "Music",
+    "acronym": "mus",
+    "id": "ba8941de-5142-46a7-95d3-3988b8689dad"
+  },
+  {
+    "name": "Mathematics",
+    "acronym": "mat",
+    "id": "bb87c59d-1ddd-4ce2-8749-418a0eac0525"
+  },
+  {
+    "name": "Psychology",
+    "acronym": "psy",
+    "id": "bd817229-f5ed-4f76-8642-04fadc864433"
+  },
+  {
+    "name": "Zoology",
+    "acronym": "zoo",
+    "id": "c56d7e56-1430-4e09-957a-34d46c6d7178"
+  },
+  {
+    "name": "English",
+    "acronym": "eng",
+    "id": "c6ffc694-f7f7-4ac3-b12f-1438ba18aceb"
+  },
+  {
+    "name": "Public Administration",
+    "acronym": "pad",
+    "id": "c9e7426e-442c-4fd3-95f9-64c04d607adc"
+  },
+  {
+    "name": "Law and Land Administration",
+    "acronym": "lla",
+    "id": "d2fad6e3-064a-492b-989b-aeeec3106a89"
+  },
+  {
+    "name": "Marketing",
+    "acronym": "mkt",
+    "id": "da1c6d6f-9d3c-4cb6-babc-09da61f05fe7"
+  },
+  {
+    "name": "Sociology",
+    "acronym": "soc",
+    "id": "e63a3661-5dde-499c-9024-b2c20c20e290"
+  },
+  {
+    "name": "Theatre",
+    "acronym": "thr",
+    "id": "e6edc563-31db-4801-b2dc-062439b898fe"
+  },
+  {
+    "name": "Chemistry",
+    "acronym": "che",
+    "id": "ec496d8e-04db-4641-9fd3-2f4dd551327b"
+  },
+  {
+    "name": "Pharmacy",
+    "acronym": "pha",
+    "id": "fe71d025-8fba-4d81-bc99-8deffe030e5e"
+  }
+]

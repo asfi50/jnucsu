@@ -1,0 +1,17 @@
+[
+  { "text": "Leadership", "status": "published" },
+  { "text": "Technology", "status": "published" },
+  { "text": "Community", "status": "published" },
+  { "text": "Education", "status": "published" },
+  { "text": "Environment", "status": "published" },
+  { "text": "Politics", "status": "published" },
+  { "text": "Culture", "status": "published" },
+  { "text": "Sports", "status": "published" },
+  { "text": "Innovation", "status": "published" },
+  { "text": "Career", "status": "published" },
+  { "text": "Social Issues", "status": "published" },
+  { "text": "Campus Life", "status": "published" },
+  { "text": "Student Rights", "status": "published" },
+  { "text": "Academic", "status": "published" },
+  { "text": "Events", "status": "published" }
+]

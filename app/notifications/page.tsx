@@ -1,28 +1,29 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Bell, CheckCheck } from 'lucide-react';
-import Link from 'next/link';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
-import { useAuth } from '@/lib/contexts/AuthContext';
-import { useNotifications } from '@/lib/contexts/NotificationContext';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Bell, CheckCheck } from "lucide-react";
+import Link from "next/link";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+import { useAuth } from "@/context/auth-context";
+import { useNotifications } from "@/context/NotificationContext";
 
 export default function NotificationsPage() {
   const router = useRouter();
-  const { isAuthenticated, isLoading } = useAuth();
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const { isAuthenticated, loading } = useAuth();
+  const { notifications, unreadCount, markAsRead, markAllAsRead } =
+    useNotifications();
 
   // Redirect to login if not authenticated
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push('/auth/login');
+    if (!loading && !isAuthenticated) {
+      router.push("/auth/login");
     }
-  }, [isLoading, isAuthenticated, router]);
+  }, [loading, isAuthenticated, router]);
 
   // Show loading state while checking authentication
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -39,16 +40,16 @@ export default function NotificationsPage() {
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case 'blog_comment':
-        return '💬';
-      case 'candidate_comment':
-        return '👤';
-      case 'message_reply':
-        return '✉️';
-      case 'mention':
-        return '@';
+      case "blog_comment":
+        return "💬";
+      case "candidate_comment":
+        return "👤";
+      case "message_reply":
+        return "✉️";
+      case "mention":
+        return "@";
       default:
-        return '📢';
+        return "📢";
     }
   };
 
@@ -74,7 +75,7 @@ export default function NotificationsPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
-      
+
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
           {/* Header */}
@@ -82,10 +83,13 @@ export default function NotificationsPage() {
             <div className="flex items-center space-x-3">
               <Bell className="w-6 h-6 text-orange-500" />
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Notifications</h1>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+                  Notifications
+                </h1>
                 {unreadCount > 0 && (
                   <p className="text-sm text-gray-500 mt-1">
-                    You have {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
+                    You have {unreadCount} unread notification
+                    {unreadCount !== 1 ? "s" : ""}
                   </p>
                 )}
               </div>
@@ -107,18 +111,22 @@ export default function NotificationsPage() {
             {notifications.length === 0 ? (
               <div className="p-12 text-center">
                 <Bell className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No notifications yet</h3>
-                <p className="text-gray-500">When you get notifications, they&apos;ll show up here</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  No notifications yet
+                </h3>
+                <p className="text-gray-500">
+                  When you get notifications, they&apos;ll show up here
+                </p>
               </div>
             ) : (
               <div className="divide-y divide-gray-100">
                 {notifications.map((notification) => (
                   <Link
                     key={notification.id}
-                    href={notification.link || '#'}
+                    href={notification.link || "#"}
                     onClick={() => markAsRead(notification.id)}
                     className={`block p-4 sm:p-6 hover:bg-gray-50 transition-colors ${
-                      !notification.read ? 'bg-orange-50' : ''
+                      !notification.read ? "bg-orange-50" : ""
                     }`}
                   >
                     <div className="flex items-start space-x-3 sm:space-x-4">

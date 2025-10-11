@@ -1,6 +1,6 @@
 "use client";
 
-import { useNotifications } from "@/lib/contexts/NotificationContext";
+import { useNotifications } from "@/context/NotificationContext";
 import { Bell, CheckCheck, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
@@ -10,24 +10,31 @@ interface NotificationPanelProps {
   onClose: () => void;
 }
 
-export default function NotificationPanel({ isOpen, onClose }: NotificationPanelProps) {
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+export default function NotificationPanel({
+  isOpen,
+  onClose,
+}: NotificationPanelProps) {
+  const { notifications, unreadCount, markAsRead, markAllAsRead } =
+    useNotifications();
   const panelRef = useRef<HTMLDivElement>(null);
 
   // Close panel when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
+      if (
+        panelRef.current &&
+        !panelRef.current.contains(event.target as Node)
+      ) {
         onClose();
       }
     };
 
     if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen, onClose]);
 
@@ -35,16 +42,16 @@ export default function NotificationPanel({ isOpen, onClose }: NotificationPanel
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case 'blog_comment':
-        return '💬';
-      case 'candidate_comment':
-        return '👤';
-      case 'message_reply':
-        return '✉️';
-      case 'mention':
-        return '@';
+      case "blog_comment":
+        return "💬";
+      case "candidate_comment":
+        return "👤";
+      case "message_reply":
+        return "✉️";
+      case "mention":
+        return "@";
       default:
-        return '📢';
+        return "📢";
     }
   };
 
@@ -70,16 +77,21 @@ export default function NotificationPanel({ isOpen, onClose }: NotificationPanel
   return (
     <>
       {/* Mobile: Full-screen overlay */}
-      <div className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40" onClick={onClose} />
-      
-      <div 
-        ref={panelRef} 
+      <div
+        className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+        onClick={onClose}
+      />
+
+      <div
+        ref={panelRef}
         className="fixed md:absolute inset-x-0 bottom-0 md:inset-auto md:right-0 md:top-auto md:mt-2 md:w-80 lg:w-96 bg-white md:rounded-lg shadow-lg border-t md:border border-gray-200 z-50 max-h-[85vh] md:max-h-[600px] flex flex-col rounded-t-2xl md:rounded-t-lg"
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
           <div className="flex items-center space-x-2">
-            <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
+            <h3 className="text-lg font-semibold text-gray-900">
+              Notifications
+            </h3>
             {unreadCount > 0 && (
               <span className="bg-orange-500 text-white text-xs font-medium px-2 py-0.5 rounded-full">
                 {unreadCount}
@@ -97,7 +109,10 @@ export default function NotificationPanel({ isOpen, onClose }: NotificationPanel
                 <span className="hidden sm:inline">Mark all read</span>
               </button>
             )}
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600"
+            >
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -115,13 +130,13 @@ export default function NotificationPanel({ isOpen, onClose }: NotificationPanel
               {notifications.map((notification) => (
                 <Link
                   key={notification.id}
-                  href={notification.link || '#'}
+                  href={notification.link || "#"}
                   onClick={() => {
                     markAsRead(notification.id);
                     onClose();
                   }}
                   className={`block p-4 hover:bg-gray-50 transition-colors ${
-                    !notification.read ? 'bg-orange-50' : ''
+                    !notification.read ? "bg-orange-50" : ""
                   }`}
                 >
                   <div className="flex items-start space-x-3">
