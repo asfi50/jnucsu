@@ -10,6 +10,7 @@ import React, {
 import { useAuth } from "./auth-context";
 import { MyBlogPost } from "@/lib/types/blogs.types";
 import useAxios from "@/hooks/use-axios";
+import { CandidateProfile } from "@/lib/types/profile.types";
 
 export interface Department {
   id: string;
@@ -39,6 +40,11 @@ interface DataContextType {
   blogsLoading: boolean;
   blogsError: string | null;
   refreshBlogs: () => Promise<void>;
+
+  candidateProfile: CandidateProfile | null;
+  candidateProfileLoading: boolean;
+  candidateProfileError: string | null;
+  refreshCandidateProfile: () => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -61,6 +67,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [blogs, setBlogs] = useState<MyBlogPost[] | null>(null);
   const [blogsLoading, setBlogsLoading] = useState(false);
   const [blogsError, setBlogsError] = useState<string | null>(null);
+
+  // my-candidate profile state
+  const [candidateProfile, setCandidateProfile] =
+    useState<CandidateProfile | null>(null);
+  const [candidateProfileLoading, setCandidateProfileLoading] = useState(false);
+  const [candidateProfileError, setCandidateProfileError] = useState<
+    string | null
+  >(null);
 
   // Fetch positions
   const fetchPositions = async () => {
@@ -130,6 +144,33 @@ export function DataProvider({ children }: { children: ReactNode }) {
     await fetchBlogs();
   };
 
+  // Fetch candidate profile
+  const fetchCandidateProfile = async () => {
+    if (!accessToken) return;
+    setCandidateProfileLoading(true);
+    setCandidateProfileError(null);
+    try {
+      const res = await axios.get("/api/profile/candidate");
+      const data = await res.data;
+      setCandidateProfile(data);
+    } catch (error: any) {
+      console.error("Error fetching candidate profile:", error);
+      // If it's a 404 (not found), don't treat it as an error
+      if (error.response?.status === 404) {
+        setCandidateProfile(null);
+        setCandidateProfileError(null);
+      } else {
+        setCandidateProfileError("Error fetching candidate profile");
+      }
+    } finally {
+      setCandidateProfileLoading(false);
+    }
+  };
+
+  const refreshCandidateProfile = async () => {
+    await fetchCandidateProfile();
+  };
+
   useEffect(() => {
     if (!authLoading) {
       fetchPositions();
@@ -140,8 +181,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!authLoading && accessToken) {
       fetchBlogs();
+      fetchCandidateProfile();
+    } else if (!authLoading && !accessToken) {
+      // Clear the data when user is not authenticated
+      setBlogs(null);
+      setCandidateProfile(null);
     }
-  }, [authLoading]);
+  }, [authLoading, accessToken]);
 
   const values: DataContextType = {
     positions,
@@ -156,6 +202,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
     blogsLoading,
     blogsError,
     refreshBlogs,
+    candidateProfile,
+    candidateProfileLoading,
+    candidateProfileError,
+    refreshCandidateProfile,
   };
 
   return <DataContext.Provider value={values}>{children}</DataContext.Provider>;

@@ -18,7 +18,7 @@ export async function GET(request: Request) {
   }
   try {
     const res = await fetch(
-      `${config.serverBaseUrl}/items/blog?user=${userId}&fields=*.*&sort=-date_created`,
+      `${config.serverBaseUrl}/items/blog?fields=*.*&filter[user]=${userId}&sort=-date_created`,
       {
         method: "GET",
         headers: {

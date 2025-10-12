@@ -1,31 +1,27 @@
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
-import { Github, Linkedin, Mail, ExternalLink } from 'lucide-react';
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+import { Github, Linkedin, Mail, ExternalLink } from "lucide-react";
+import { config } from "@/config";
+import { Developer } from "../api/developers/route";
+import Image from "next/image";
 
-export default function DevelopersPage() {
-  const developers = [
-    {
-      name: 'Ashfaqul Islam Asif',
-      role: 'Full Stack Developer & Project Lead',
-      description: 'Final year Computer Science & Engineering student passionate about web development and student community building.',
-      avatar: '/api/placeholder/120/120',
-      github: 'https://github.com/asfi50',
-      linkedin: '#',
-      email: 'asfi50@example.com',
-    },
-    // Add more developers as needed
-  ];
+export default async function DevelopersPage() {
+  const res = await fetch(`${config.clientUrl}/api/developers`);
+  if (!res.ok) {
+    throw new Error("Failed to fetch developers");
+  }
+  const developers = await res.json();
 
   const contributors = [
-    'JnU CSE Club Members',
-    'Student Community Contributors',
-    'Open Source Contributors',
+    "JnU CSE Club Members",
+    "Student Community Contributors",
+    "Open Source Contributors",
   ];
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Page Header */}
         <div className="text-center mb-12">
@@ -33,8 +29,9 @@ export default function DevelopersPage() {
             Meet the Developers
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            JnUCSU is developed and maintained by the talented students of JnU CSE Club, 
-            dedicated to creating innovative solutions for the university community.
+            JnUCSU is developed and maintained by the talented students of JnU
+            CSE Club, dedicated to creating innovative solutions for the
+            university community.
           </p>
         </div>
 
@@ -43,32 +40,45 @@ export default function DevelopersPage() {
           <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
             Core Development Team
           </h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {developers.map((developer, index) => (
+            {developers.map((developer: Developer, index: number) => (
               <div
                 key={index}
                 className="bg-white rounded-xl shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow duration-300"
               >
                 <div className="text-center">
                   <div className="w-24 h-24 bg-orange-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-                    <span className="text-2xl font-bold text-orange-600">
-                      {developer.name.split(' ').map(n => n[0]).join('')}
-                    </span>
+                    {developer.image ? (
+                      <Image
+                        src={developer.image}
+                        alt={developer.name}
+                        className="w-24 h-24 rounded-full object-cover"
+                        width={96}
+                        height={96}
+                      />
+                    ) : (
+                      <span className="text-2xl font-bold text-orange-600">
+                        {developer.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </span>
+                    )}
                   </div>
-                  
+
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">
                     {developer.name}
                   </h3>
-                  
+
                   <p className="text-orange-600 font-medium mb-3">
-                    {developer.role}
+                    {developer.title}
                   </p>
-                  
+
                   <p className="text-gray-600 text-sm mb-6 leading-relaxed">
                     {developer.description}
                   </p>
-                  
+
                   <div className="flex justify-center space-x-3">
                     <a
                       href={developer.github}
@@ -109,36 +119,46 @@ export default function DevelopersPage() {
               <h2 className="text-3xl font-bold text-gray-900 mb-4">
                 JnU CSE Club
               </h2>
-              
+
               <p className="text-lg text-gray-700 mb-6 leading-relaxed">
-                The Computer Science & Engineering Club of Jagannath University is a vibrant 
-                community of students passionate about technology, innovation, and collaborative learning. 
-                We work together to build solutions that benefit our university community.
+                The Computer Science & Engineering Club of Jagannath University
+                is a vibrant community of students passionate about technology,
+                innovation, and collaborative learning. We work together to
+                build solutions that benefit our university community.
               </p>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div className="bg-white rounded-lg p-6 shadow-sm">
-                  <h3 className="font-semibold text-gray-900 mb-2">Our Mission</h3>
+                  <h3 className="font-semibold text-gray-900 mb-2">
+                    Our Mission
+                  </h3>
                   <p className="text-gray-600 text-sm">
-                    Empowering students through technology and fostering innovation in the university ecosystem.
+                    Empowering students through technology and fostering
+                    innovation in the university ecosystem.
                   </p>
                 </div>
-                
+
                 <div className="bg-white rounded-lg p-6 shadow-sm">
-                  <h3 className="font-semibold text-gray-900 mb-2">Our Vision</h3>
+                  <h3 className="font-semibold text-gray-900 mb-2">
+                    Our Vision
+                  </h3>
                   <p className="text-gray-600 text-sm">
-                    Creating a connected, engaged, and digitally empowered student community.
+                    Creating a connected, engaged, and digitally empowered
+                    student community.
                   </p>
                 </div>
-                
+
                 <div className="bg-white rounded-lg p-6 shadow-sm">
-                  <h3 className="font-semibold text-gray-900 mb-2">Our Values</h3>
+                  <h3 className="font-semibold text-gray-900 mb-2">
+                    Our Values
+                  </h3>
                   <p className="text-gray-600 text-sm">
-                    Collaboration, innovation, transparency, and student-first approach.
+                    Collaboration, innovation, transparency, and student-first
+                    approach.
                   </p>
                 </div>
               </div>
-              
+
               <a
                 href="https://github.com/asfi50/jnucsu"
                 target="_blank"
@@ -158,13 +178,14 @@ export default function DevelopersPage() {
           <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
             Special Thanks
           </h2>
-          
+
           <div className="bg-white rounded-lg shadow-md border border-gray-200 p-8">
             <div className="max-w-4xl mx-auto">
               <p className="text-gray-700 mb-6 text-center">
-                We extend our heartfelt gratitude to all contributors who have helped make JnUCSU possible:
+                We extend our heartfelt gratitude to all contributors who have
+                helped make JnUCSU possible:
               </p>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {contributors.map((contributor, index) => (
                   <div
@@ -175,10 +196,11 @@ export default function DevelopersPage() {
                   </div>
                 ))}
               </div>
-              
+
               <div className="mt-8 text-center">
                 <p className="text-gray-600 mb-4">
-                  Want to contribute? We welcome pull requests, bug reports, and feature suggestions!
+                  Want to contribute? We welcome pull requests, bug reports, and
+                  feature suggestions!
                 </p>
                 <a
                   href="https://github.com/asfi50/jnucsu/issues"
@@ -199,30 +221,32 @@ export default function DevelopersPage() {
           <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
             Technology Stack
           </h2>
-          
+
           <div className="bg-white rounded-lg shadow-md border border-gray-200 p-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
               <div>
                 <div className="bg-blue-50 rounded-lg p-4 mb-2">
                   <p className="font-semibold text-blue-900">Frontend</p>
                 </div>
-                <p className="text-sm text-gray-600">Next.js, React, TypeScript</p>
+                <p className="text-sm text-gray-600">
+                  Next.js, React, TypeScript
+                </p>
               </div>
-              
+
               <div>
                 <div className="bg-green-50 rounded-lg p-4 mb-2">
                   <p className="font-semibold text-green-900">Styling</p>
                 </div>
                 <p className="text-sm text-gray-600">Tailwind CSS</p>
               </div>
-              
+
               <div>
                 <div className="bg-purple-50 rounded-lg p-4 mb-2">
                   <p className="font-semibold text-purple-900">Icons</p>
                 </div>
                 <p className="text-sm text-gray-600">Lucide React</p>
               </div>
-              
+
               <div>
                 <div className="bg-orange-50 rounded-lg p-4 mb-2">
                   <p className="font-semibold text-orange-900">Deployment</p>
@@ -233,7 +257,7 @@ export default function DevelopersPage() {
           </div>
         </section>
       </div>
-      
+
       <Footer />
     </div>
   );

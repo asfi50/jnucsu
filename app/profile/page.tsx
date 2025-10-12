@@ -27,6 +27,8 @@ import {
 import useAxios from "@/hooks/use-axios";
 import { useToast } from "@/components/ui/ToastProvider";
 import { useData } from "@/context/data-context";
+import { compressImage, fileToBase64 } from "@/lib/utils/image-compression";
+import Gallery from "@/components/profile/gallery";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -37,49 +39,33 @@ export default function ProfilePage() {
   );
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState(userProfile);
+  const [pendingImageData, setPendingImageData] = useState<string | null>(null);
   const axios = useAxios();
   const { showToast } = useToast();
 
-  const [gallery, setGallery] = useState([
-    {
-      id: 1,
-      url: "/api/placeholder/300/200",
-      title: "Student Union Meeting",
-      description: "Leading weekly student council discussions",
-    },
-    {
-      id: 2,
-      url: "/api/placeholder/300/200",
-      title: "Campus Event Organization",
-      description: "Organizing annual cultural festival",
-    },
-    {
-      id: 3,
-      url: "/api/placeholder/300/200",
-      title: "Community Service",
-      description: "Blood donation drive coordination",
-    },
-    {
-      id: 4,
-      url: "/api/placeholder/300/200",
-      title: "Academic Workshop",
-      description: "Hosting skill development sessions",
-    },
-  ]);
-
-  const [newGalleryItem, setNewGalleryItem] = useState({
-    title: "",
-    description: "",
-    url: "",
-  });
-
-  const [showAddGallery, setShowAddGallery] = useState(false);
+  // Function to refresh profile data after gallery changes
+  const refreshProfile = async () => {
+    try {
+      // The profile will be automatically refreshed by the auth context
+      // We can trigger a page refresh or fetch profile data manually
+      window.location.reload();
+    } catch (error) {
+      console.error("Failed to refresh profile:", error);
+    }
+  };
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
       router.push("/auth/login");
     }
   }, [loading, isAuthenticated, router]);
+
+  // Initialize formData when userProfile is loaded
+  useEffect(() => {
+    if (userProfile && !formData) {
+      setFormData(userProfile);
+    }
+  }, [userProfile, formData]);
 
   if (loading) {
     return (
@@ -125,74 +111,129 @@ export default function ProfilePage() {
     });
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const formData = new FormData();
-      formData.append("file", file);
-      fetch("/api/upload/photo", {
-        method: "POST",
-        body: formData,
-      })
-        .then(async (res) => {
-          if (!res.ok) {
-            const error = await res.json();
-            throw new Error(error.error || "Upload failed");
-          }
-          return res.json();
-        })
-        .then((data) => {
-          // Optionally update the profile image in state here
-          // setProfileImage(data.url);
-          // If you want to update userProfile.image:
-          setFormData((prev) => (prev ? { ...prev, image: data.url } : prev));
-          setProfileImage(data.url);
-        })
-        .catch((err) => {
-          alert("Image upload failed: " + err.message);
-        });
-    }
-  };
+    if (!file) return;
 
-  const handleSave = () => {
-    const payload = { ...formData };
-    const response = axios.post("/api/profile/update", payload);
-    response
-      .then(() => {
-        showToast({
-          type: "success",
-          title: "Profile Updated!",
-          message: "Your profile information has been updated successfully.",
-        });
-      })
-      .catch(() => {
-        showToast({
-          type: "error",
-          title: "Failed to Update Profile",
-          message: "There was an error updating your profile.",
-        });
-      })
-      .finally(() => {
-        setIsEditing(false);
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      showToast({
+        type: "error",
+        title: "Invalid File Type",
+        message: "Please select a valid image file.",
       });
-  };
+      return;
+    }
 
-  const handleAddGalleryItem = () => {
-    if (newGalleryItem.title && newGalleryItem.description) {
-      const newItem = {
-        id: gallery.length + 1,
-        url: newGalleryItem.url || "/api/placeholder/300/200",
-        title: newGalleryItem.title,
-        description: newGalleryItem.description,
-      };
-      setGallery([...gallery, newItem]);
-      setNewGalleryItem({ title: "", description: "", url: "" });
-      setShowAddGallery(false);
+    // Validate file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+    if (file.size > maxSize) {
+      showToast({
+        type: "error",
+        title: "File Too Large",
+        message: "Please select an image smaller than 10MB.",
+      });
+      return;
+    }
+
+    try {
+      showToast({
+        type: "info",
+        title: "Processing Image",
+        message: "Compressing your image...",
+      });
+
+      // Compress the image
+      const compressedFile = await compressImage(file, 800, 600, 0.8);
+
+      // Convert to base64
+      const base64Data = await fileToBase64(compressedFile);
+
+      // Store the base64 data for upload when profile is saved
+      setPendingImageData(base64Data);
+
+      // Create a preview URL for immediate display
+      const previewUrl = URL.createObjectURL(compressedFile);
+      setProfileImage(previewUrl);
+
+      showToast({
+        type: "success",
+        title: "Image Ready",
+        message:
+          "Image processed successfully. Save your profile to upload it.",
+      });
+    } catch (error) {
+      console.error("Image processing error:", error);
+      showToast({
+        type: "error",
+        title: "Processing Failed",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to process image. Please try again.",
+      });
     }
   };
 
-  const handleRemoveGalleryItem = (id: number) => {
-    setGallery(gallery.filter((item) => item.id !== id));
+  const handleSave = async () => {
+    if (!formData || !formData.id) {
+      showToast({
+        type: "error",
+        title: "Error",
+        message:
+          "Profile data is missing. Please refresh the page and try again.",
+      });
+      return;
+    }
+
+    try {
+      const payload = {
+        ...formData,
+        newImageData: pendingImageData,
+      };
+
+      showToast({
+        type: "info",
+        title: "Saving Profile",
+        message: pendingImageData
+          ? "Uploading image and saving profile..."
+          : "Saving profile...",
+      });
+
+      await axios.post("/api/profile/update", payload);
+
+      // Clear pending image data after successful upload
+      setPendingImageData(null);
+
+      showToast({
+        type: "success",
+        title: "Profile Updated!",
+        message: "Your profile information has been updated successfully.",
+      });
+      setIsEditing(false);
+    } catch (error: any) {
+      console.error("Profile update error:", error);
+      const errorMessage =
+        error.response?.data?.error ||
+        "There was an error updating your profile.";
+
+      showToast({
+        type: "error",
+        title: "Failed to Update Profile",
+        message: errorMessage,
+      });
+    }
+  };
+
+  const handleCancelEdit = () => {
+    // Reset form data to original user profile
+    setFormData(userProfile);
+    // Clear any pending image data
+    setPendingImageData(null);
+    // Reset profile image to original
+    setProfileImage(userProfile?.image || null);
+    // Exit editing mode
+    setIsEditing(false);
   };
 
   const yearOptions = [
@@ -223,7 +264,7 @@ export default function ProfilePage() {
                 {isEditing ? (
                   <>
                     <button
-                      onClick={() => setIsEditing(false)}
+                      onClick={handleCancelEdit}
                       className="px-3 sm:px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base"
                     >
                       Cancel
@@ -515,103 +556,10 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Work Gallery
-                </h2>
-                {isEditing && (
-                  <button
-                    onClick={() => setShowAddGallery(true)}
-                    className="px-3 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center space-x-2 text-sm"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Add Item</span>
-                  </button>
-                )}
-              </div>
-
-              {showAddGallery && (
-                <div className="mb-6 p-4 border border-orange-200 bg-orange-50 rounded-lg">
-                  <h3 className="font-medium text-gray-900 mb-3">
-                    Add New Gallery Item
-                  </h3>
-                  <div className="space-y-3">
-                    <input
-                      type="text"
-                      placeholder="Title"
-                      value={newGalleryItem.title}
-                      onChange={(e) =>
-                        setNewGalleryItem({
-                          ...newGalleryItem,
-                          title: e.target.value,
-                        })
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    />
-                    <textarea
-                      placeholder="Description"
-                      value={newGalleryItem.description}
-                      onChange={(e) =>
-                        setNewGalleryItem({
-                          ...newGalleryItem,
-                          description: e.target.value,
-                        })
-                      }
-                      rows={2}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    />
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={handleAddGalleryItem}
-                        className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-                      >
-                        Add Item
-                      </button>
-                      <button
-                        onClick={() => setShowAddGallery(false)}
-                        className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {gallery.map((item) => (
-                  <div key={item.id} className="relative group">
-                    <div className="bg-gray-100 rounded-lg overflow-hidden">
-                      <Image
-                        src={item.url}
-                        alt={item.title}
-                        width={300}
-                        height={192}
-                        className="w-full h-48 object-cover"
-                        priority
-                      />
-                    </div>
-                    <div className="mt-3">
-                      <h4 className="font-medium text-gray-900">
-                        {item.title}
-                      </h4>
-                      <p className="text-sm text-gray-600">
-                        {item.description}
-                      </p>
-                    </div>
-                    {isEditing && (
-                      <button
-                        onClick={() => handleRemoveGalleryItem(item.id)}
-                        className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
+            <Gallery
+              gallery={userProfile?.workGallery}
+              onGalleryUpdate={refreshProfile}
+            />
           </div>
         </div>
       </div>
