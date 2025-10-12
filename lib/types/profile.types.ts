@@ -18,10 +18,17 @@ export interface UserProfile {
     instagram?: string;
     website?: string;
   };
-  workGallery?: string[];
+  workGallery?: GalleryItem[];
   votes?: number;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface GalleryItem {
+  id: string;
+  title: string;
+  description: string;
+  url: string;
 }
 
 export interface Position {
@@ -110,4 +117,34 @@ export interface PublicProfileApiResponse {
     date_published?: string;
     tags?: string[];
   }>;
+}
+
+export interface CandidateProfile {
+  id: string;
+  userId: string;
+  position: string;
+  biography: string;
+  manifesto: string;
+  experience: string;
+  achievements: string;
+  phone: string;
+  email: string;
+  address: string;
+  studentId: string;
+  department: string;
+  semester: string;
+  isParticipating: boolean;
+  status: "draft" | "pending" | "approved" | "rejected";
+  createdAt: string;
+  updatedAt: string;
+  approvedAt?: string;
+  votes: number;
+  views: number;
+  rejectionReason?: string;
+  moderatorNotes?: string;
+  facebook?: string;
+  linkedin?: string;
+  twitter?: string;
+  instagram?: string;
+  website?: string;
 }

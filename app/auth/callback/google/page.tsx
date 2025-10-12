@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import LoadingSpinner from "@/components/shared/loading-spinner";
 
 export default function GoogleCallbackPage() {
-  const { setAccessToken, setUser } = useAuth();
+  const { setAccessToken, setUser, setIsAuthenticated } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
@@ -54,6 +54,7 @@ export default function GoogleCallbackPage() {
           image: userData.image,
           profileId: userData.profileId,
         });
+        setIsAuthenticated(true);
 
         // Redirect to dashboard or intended page
         const redirectTo = localStorage.getItem("google_auth_redirect") || "/";
@@ -67,7 +68,7 @@ export default function GoogleCallbackPage() {
     };
 
     handleGoogleCallback();
-  }, [searchParams, setAccessToken, setUser, router]);
+  }, [searchParams, setAccessToken, setUser, setIsAuthenticated, router]);
 
   if (error) {
     return (

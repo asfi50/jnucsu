@@ -1,3 +1,12 @@
+function GalleryFormat(data) {
+  return data.map((item) => ({
+    id: item.id,
+    title: item.title,
+    description: item.description,
+    url: item.url,
+  }));
+}
+
 /**
  * Maps the API response to the UserProfile type.
  * @param {any} data - The API response object.
@@ -23,7 +32,7 @@ function mapApiResponseToUserProfile(data) {
       instagram: data.instagram || undefined,
       website: data.website || undefined,
     },
-    workGallery: data.workGallery || undefined,
+    workGallery: data.gallery ? GalleryFormat(data.gallery) : [],
     votes: data.votes || undefined,
     createdAt: data.date_created,
     updatedAt: data.date_updated,

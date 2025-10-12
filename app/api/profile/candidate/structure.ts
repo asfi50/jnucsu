@@ -1,4 +1,4 @@
-import { CandidateProfile } from "@/app/my-candidate-profile/page";
+import { CandidateProfile } from "@/lib/types/profile.types";
 
 export function mapApiResponseToCandidateProfile(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

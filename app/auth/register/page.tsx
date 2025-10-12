@@ -28,11 +28,10 @@ function RegisterForm() {
     confirmPassword?: string;
   }>({});
   const { showToast } = useToast();
-  const { signInWithGoogle } = useAuth();
+  const { signInWithGoogle, register } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnTo = searchParams.get("returnTo") || "/";
-  const { setAccessToken, setUser } = useAuth();
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
@@ -73,36 +72,23 @@ function RegisterForm() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          fullName: formData.name,
-          email: formData.email,
-          password: formData.password,
-        }),
-      });
-      const data = await res.json();
+      const success = await register(
+        formData.name,
+        formData.email,
+        formData.password
+      );
 
-      setAccessToken(data?.data?.access_token || null);
-      setUser({
-        id: data?.data?.user?.id,
-        profileId: data?.data?.user?.profileId,
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Failed to register user");
+      if (!success) {
+        throw new Error("Failed to register user");
       }
-      router.push(returnTo);
 
       showToast({
         type: "success",
         title: "Account Created Successfully!",
         message: "Welcome to JnUCSU. Please check your email for verification.",
       });
+
+      router.push(returnTo);
     } catch (error) {
       console.error("Registration error:", error);
       showToast({

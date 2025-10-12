@@ -72,7 +72,7 @@ export async function POST(request: Request) {
         userId: data.data.id,
         profileId: profileData.data.id,
       },
-      "1d"
+      "7d"
     );
 
     return NextResponse.json(

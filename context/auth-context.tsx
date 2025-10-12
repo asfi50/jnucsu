@@ -31,6 +31,11 @@ interface AuthContextType {
     password: string,
     isRememberMe: boolean
   ) => Promise<boolean>;
+  register: (
+    fullName: string,
+    email: string,
+    password: string
+  ) => Promise<boolean>;
   signInWithGoogle: () => Promise<void>;
   resetPassword: (email: string) => Promise<boolean>;
   logout: () => void;
@@ -39,6 +44,7 @@ interface AuthContextType {
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
   setAccessToken: React.Dispatch<React.SetStateAction<string | null>>;
   isAuthenticated: boolean;
+  setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
   userProfile: UserProfile | null;
 }
 
@@ -176,6 +182,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Register function
+  const register = async (
+    fullName: string,
+    email: string,
+    password: string
+  ): Promise<boolean> => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fullName, email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setIsAuthenticated(false);
+        return false;
+      }
+      setAccessToken(data.data.access_token);
+      setUser(data.data.user);
+      setIsAuthenticated(true);
+      return true;
+    } catch (error) {
+      console.error("Registration error:", error);
+      setIsAuthenticated(false);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Google Sign-In function
   const signInWithGoogle = async (): Promise<void> => {
     try {
@@ -228,11 +265,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     accessToken,
     setAccessToken,
     login,
+    register,
     signInWithGoogle,
     resetPassword,
     logout,
     loading,
     isAuthenticated,
+    setIsAuthenticated,
     userProfile,
   };
 
