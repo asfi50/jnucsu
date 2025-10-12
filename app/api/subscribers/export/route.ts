@@ -1,6 +1,7 @@
 import { config } from "@/config";
 import { VerifyAdminToken } from "@/middleware/verify-admin";
 import { NextResponse } from "next/server";
+import { Subscriber } from "@/lib/types/subscribers.types";
 
 // GET - Export subscribers data (admin only)
 export async function GET(req: Request) {
@@ -61,7 +62,7 @@ export async function GET(req: Request) {
           "Created",
           "Updated",
         ];
-        const csvRows = data.map((sub: any) => [
+        const csvRows = data.map((sub: Subscriber) => [
           sub.id,
           sub.email,
           sub.status,
@@ -72,7 +73,7 @@ export async function GET(req: Request) {
 
         const csvContent = [
           csvHeaders.join(","),
-          ...csvRows.map((row: any[]) =>
+          ...csvRows.map((row: (string | boolean)[]) =>
             row
               .map((field) =>
                 typeof field === "string" && field.includes(",")
@@ -97,7 +98,7 @@ export async function GET(req: Request) {
         // For XLSX, we'll return JSON with a specific structure that frontend can convert
         return NextResponse.json(
           {
-            data: data.map((sub: any) => ({
+            data: data.map((sub: Subscriber) => ({
               ID: sub.id,
               Email: sub.email,
               Status: sub.status,

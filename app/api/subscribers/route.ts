@@ -266,7 +266,7 @@ export async function PATCH(req: Request) {
     }
 
     // Prepare update data
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       date_updated: new Date().toISOString(),
     };
 

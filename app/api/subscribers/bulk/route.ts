@@ -51,7 +51,9 @@ export async function POST(req: Request) {
 
       if (findRes.ok) {
         const { data } = await findRes.json();
-        const foundIds = data.map((subscriber: any) => subscriber.id);
+        const foundIds = data.map(
+          (subscriber: { id: string }) => subscriber.id
+        );
         targetIds = [...targetIds, ...foundIds];
       }
     }
@@ -64,7 +66,7 @@ export async function POST(req: Request) {
     }
 
     // Prepare update data based on action
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       date_updated: new Date().toISOString(),
     };
 

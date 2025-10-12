@@ -11,7 +11,7 @@ export interface Developer {
   email?: string;
 }
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const res = await fetch(
       `${config.serverBaseUrl}/items/developers_team?fields=name,title,description,image,github,linkedin,email&sort=order`,

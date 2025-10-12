@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { Plus, X, Edit2, Save, Trash2 } from "lucide-react";
+import { Plus, X, Edit2, Trash2 } from "lucide-react";
 import { GalleryItem } from "@/lib/types/profile.types";
 import useAxios from "@/hooks/use-axios";
 import { useToast } from "@/components/ui/ToastProvider";
@@ -131,12 +131,14 @@ const Gallery: React.FC<GalleryProps> = ({ gallery = [], onGalleryUpdate }) => {
       if (onGalleryUpdate) {
         onGalleryUpdate();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to add gallery item:", error);
       showToast({
         type: "error",
         title: "Error",
-        message: error.response?.data?.message || "Failed to add gallery item",
+        message:
+          (error as { response?: { data?: { message?: string } } })?.response
+            ?.data?.message || "Failed to add gallery item",
       });
     } finally {
       setSubmitLoading(false);
@@ -193,13 +195,14 @@ const Gallery: React.FC<GalleryProps> = ({ gallery = [], onGalleryUpdate }) => {
       if (onGalleryUpdate) {
         onGalleryUpdate();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to update gallery item:", error);
       showToast({
         type: "error",
         title: "Error",
         message:
-          error.response?.data?.message || "Failed to update gallery item",
+          (error as { response?: { data?: { message?: string } } })?.response
+            ?.data?.message || "Failed to update gallery item",
       });
     } finally {
       setSubmitLoading(false);
@@ -223,13 +226,14 @@ const Gallery: React.FC<GalleryProps> = ({ gallery = [], onGalleryUpdate }) => {
       if (onGalleryUpdate) {
         onGalleryUpdate();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to delete gallery item:", error);
       showToast({
         type: "error",
         title: "Error",
         message:
-          error.response?.data?.message || "Failed to delete gallery item",
+          (error as { response?: { data?: { message?: string } } })?.response
+            ?.data?.message || "Failed to delete gallery item",
       });
     } finally {
       setSubmitLoading(false);

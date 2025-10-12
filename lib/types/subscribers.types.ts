@@ -92,7 +92,7 @@ export interface SubscriberStats {
 
 export interface ExportResponse {
   subscribers?: Subscriber[];
-  data?: any[];
+  data?: Subscriber[];
   exported_at?: string;
   total_count?: number;
   filename?: string;

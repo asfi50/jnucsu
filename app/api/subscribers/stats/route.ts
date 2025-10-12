@@ -1,6 +1,7 @@
 import { config } from "@/config";
 import { VerifyAdminToken } from "@/middleware/verify-admin";
 import { NextResponse } from "next/server";
+import { Subscriber } from "@/lib/types/subscribers.types";
 
 // GET - Get subscriber statistics (admin only)
 export async function GET(req: Request) {
@@ -34,14 +35,16 @@ export async function GET(req: Request) {
 
     // Calculate statistics
     const total = data.length;
-    const active = data.filter((sub: any) => sub.is_active).length;
+    const active = data.filter((sub: Subscriber) => sub.is_active).length;
     const inactive = total - active;
 
     // Status breakdown
     const statusBreakdown = {
-      published: data.filter((sub: any) => sub.status === "published").length,
-      draft: data.filter((sub: any) => sub.status === "draft").length,
-      archived: data.filter((sub: any) => sub.status === "archived").length,
+      published: data.filter((sub: Subscriber) => sub.status === "published")
+        .length,
+      draft: data.filter((sub: Subscriber) => sub.status === "draft").length,
+      archived: data.filter((sub: Subscriber) => sub.status === "archived")
+        .length,
     };
 
     // Growth statistics (last 30 days)
@@ -49,7 +52,7 @@ export async function GET(req: Request) {
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
     const recentSubscribers = data.filter(
-      (sub: any) => new Date(sub.date_created) >= thirtyDaysAgo
+      (sub: Subscriber) => new Date(sub.date_created) >= thirtyDaysAgo
     );
 
     // Weekly breakdown for the last 4 weeks
@@ -60,7 +63,7 @@ export async function GET(req: Request) {
       const weekEnd = new Date();
       weekEnd.setDate(weekEnd.getDate() - i * 7);
 
-      const weeklyCount = data.filter((sub: any) => {
+      const weeklyCount = data.filter((sub: Subscriber) => {
         const createdDate = new Date(sub.date_created);
         return createdDate >= weekStart && createdDate < weekEnd;
       }).length;
@@ -76,12 +79,12 @@ export async function GET(req: Request) {
     // Most recent subscribers
     const recentTop10 = data
       .sort(
-        (a: any, b: any) =>
+        (a: Subscriber, b: Subscriber) =>
           new Date(b.date_created).getTime() -
           new Date(a.date_created).getTime()
       )
       .slice(0, 10)
-      .map((sub: any) => ({
+      .map((sub: Subscriber) => ({
         id: sub.id,
         email: sub.email,
         date_created: sub.date_created,

@@ -6,11 +6,19 @@ import { Developer } from "../api/developers/route";
 import Image from "next/image";
 
 export default async function DevelopersPage() {
-  const res = await fetch(`${config.clientUrl}/api/developers`);
-  if (!res.ok) {
-    throw new Error("Failed to fetch developers");
+  let developers = [];
+
+  try {
+    const res = await fetch(`${config.clientUrl}/api/developers`, {
+      cache: "no-store",
+    });
+    if (res.ok) {
+      developers = await res.json();
+    }
+  } catch (error) {
+    console.log("Failed to fetch developers during build:", error);
+    // Fallback to empty array - developers will be loaded client-side if needed
   }
-  const developers = await res.json();
 
   const contributors = [
     "JnU CSE Club Members",

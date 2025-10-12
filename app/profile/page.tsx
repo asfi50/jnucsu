@@ -14,8 +14,6 @@ import {
   MapPin,
   Calendar,
   BookOpen,
-  X,
-  Plus,
   Save,
   Edit3,
   Facebook,
@@ -211,11 +209,11 @@ export default function ProfilePage() {
         message: "Your profile information has been updated successfully.",
       });
       setIsEditing(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Profile update error:", error);
       const errorMessage =
-        error.response?.data?.error ||
-        "There was an error updating your profile.";
+        (error as { response?: { data?: { error?: string } } })?.response?.data
+          ?.error || "There was an error updating your profile.";
 
       showToast({
         type: "error",
