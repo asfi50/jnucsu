@@ -13,6 +13,11 @@ function GalleryFormat(data) {
  * @returns {import('../../../lib/types/profile.types').UserProfile}
  */
 function mapApiResponseToUserProfile(data) {
+  const reacted = data.reacted ? data.reacted.map((item) => item.blog) : [];
+  const voted = data.voted
+    ? data.voted.map((item) => item.candidate_page.profile.id)
+    : [];
+
   return {
     id: data.id,
     name: data.name || "",
@@ -25,17 +30,12 @@ function mapApiResponseToUserProfile(data) {
     did: data.department?.id || undefined,
     year: data.academic_year || undefined,
     about: data.about || undefined,
-    links: {
-      facebook: data.facebook || undefined,
-      twitter: data.twitter || undefined,
-      linkedin: data.linkedin || undefined,
-      instagram: data.instagram || undefined,
-      website: data.website || undefined,
-    },
+    links: data.links || {},
     workGallery: data.gallery ? GalleryFormat(data.gallery) : [],
-    votes: data.votes || undefined,
     createdAt: data.date_created,
     updatedAt: data.date_updated,
+    reacted,
+    voted,
   };
 }
 

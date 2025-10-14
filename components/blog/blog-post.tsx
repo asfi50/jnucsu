@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
@@ -26,9 +26,10 @@ import {
 import { useToast } from "../ui/ToastProvider";
 import useAxios from "@/hooks/use-axios";
 import { BlogComment, BlogPost } from "@/lib/types/blogs.types";
-import Loader from "@/components/ui/Loader";
 import { generateStructuredData } from "@/lib/seo";
 import { useRouter } from "next/navigation";
+import BlogPostSkeleton from "./BlogPostSkeleton";
+import ProductionMarkdownViewer from "@/components/ui/ProductionMarkdownViewer";
 
 interface BlogPostClientWithFetchProps {
   blogId: string;
@@ -45,6 +46,8 @@ export default function BlogPostClientWithFetch({
   const [newComment, setNewComment] = useState("");
   const [comments, setComments] = useState<BlogComment[]>([]);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const hasFetchedRef = useRef(false);
+  const currentBlogIdRef = useRef<string>("");
   const {
     isAuthenticated,
     userProfile,
@@ -55,15 +58,28 @@ export default function BlogPostClientWithFetch({
   const axios = useAxios();
   const router = useRouter();
 
-  // Fetch blog post data
+  // Fetch blog post data - only once per blog post
   useEffect(() => {
     if (authLoading) return;
+
+    // Reset fetch flag when blogId changes
+    if (currentBlogIdRef.current !== blogId) {
+      hasFetchedRef.current = false;
+      currentBlogIdRef.current = blogId;
+      setPost(null);
+      setLoading(true);
+      setError(null);
+    }
+
+    if (hasFetchedRef.current) return;
+
     const fetchBlogPost = async () => {
       try {
         setLoading(true);
+        hasFetchedRef.current = true;
 
         const response = await fetch(
-          `/api/blog/${blogId}?user=${userProfile?.id}`
+          `/api/blog/${blogId}?user=${userProfile?.id || ""}`
         );
 
         if (!response.ok) {
@@ -269,18 +285,7 @@ export default function BlogPostClientWithFetch({
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center">
-            <Loader />
-            <p className="text-gray-600 mt-4">Loading blog post...</p>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
+    return <BlogPostSkeleton />;
   }
 
   if (error || !post) {
@@ -473,9 +478,13 @@ export default function BlogPostClientWithFetch({
 
           {/* Article Content */}
           <div className="prose prose-lg max-w-none">
-            <div className="text-gray-700 leading-relaxed space-y-6 whitespace-pre-wrap">
-              {post.content}
-            </div>
+            <ProductionMarkdownViewer
+              content={post.content}
+              showControls={true}
+              initialTheme="light"
+              initialFontSize="medium"
+              className="blog-content"
+            />
           </div>
 
           {/* Article Footer */}

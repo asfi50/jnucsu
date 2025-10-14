@@ -7,6 +7,7 @@ import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { useAuth } from "@/context/auth-context";
+import UserProfileSkeleton from "@/components/shared/UserProfileSkeleton";
 import {
   Mail,
   Phone,
@@ -52,18 +53,7 @@ export default function PublicUserProfilePage() {
   }, [userId]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        <div className="flex items-center justify-center py-32">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-500 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading profile...</p>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
+    return <UserProfileSkeleton />;
   }
 
   return (

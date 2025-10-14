@@ -15,8 +15,30 @@ export async function GET(request: Request) {
   }
 
   try {
+    const fields = [
+      "id",
+      "name",
+      "image",
+      "phone",
+      "user.email",
+      "address",
+      "student_id",
+      "department.name",
+      "department.id",
+      "academic_year",
+      "about",
+      "links",
+      "website",
+      "gallery",
+      "date_created",
+      "date_updated",
+      "reacted.blog",
+      "voted.candidate_page.profile.id",
+    ];
     const res = await fetch(
-      `${config.serverBaseUrl}/items/profile/${info.profileId}?fields=*.*`,
+      `${config.serverBaseUrl}/items/profile/${
+        info.profileId
+      }?fields=${fields.join(",")}`,
       {
         method: "GET",
         headers: {
@@ -28,7 +50,7 @@ export async function GET(request: Request) {
 
     if (!res.ok) {
       return NextResponse.json(
-        { message: "Failed to fetch user data" },
+        { message: "Failed to fetch user data", details: await res.text() },
         { status: res.status }
       );
     }

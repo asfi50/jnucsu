@@ -6,6 +6,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { useAuth } from "@/context/auth-context";
 import { useToast } from "@/components/ui/ToastProvider";
+import AdminSubscribersSkeleton from "@/components/admin/AdminSubscribersSkeleton";
 import {
   Mail,
   Download,
@@ -144,14 +145,7 @@ export default function AdminSubscribersPage() {
 
   // Show loading state while checking authentication
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
+    return <AdminSubscribersSkeleton />;
   }
 
   // Don't render if not authenticated
@@ -291,8 +285,8 @@ export default function AdminSubscribersPage() {
           {/* Subscribers Table */}
           <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
             {loading ? (
-              <div className="p-8 text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto"></div>
+              <div className="text-center py-8">
+                <div className="w-8 h-8 bg-orange-500 rounded-full animate-pulse mx-auto opacity-60"></div>
                 <p className="mt-2 text-gray-600">Loading subscribers...</p>
               </div>
             ) : filteredSubscribers.length === 0 ? (

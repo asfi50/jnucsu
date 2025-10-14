@@ -28,9 +28,9 @@ import Button from "@/components/ui/Button";
 import { useToast } from "@/components/ui/ToastProvider";
 import { useAuth } from "@/context/auth-context";
 import useAxios from "@/hooks/use-axios";
-import LoadingSpinner from "@/components/shared/loading-spinner";
 import { CandidateProfile } from "@/lib/types/profile.types";
 import { useData } from "@/context/data-context";
+import MyCandidateProfileSkeleton from "@/components/candidates/MyCandidateProfileSkeleton";
 
 const MyCandidateProfilePage = () => {
   const [profile, setProfile] = useState<CandidateProfile | null>(null);
@@ -165,7 +165,7 @@ const MyCandidateProfilePage = () => {
   if (candidateProfileLoading) {
     return (
       <ProtectedRoute>
-        <LoadingSpinner />
+        <MyCandidateProfileSkeleton />
       </ProtectedRoute>
     );
   }

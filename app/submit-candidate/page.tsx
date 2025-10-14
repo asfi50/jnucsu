@@ -11,9 +11,9 @@ import Button from "@/components/ui/Button";
 import MarkdownEditor from "@/components/ui/MarkdownEditor";
 import { useToast } from "@/components/ui/ToastProvider";
 import { useAuth } from "@/context/auth-context";
-import LoadingSpinner from "@/components/shared/loading-spinner";
 import useAxios from "@/hooks/use-axios";
 import { useData } from "@/context/data-context";
+import SubmitCandidateSkeleton from "@/components/shared/SubmitCandidateSkeleton";
 
 export interface CandidateFormData {
   position: string;
@@ -174,7 +174,7 @@ const SubmitCandidatePage = () => {
   };
 
   if (loading || authLoading) {
-    return <LoadingSpinner />;
+    return <SubmitCandidateSkeleton />;
   }
 
   return (

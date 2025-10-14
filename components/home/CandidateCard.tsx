@@ -3,13 +3,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronUp, MessageCircle } from "lucide-react";
-import { StudentLeader } from "@/lib/types";
+import { CandidateItem } from "@/app/api/candidate/format";
 import { useState } from "react";
 import { useAuth } from "@/context/auth-context";
 import LoginModal from "@/components/ui/LoginModal";
 
 interface CandidateCardProps {
-  leader: StudentLeader;
+  leader: CandidateItem;
 }
 
 export default function CandidateCard({ leader }: CandidateCardProps) {
@@ -117,7 +117,7 @@ export default function CandidateCard({ leader }: CandidateCardProps) {
 
               {/* View Profile Link */}
               <Link
-                href={`/candidates/${leader.id}`}
+                href={`/candidates/${leader.profile_id}`}
                 className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
               >
                 View Profile

@@ -6,6 +6,12 @@ export interface Position {
   allocated_slots: number;
 }
 
+// Category types
+export interface Category {
+  id: number;
+  text: string;
+}
+
 // Student Leader types
 export interface StudentLeader {
   id: string;
@@ -50,7 +56,7 @@ export interface User {
   id: string;
   name: string;
   avatar: string;
-  email: string;
+  email?: string;
 }
 
 // Vote types

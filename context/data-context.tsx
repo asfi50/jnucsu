@@ -11,6 +11,7 @@ import { useAuth } from "./auth-context";
 import { MyBlogPost } from "@/lib/types/blogs.types";
 import useAxios from "@/hooks/use-axios";
 import { CandidateProfile } from "@/lib/types/profile.types";
+import { Category } from "@/lib/types";
 
 export interface Department {
   id: string;
@@ -36,6 +37,11 @@ interface DataContextType {
   departmentsError: string | null;
   refreshDepartments: () => Promise<void>;
 
+  categories: Category[] | null;
+  categoriesLoading: boolean;
+  categoriesError: string | null;
+  refreshCategories: () => Promise<void>;
+
   blogs: MyBlogPost[] | null;
   blogsLoading: boolean;
   blogsError: string | null;
@@ -47,21 +53,44 @@ interface DataContextType {
   refreshCandidateProfile: () => Promise<void>;
 }
 
+interface DataProviderProps {
+  children: ReactNode;
+  initialPositions?: Position[] | null;
+  initialDepartments?: Department[] | null;
+  initialCategories?: Category[] | null;
+}
+
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-export function DataProvider({ children }: { children: ReactNode }) {
+export function DataProvider({
+  children,
+  initialPositions = null,
+  initialDepartments = null,
+  initialCategories = null,
+}: DataProviderProps) {
   const { loading: authLoading, accessToken } = useAuth();
   const axios = useAxios();
 
-  // Positions state
-  const [positions, setPositions] = useState<Position[] | null>(null);
+  // Positions state - initialize with server data if available
+  const [positions, setPositions] = useState<Position[] | null>(
+    initialPositions
+  );
   const [positionsLoading, setPositionsLoading] = useState(false);
   const [positionsError, setPositionsError] = useState<string | null>(null);
 
-  // Departments state
-  const [departments, setDepartments] = useState<Department[] | null>(null);
+  // Departments state - initialize with server data if available
+  const [departments, setDepartments] = useState<Department[] | null>(
+    initialDepartments
+  );
   const [departmentsLoading, setDepartmentsLoading] = useState(false);
   const [departmentsError, setDepartmentsError] = useState<string | null>(null);
+
+  // Categories state - initialize with server data if available
+  const [categories, setCategories] = useState<Category[] | null>(
+    initialCategories
+  );
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
+  const [categoriesError, setCategoriesError] = useState<string | null>(null);
 
   // my blogs state
   const [blogs, setBlogs] = useState<MyBlogPost[] | null>(null);
@@ -124,6 +153,30 @@ export function DataProvider({ children }: { children: ReactNode }) {
     await fetchDepartments();
   };
 
+  // Fetch categories
+  const fetchCategories = async () => {
+    setCategoriesLoading(true);
+    setCategoriesError(null);
+    try {
+      const res = await fetch("/api/categories");
+      const data = await res.json();
+      if (res.ok) {
+        setCategories(data);
+      } else {
+        setCategoriesError(data.message || "Failed to fetch categories");
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      setCategoriesError("Error fetching categories");
+    } finally {
+      setCategoriesLoading(false);
+    }
+  };
+
+  const refreshCategories = async () => {
+    await fetchCategories();
+  };
+
   // Fetch blogs
   const fetchBlogs = async () => {
     setBlogsLoading(true);
@@ -173,8 +226,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!authLoading) {
-      fetchPositions();
-      fetchDepartments();
+      // Only fetch client-side if we don't have initial server-side data
+      if (!positions || positions.length === 0) {
+        fetchPositions();
+      }
+      if (!departments || departments.length === 0) {
+        fetchDepartments();
+      }
+      if (!categories || categories.length === 0) {
+        fetchCategories();
+      }
     }
   }, [authLoading]);
 
@@ -198,6 +259,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
     departmentsLoading,
     departmentsError,
     refreshDepartments,
+    categories,
+    categoriesLoading,
+    categoriesError,
+    refreshCategories,
     blogs,
     blogsLoading,
     blogsError,

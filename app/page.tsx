@@ -8,9 +8,15 @@ import CallToActionBanner from "@/components/ui/CallToActionBanner";
 import NewsletterCTASection from "@/components/shared/NewsletterCTASection";
 import { dummyLeaders, dummyBlogPosts } from "@/lib/data";
 import { generateMetadata, KEYWORDS, combineKeywords } from "@/lib/seo";
+import {
+  convertApiBlogToInterface,
+  ApiBlogResponse,
+} from "@/lib/utils/blog-conversion";
+import { BlogPost } from "@/lib/types/blogs.types";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Metadata } from "next";
+import { config } from "@/config";
 
 export const metadata: Metadata = generateMetadata({
   title: "Home - Student Leadership Platform",
@@ -31,7 +37,30 @@ export const metadata: Metadata = generateMetadata({
   url: "/",
 });
 
-export default function Home() {
+// Server-side function to fetch featured blog
+async function getFeaturedBlog(): Promise<BlogPost | null> {
+  try {
+    const response = await fetch(`${config.clientUrl}/api/blog/featured`, {
+      // next: { revalidate: 300 }, // Revalidate every 5 minutes
+    });
+
+    if (!response.ok) {
+      console.error("Failed to fetch featured blog:", response.status);
+      return null;
+    }
+
+    const apiData: ApiBlogResponse = await response.json();
+    return convertApiBlogToInterface(apiData);
+  } catch (error) {
+    console.error("Error fetching featured blog:", error);
+    return null;
+  }
+}
+
+export default async function Home() {
+  // Fetch featured blog server-side
+  const featuredBlog = await getFeaturedBlog();
+
   // Sort candidates by votes for trending (top 5)
   const trendingCandidates = [...dummyLeaders]
     .sort((a, b) => b.votes - a.votes)
@@ -50,7 +79,7 @@ export default function Home() {
     )
     .slice(0, 4);
 
-  const featuredBlog = dummyBlogPosts[0];
+  // Fallback to dummy data for other blogs (you can implement similar server-side fetching for these too)
   const recentBlogs = dummyBlogPosts.slice(1, 7); // Get 6 recent posts
   const trendingBlogs = [...dummyBlogPosts]
     .sort((a, b) => b.likes - a.likes)
@@ -143,7 +172,15 @@ export default function Home() {
                 </Link>
               </div>
 
-              <BlogCard post={featuredBlog} featured />
+              {featuredBlog ? (
+                <BlogCard post={featuredBlog} featured />
+              ) : (
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
+                  <p className="text-gray-500 text-center">
+                    No featured article available
+                  </p>
+                </div>
+              )}
             </section>
 
             {/* Recent Articles */}

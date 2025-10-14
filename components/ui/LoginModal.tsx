@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { X, LogIn } from 'lucide-react';
+import { useRouter } from "next/navigation";
+import { X, LogIn } from "lucide-react";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -10,7 +10,12 @@ interface LoginModalProps {
   message?: string;
 }
 
-export default function LoginModal({ isOpen, onClose, returnUrl, message = "This feature is only available to authenticated users." }: LoginModalProps) {
+export default function LoginModal({
+  isOpen,
+  onClose,
+  returnUrl,
+  message = "This feature is only available to authenticated users.",
+}: LoginModalProps) {
   const router = useRouter();
 
   if (!isOpen) return null;
@@ -20,8 +25,14 @@ export default function LoginModal({ isOpen, onClose, returnUrl, message = "This
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50" onClick={onClose}>
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 relative" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4  bg-opacity-20 backdrop-blur-sm transition-opacity duration-300 ease-in-out "
+      onClick={onClose}
+    >
+      <div
+        className="bg-white border-2 border-orange-300 rounded-lg shadow-xl max-w-md w-full p-6 relative"
+        onClick={(e) => e.stopPropagation()}
+      >
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
@@ -33,14 +44,12 @@ export default function LoginModal({ isOpen, onClose, returnUrl, message = "This
           <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-orange-100 mb-4">
             <LogIn className="h-6 w-6 text-orange-600" />
           </div>
-          
+
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
             Authentication Required
           </h3>
-          
-          <p className="text-gray-600 mb-6">
-            {message}
-          </p>
+
+          <p className="text-gray-600 mb-6">{message}</p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <button

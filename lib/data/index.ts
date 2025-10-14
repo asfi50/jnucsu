@@ -6,6 +6,9 @@ import {
   generatePlaceholderImage,
 } from "../utils";
 
+// Export server-side data fetching functions
+export { fetchServerSideData, fetchClientSideData } from "./server-data";
+
 // Dummy users
 export const dummyUsers: User[] = [
   {

@@ -19,6 +19,7 @@ import Button from "@/components/ui/Button";
 import { useToast } from "@/components/ui/ToastProvider";
 import { useData } from "@/context/data-context";
 import { MyBlogPost } from "@/lib/types/blogs.types";
+import MyBlogsSkeleton from "@/components/blog/MyBlogsSkeleton";
 
 const MyBlogsPage = () => {
   const { blogs, blogsLoading } = useData();
@@ -124,12 +125,7 @@ const MyBlogsPage = () => {
   if (blogsLoading) {
     return (
       <ProtectedRoute>
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-500"></div>
-            <p className="mt-4 text-gray-600">Loading your blogs...</p>
-          </div>
-        </div>
+        <MyBlogsSkeleton />
       </ProtectedRoute>
     );
   }
@@ -369,8 +365,10 @@ const MyBlogsPage = () => {
                         </Button>
                       )}
 
+                      {/* Edit button for draft, rejected, and published blogs */}
                       {(blog.status === "draft" ||
-                        blog.status === "rejected") && (
+                        blog.status === "rejected" ||
+                        blog.status === "published") && (
                         <Link href={`/submit-blog?edit=${blog.id}`}>
                           <Button variant="outline" size="sm">
                             <Edit className="w-4 h-4" />

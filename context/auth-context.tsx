@@ -29,17 +29,20 @@ interface AuthContextType {
   login: (
     email: string,
     password: string,
-    isRememberMe: boolean
+    isRememberMe: boolean,
+    recaptchaToken?: string
   ) => Promise<boolean>;
   register: (
     fullName: string,
     email: string,
-    password: string
+    password: string,
+    recaptchaToken?: string
   ) => Promise<boolean>;
   signInWithGoogle: () => Promise<void>;
   resetPassword: (email: string) => Promise<boolean>;
   logout: () => void;
   loading: boolean;
+  loginLoading: boolean;
   user: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
   setAccessToken: React.Dispatch<React.SetStateAction<string | null>>;
@@ -56,6 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true); // Start with true for initial load
+  const [loginLoading, setLoginLoading] = useState(false); // Separate loading state for login actions
 
   const router = useRouter();
 
@@ -155,14 +159,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (
     email: string,
     password: string,
-    isRememberMe: boolean
+    isRememberMe: boolean,
+    recaptchaToken?: string
   ): Promise<boolean> => {
-    setLoading(true);
+    setLoginLoading(true);
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, isRememberMe }),
+        body: JSON.stringify({ email, password, isRememberMe, recaptchaToken }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -178,7 +183,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsAuthenticated(false);
       return false;
     } finally {
-      setLoading(false);
+      setLoginLoading(false);
     }
   };
 
@@ -186,14 +191,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (
     fullName: string,
     email: string,
-    password: string
+    password: string,
+    recaptchaToken?: string
   ): Promise<boolean> => {
-    setLoading(true);
+    setLoginLoading(true);
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fullName, email, password }),
+        body: JSON.stringify({ fullName, email, password, recaptchaToken }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -209,7 +215,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsAuthenticated(false);
       return false;
     } finally {
-      setLoading(false);
+      setLoginLoading(false);
     }
   };
 
@@ -270,6 +276,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     resetPassword,
     logout,
     loading,
+    loginLoading,
     isAuthenticated,
     setIsAuthenticated,
     userProfile,

@@ -3,6 +3,7 @@ import { twMerge } from "tailwind-merge";
 
 // Only export image-compression (client-side safe)
 export * from "./image-compression";
+export * from "./blog-conversion";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -84,4 +85,50 @@ export function generatePlaceholderImage(
   return `https://via.placeholder.com/${width}x${height}/4f46e5/ffffff?text=${encodeURIComponent(
     displayText
   )}`;
+}
+
+// Utility function for highlighting search terms in text
+export function highlightSearchTerm(text: string, searchTerm: string): string {
+  if (!searchTerm.trim()) return text;
+
+  const regex = new RegExp(
+    `(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
+    "gi"
+  );
+  return text.replace(
+    regex,
+    '<mark class="bg-orange-200 px-1 rounded">$1</mark>'
+  );
+}
+
+// Create search result snippet with highlighted terms
+export function createSearchSnippet(
+  text: string,
+  searchTerm: string,
+  maxLength: number = 100
+): string {
+  if (!searchTerm.trim())
+    return (
+      text.substring(0, maxLength) + (text.length > maxLength ? "..." : "")
+    );
+
+  const lowerText = text.toLowerCase();
+  const lowerTerm = searchTerm.toLowerCase();
+  const index = lowerText.indexOf(lowerTerm);
+
+  if (index === -1) {
+    return (
+      text.substring(0, maxLength) + (text.length > maxLength ? "..." : "")
+    );
+  }
+
+  const start = Math.max(0, index - 30);
+  const end = Math.min(text.length, start + maxLength);
+  const snippet = text.substring(start, end);
+
+  return (
+    (start > 0 ? "..." : "") +
+    highlightSearchTerm(snippet, searchTerm) +
+    (end < text.length ? "..." : "")
+  );
 }

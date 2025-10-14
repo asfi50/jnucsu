@@ -10,6 +10,7 @@ import Button from "@/components/ui/Button";
 import Loader from "@/components/ui/Loader";
 import { useToast } from "@/components/ui/ToastProvider";
 import { useAuth } from "@/context/auth-context";
+import { useRecaptcha } from "@/hooks/use-recaptcha";
 
 function RegisterForm() {
   const [formData, setFormData] = useState({
@@ -29,6 +30,7 @@ function RegisterForm() {
   }>({});
   const { showToast } = useToast();
   const { signInWithGoogle, register } = useAuth();
+  const { executeRecaptchaAction } = useRecaptcha();
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnTo = searchParams.get("returnTo") || "/";
@@ -72,10 +74,22 @@ function RegisterForm() {
     setLoading(true);
 
     try {
+      // Execute reCAPTCHA
+      const recaptchaToken = await executeRecaptchaAction("register");
+      if (!recaptchaToken) {
+        showToast({
+          type: "error",
+          title: "Security Check Failed",
+          message: "Please try again. reCAPTCHA verification is required.",
+        });
+        return;
+      }
+
       const success = await register(
         formData.name,
         formData.email,
-        formData.password
+        formData.password,
+        recaptchaToken
       );
 
       if (!success) {

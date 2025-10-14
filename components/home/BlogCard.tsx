@@ -48,7 +48,7 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
           />
         </div>
         <div className="p-6">
-          <div className="flex items-center space-x-2 mb-3">
+          <div className="flex flex-wrap space-y-2 items-center space-x-2 mb-3">
             {post.tags.map((tag) => (
               <span
                 key={tag}
@@ -67,15 +67,23 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
 
           <p className="text-gray-600 mb-4 leading-relaxed">{post.excerpt}</p>
 
-          <div className="flex items-center justify-between">
+          <div className="space-y-4">
             <div className="flex items-center space-x-3">
-              <Image
-                src={post.author.avatar}
-                alt={post.author.name}
-                width={32}
-                height={32}
-                className="rounded-full"
-              />
+              {post.author.avatar ? (
+                <Image
+                  src={post.author.avatar}
+                  alt={post.author.name}
+                  width={32}
+                  height={32}
+                  className="rounded-full"
+                />
+              ) : (
+                <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                  <span className="text-gray-600 text-sm font-medium">
+                    {post.author.name.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              )}
               <div className="text-sm">
                 <p className="text-gray-900 font-medium">{post.author.name}</p>
                 <p className="text-gray-500">
@@ -84,7 +92,7 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
               </div>
             </div>
 
-            <div className="flex items-center space-x-4 text-sm text-gray-500">
+            <div className="flex items-center space-x-4 text-sm text-gray-500 justify-between">
               <div className="flex items-center space-x-1">
                 <Clock className="w-4 h-4" />
                 <span>{post.readTime} min read</span>
