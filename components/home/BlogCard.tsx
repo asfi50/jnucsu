@@ -158,11 +158,15 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
         <div className="flex items-center justify-between text-xs text-gray-500">
           <div className="flex items-center space-x-2">
             <Image
-              src={post.author.avatar}
+              src={post.author.avatar || "/images/default-avatar.svg"}
               alt={post.author.name}
               width={20}
               height={20}
               className="rounded-full"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = "/images/default-avatar.svg";
+              }}
             />
             <span>{post.author.name}</span>
           </div>

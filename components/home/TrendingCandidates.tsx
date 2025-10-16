@@ -77,11 +77,15 @@ function TrendingCard({ candidate }: TrendingCardProps) {
             <div className="relative mb-3">
               <div className="w-20 h-20 mx-auto rounded-full overflow-hidden ring-2 ring-orange-100">
                 <Image
-                  src={candidate.avatar}
+                  src={candidate.avatar || "/images/default-avatar.svg"}
                   alt={candidate.name}
                   width={80}
                   height={80}
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = "/images/default-avatar.svg";
+                  }}
                 />
               </div>
             </div>

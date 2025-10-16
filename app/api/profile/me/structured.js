@@ -1,10 +1,23 @@
 function GalleryFormat(data) {
-  return data.map((item) => ({
-    id: item.id,
-    title: item.title,
-    description: item.description,
-    url: item.url,
-  }));
+  if (!Array.isArray(data)) {
+    return [];
+  }
+
+  return data
+    .filter(
+      (item) =>
+        item &&
+        item.id &&
+        item.url &&
+        typeof item.url === "string" &&
+        item.url.trim() !== ""
+    )
+    .map((item) => ({
+      id: item.id,
+      title: item.title || "",
+      description: item.description || "",
+      url: item.url.trim(),
+    }));
 }
 
 /**

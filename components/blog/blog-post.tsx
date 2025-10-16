@@ -480,7 +480,7 @@ export default function BlogPostClientWithFetch({
           <div className="prose prose-lg max-w-none">
             <ProductionMarkdownViewer
               content={post.content}
-              showControls={true}
+              showControls={false}
               initialTheme="light"
               initialFontSize="medium"
               className="blog-content"

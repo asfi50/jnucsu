@@ -60,7 +60,7 @@ export function flattenCandidate(candidate: CandidateRaw[]): CandidateItem[] {
       position: candidate.position?.name || "Candidate",
       biography: candidate.biography || "",
       comments: comments,
-      avatar: candidate.profile?.image || "",
+      avatar: candidate.profile?.image || "/images/default-avatar.svg",
       title: candidate.position?.name || "Candidate",
       description: candidate.biography || "No biography available",
       year: academicYear,

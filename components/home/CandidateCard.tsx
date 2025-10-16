@@ -49,11 +49,15 @@ export default function CandidateCard({ leader }: CandidateCardProps) {
           <div className="relative mb-4">
             <div className="w-24 h-24 rounded-full overflow-hidden ring-4 ring-gray-100">
               <Image
-                src={leader.avatar}
+                src={leader.avatar || "/images/default-avatar.svg"}
                 alt={leader.name}
                 width={96}
                 height={96}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = "/images/default-avatar.svg";
+                }}
               />
             </div>
           </div>

@@ -36,6 +36,7 @@ import {
   ElectionCandidate,
   WorkGalleryItem,
 } from "@/lib/types/candidate.profile.types";
+import ProductionMarkdownViewer from "../ui/ProductionMarkdownViewer";
 
 interface CandidateProfileClientProps {
   leader: ElectionCandidate;
@@ -246,11 +247,15 @@ export default function CandidateProfileClient({
                     <div className="flex flex-col md:flex-row md:items-start space-y-4 md:space-y-0 md:space-x-4">
                       <div className="w-24 h-24 md:w-32 md:h-32 mx-auto md:mx-0 rounded-full overflow-hidden ring-4 ring-orange-100">
                         <Image
-                          src={leader.avatar}
+                          src={leader.avatar || "/images/default-avatar.svg"}
                           alt={leader.name}
                           width={128}
                           height={128}
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = "/images/default-avatar.svg";
+                          }}
                         />
                       </div>
                       <div className="text-center md:text-left">
@@ -297,12 +302,15 @@ export default function CandidateProfileClient({
                     </div>
                   </div>
 
-                  <div
-                    className="text-gray-700 leading-relaxed mb-4 prose max-w-none whitespace-pre-line"
-                    dangerouslySetInnerHTML={{
-                      __html: leader.description,
-                    }}
-                  ></div>
+                  <div className="prose prose-lg max-w-none">
+                    <ProductionMarkdownViewer
+                      content={leader.description}
+                      showControls={false}
+                      initialTheme="light"
+                      initialFontSize="medium"
+                      className="blog-content"
+                    />
+                  </div>
 
                   {/* Additional Profile Fields */}
                   {(leader.phone || leader.email || leader.address) && (
@@ -339,12 +347,15 @@ export default function CandidateProfileClient({
                   Future Plans
                 </h2>
               </div>
-              <div
-                className="text-gray-700 leading-relaxed whitespace-pre-line prose"
-                dangerouslySetInnerHTML={{
-                  __html: leader.futurePlans,
-                }}
-              ></div>
+              <div className="prose prose-lg max-w-none">
+                <ProductionMarkdownViewer
+                  content={leader.futurePlans}
+                  showControls={false}
+                  initialTheme="light"
+                  initialFontSize="medium"
+                  className="blog-content"
+                />
+              </div>
             </div>
 
             {/* AI Review Section */}
@@ -426,10 +437,15 @@ export default function CandidateProfileClient({
                     Achievements
                   </h2>
                 </div>
-                <div
-                  className="text-gray-700 leading-relaxed whitespace-pre-line"
-                  dangerouslySetInnerHTML={{ __html: leader.achievements }}
-                ></div>
+                <div className="prose prose-lg max-w-none">
+                  <ProductionMarkdownViewer
+                    content={leader.achievements}
+                    showControls={false}
+                    initialTheme="light"
+                    initialFontSize="medium"
+                    className="blog-content"
+                  />
+                </div>
               </div>
             )}
 
@@ -621,11 +637,15 @@ export default function CandidateProfileClient({
                       <div className="flex space-x-3 md:space-x-4">
                         <div className="flex-shrink-0">
                           <Image
-                            src={leader.avatar}
+                            src={leader.avatar || "/images/default-avatar.svg"}
                             alt={leader.name}
                             width={40}
                             height={40}
                             className="rounded-full"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = "/images/default-avatar.svg";
+                            }}
                           />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -744,11 +764,15 @@ export default function CandidateProfileClient({
                       <div className="flex-shrink-0">
                         <Link href={`/users/${comment.userId}`}>
                           <Image
-                            src={comment.avatar}
+                            src={comment.avatar || "/images/default-avatar.svg"}
                             alt={comment.name}
                             width={40}
                             height={40}
                             className="rounded-full cursor-pointer hover:ring-2 hover:ring-orange-500 transition-all"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = "/images/default-avatar.svg";
+                            }}
                           />
                         </Link>
                       </div>
@@ -779,11 +803,15 @@ export default function CandidateProfileClient({
                                 <div className="flex-shrink-0">
                                   <Link href={`/users/${reply.author.id}`}>
                                     <Image
-                                      src={reply.author.avatar}
+                                      src={reply.author.avatar || "/images/default-avatar.svg"}
                                       alt={reply.author.name}
                                       width={32}
                                       height={32}
                                       className="rounded-full cursor-pointer hover:ring-2 hover:ring-orange-500 transition-all"
+                                      onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.src = "/images/default-avatar.svg";
+                                      }}
                                     />
                                   </Link>
                                 </div>

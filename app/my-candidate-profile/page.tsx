@@ -252,15 +252,17 @@ const MyCandidateProfilePage = () => {
                     </Link>
                   )}
 
-                  {(profile.status === "draft" ||
-                    profile.status === "rejected") && (
-                    <Link href="/submit-candidate">
-                      <Button className="flex items-center space-x-2">
-                        <Edit className="w-4 h-4" />
-                        <span>Edit Profile</span>
-                      </Button>
-                    </Link>
-                  )}
+                  <Link href="/submit-candidate">
+                    <Button className="flex items-center space-x-2">
+                      <Edit className="w-4 h-4" />
+                      <span>
+                        {profile.status === "draft" ||
+                        profile.status === "rejected"
+                          ? "Complete Profile"
+                          : "Edit Profile"}
+                      </span>
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>

@@ -68,11 +68,15 @@ export default function PublicUserProfilePage() {
                 <div className="flex items-center space-x-6">
                   <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100">
                     <Image
-                      src={profileData?.avatar || "/default-avatar.png"}
+                      src={profileData?.avatar || "/images/default-avatar.svg"}
                       alt={profileData?.name || "User Avatar"}
                       width={96}
                       height={96}
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = "/images/default-avatar.svg";
+                      }}
                     />
                   </div>
                   <div>

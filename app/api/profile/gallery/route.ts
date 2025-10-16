@@ -55,9 +55,25 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { title, description, url } = body;
-    if (!title || !description || !url) {
+
+    // Validate and trim inputs
+    const trimmedTitle = title?.trim();
+    const trimmedDescription = description?.trim() || "";
+    const trimmedUrl = url?.trim();
+
+    if (!trimmedTitle || !trimmedUrl) {
       return NextResponse.json(
-        { message: "Title, description, and URL are required" },
+        { message: "Title and URL are required" },
+        { status: 400 }
+      );
+    }
+
+    // Basic URL validation
+    try {
+      new URL(trimmedUrl);
+    } catch {
+      return NextResponse.json(
+        { message: "Invalid URL format" },
         { status: 400 }
       );
     }
@@ -69,9 +85,9 @@ export async function POST(request: Request) {
         Authorization: `Bearer ${config.adminToken}`,
       },
       body: JSON.stringify({
-        title,
-        description,
-        url,
+        title: trimmedTitle,
+        description: trimmedDescription,
+        url: trimmedUrl,
         user: info.profileId,
         user_created: info.userId,
         user_updated: info.userId,
@@ -193,9 +209,25 @@ export async function PATCH(request: Request) {
 
     const body = await request.json();
     const { title, description, url } = body;
-    if (!title || !description || !url) {
+
+    // Validate and trim inputs
+    const trimmedTitle = title?.trim();
+    const trimmedDescription = description?.trim() || "";
+    const trimmedUrl = url?.trim();
+
+    if (!trimmedTitle || !trimmedUrl) {
       return NextResponse.json(
-        { message: "Title, description, and URL are required" },
+        { message: "Title and URL are required" },
+        { status: 400 }
+      );
+    }
+
+    // Basic URL validation
+    try {
+      new URL(trimmedUrl);
+    } catch {
+      return NextResponse.json(
+        { message: "Invalid URL format" },
         { status: 400 }
       );
     }
@@ -234,9 +266,9 @@ export async function PATCH(request: Request) {
           Authorization: `Bearer ${config.adminToken}`,
         },
         body: JSON.stringify({
-          title,
-          description,
-          url,
+          title: trimmedTitle,
+          description: trimmedDescription,
+          url: trimmedUrl,
           user_updated: info.userId,
         }),
       }

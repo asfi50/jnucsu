@@ -215,11 +215,15 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
             <div className="flex items-center space-x-4">
               <Link href={`/users/${post.author.id}`}>
                 <Image
-                  src={post.author.avatar}
+                  src={post.author.avatar || "/images/default-avatar.svg"}
                   alt={post.author.name}
                   width={48}
                   height={48}
                   className="rounded-full cursor-pointer hover:ring-2 hover:ring-orange-500 transition-all"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = "/images/default-avatar.svg";
+                  }}
                 />
               </Link>
               <div>
@@ -390,11 +394,17 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
                 <div className="flex space-x-3">
                   <Link href={`/users/${comment.author.id}`}>
                     <Image
-                      src={comment.author.avatar}
+                      src={
+                        comment.author.avatar || "/images/default-avatar.svg"
+                      }
                       alt={comment.author.name}
                       width={40}
                       height={40}
                       className="rounded-full cursor-pointer hover:ring-2 hover:ring-orange-500 transition-all"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = "/images/default-avatar.svg";
+                      }}
                     />
                   </Link>
                   <div className="flex-1">

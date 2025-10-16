@@ -53,11 +53,15 @@ export default function CompactCandidateCard({
               <div className="flex-shrink-0">
                 <div className="w-16 h-16 rounded-full overflow-hidden ring-2 ring-gray-100">
                   <Image
-                    src={candidate.avatar}
+                    src={candidate.avatar || "/images/default-avatar.svg"}
                     alt={candidate.name}
                     width={64}
                     height={64}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = "/images/default-avatar.svg";
+                    }}
                   />
                 </div>
               </div>
