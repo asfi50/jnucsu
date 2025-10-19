@@ -48,7 +48,7 @@ export interface CommentProfile {
   content: string;
   date_created?: string;
   name: string;
-  avatar: string;
+  avatar?: string;
   userId: string;
 }
 

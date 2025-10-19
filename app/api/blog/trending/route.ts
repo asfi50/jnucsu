@@ -121,14 +121,12 @@ export async function GET(request: Request) {
         title: blog.current_published_version.title || blog.title,
         excerpt: blog.current_published_version.excerpt || "",
         thumbnail: blog.current_published_version.thumbnail
-          ? `${config.serverBaseUrl}/assets/${blog.current_published_version.thumbnail}`
+          ? blog.current_published_version.thumbnail
           : null,
         author: {
           id: blog.author.id,
           name: blog.author.name,
-          avatar: blog.author.image
-            ? `${config.serverBaseUrl}/assets/${blog.author.image}`
-            : null,
+          avatar: blog.author.image ? blog.author.image : null,
         },
         category: blog.current_published_version.category?.text || "General",
         tags: blog.current_published_version.tags || [],

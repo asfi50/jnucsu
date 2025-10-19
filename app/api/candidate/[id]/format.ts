@@ -3,11 +3,13 @@ import { ElectionCandidate } from "@/lib/types/candidate.profile.types";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function formatCandidateApiResponse(data: any): ElectionCandidate {
   const candidateInfo = data.candidate_profile || {};
-  const blogComments = Array.isArray(data.blog_comments)
-    ? data.blog_comments
+  const blogComments = Array.isArray(data.comments) ? data.comments : [];
+  const this_profileComments = Array.isArray(data.given_profile_comments)
+    ? data.given_profile_comments
     : [];
-  const this_profileComments = Array.isArray(data.comments)
-    ? data.comments
+
+  const received_comments = Array.isArray(data.received_profile_comments)
+    ? data.received_profile_comments
     : [];
 
   const allComments = [];
@@ -19,6 +21,29 @@ export function formatCandidateApiResponse(data: any): ElectionCandidate {
       context: "blog" as const,
       contextId: comment.blogs?.id,
       contextTitle: comment.blogs?.title,
+    });
+  }
+
+  for (const comment of this_profileComments) {
+    allComments.push({
+      id: comment.id,
+      content: comment.content,
+      date_created: comment.date_created,
+      context: "profile" as const,
+      contextId: comment.profile?.id,
+      contextTitle: comment.profile?.name,
+    });
+  }
+
+  const commentProfile = [];
+  for (const comment of received_comments) {
+    commentProfile.push({
+      id: comment.id,
+      content: comment.content,
+      date_created: comment.date_created,
+      name: comment.user.name,
+      avatar: comment.user.image,
+      userId: comment.user.id,
     });
   }
 
@@ -77,24 +102,6 @@ export function formatCandidateApiResponse(data: any): ElectionCandidate {
       (a, b) =>
         new Date(b.date_created).getTime() - new Date(a.date_created).getTime()
     ),
-    commentProfile: this_profileComments.map(
-      (comment: {
-        id: string;
-        content: string;
-        date_created: string;
-        user: {
-          name: string;
-          image: string;
-          id: string;
-        };
-      }) => ({
-        id: comment.id,
-        content: comment.content,
-        date_created: comment.date_created,
-        name: comment.user.name,
-        avatar: comment.user.image,
-        userId: comment.user.id,
-      })
-    ),
+    commentProfile,
   };
 }

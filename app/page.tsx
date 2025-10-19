@@ -16,6 +16,8 @@ import { Metadata } from "next";
 import { config } from "@/config";
 import { TopCandidate } from "./api/candidate/top/route";
 import NewCandidatesClient from "@/components/home/NewCandidatesClient";
+import { PanelMember } from "./api/panel/public-choice/route";
+import TrendingPanelMembers from "@/components/home/public-choice";
 
 export const metadata: Metadata = generateMetadata({
   title: "Home - Student Leadership Platform",
@@ -40,7 +42,7 @@ export const metadata: Metadata = generateMetadata({
 async function getFeaturedBlog(): Promise<BlogPost | null> {
   try {
     const response = await fetch(`${config.clientUrl}/api/blog/featured`, {
-      // next: { revalidate: 300 }, // Revalidate every 5 minutes
+      next: { revalidate: 300 }, // Revalidate every 5 minutes
     });
 
     if (!response.ok) {
@@ -59,7 +61,7 @@ async function getFeaturedBlog(): Promise<BlogPost | null> {
 async function getTopCandidates(): Promise<TopCandidate[] | null> {
   try {
     const response = await fetch(`${config.clientUrl}/api/candidate/top`, {
-      // next: { revalidate: 300 }, // Revalidate every 5 minutes
+      next: { revalidate: 300 }, // Revalidate every 5 minutes
     });
 
     if (!response.ok) {
@@ -75,10 +77,35 @@ async function getTopCandidates(): Promise<TopCandidate[] | null> {
   }
 }
 
+async function getTrendingpanel(): Promise<PanelMember[] | null> {
+  try {
+    const response = await fetch(
+      `${config.clientUrl}/api/panel/public-choice`,
+      {
+        next: { revalidate: 300 }, // Revalidate every 5 minutes
+      }
+    );
+    if (!response.ok) {
+      console.error("Failed to fetch trending panel members:", response.status);
+      return null;
+    }
+    const data = await response.json();
+    return data as PanelMember[];
+  } catch (error) {
+    console.error("Error fetching trending panel members:", error);
+    return null;
+  }
+}
+
 export default async function Home() {
   // Fetch featured blog server-side
+  let panelLoading = true;
   const featuredBlog = await getFeaturedBlog();
   const topCandidates = await getTopCandidates();
+  const trendingPanelMembers = await getTrendingpanel().then((data) => {
+    panelLoading = false;
+    return data;
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -91,6 +118,11 @@ export default async function Home() {
           <div className="lg:col-span-3 space-y-8">
             {/* Call to Action Banner for Candidates */}
             <CallToActionBanner type="candidate" />
+
+            <TrendingPanelMembers
+              initialData={trendingPanelMembers ?? undefined}
+              isLoading={panelLoading}
+            />
 
             {/* Top Candidates Section */}
             <section>

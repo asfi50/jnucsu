@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
@@ -37,6 +37,7 @@ import {
   WorkGalleryItem,
 } from "@/lib/types/candidate.profile.types";
 import ProductionMarkdownViewer from "../ui/ProductionMarkdownViewer";
+import useAxios from "@/hooks/use-axios";
 
 interface CandidateProfileClientProps {
   leader: ElectionCandidate;
@@ -56,7 +57,15 @@ export default function CandidateProfileClient({
     null
   );
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, userProfile } = useAuth();
+  const axios = useAxios();
+
+  // Debug logging
+  useEffect(() => {
+    console.log("commentProfile updated:", commentProfile);
+    console.log("commentProfile.length:", commentProfile.length);
+    console.log("leader.commentProfile initial data:", leader.commentProfile);
+  }, [commentProfile, leader.commentProfile]);
 
   const handleVote = () => {
     if (!isAuthenticated) {
@@ -164,10 +173,10 @@ export default function CandidateProfileClient({
     }
   };
 
-  const handleComment = (e: React.FormEvent) => {
+  const handleComment = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!isAuthenticated) {
+    if (!isAuthenticated || !userProfile) {
       // Show login modal instead of redirecting
       setShowLoginModal(true);
       return;
@@ -178,11 +187,21 @@ export default function CandidateProfileClient({
         id: Date.now().toString(),
         content: newComment.trim(),
         date_created: new Date().toISOString(),
-        name: "Current User", // Replace with actual user name
-        avatar: "current_user_avatar_url", // Replace with actual user avatar URL
-        userId: "current_user_id", // Replace with actual user ID
+        name: userProfile.name,
+        avatar: userProfile.image,
+        userId: userProfile.id,
       };
       setCommentProfile([comment, ...commentProfile]);
+
+      const formData = new FormData();
+      formData.append("content", newComment.trim());
+      formData.append("profileId", leader.id);
+
+      await axios.post("/api/candidate/comment", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       setNewComment("");
     }
   };
@@ -716,8 +735,11 @@ export default function CandidateProfileClient({
                   <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
                     <div className="flex-shrink-0 hidden sm:block">
                       <Image
-                        src="https://api.dicebear.com/7.x/avataaars/svg?seed=currentuser"
-                        alt="Your avatar"
+                        src={
+                          userProfile?.image ||
+                          "https://api.dicebear.com/7.x/avataaars/svg?seed=currentuser"
+                        }
+                        alt={userProfile?.name || "Current User"}
                         width={40}
                         height={40}
                         className="rounded-full"
@@ -771,30 +793,54 @@ export default function CandidateProfileClient({
                   >
                     <div className="flex space-x-3 md:space-x-4">
                       <div className="flex-shrink-0">
-                        <Link href={`/users/${comment.userId}`}>
+                        {comment.userId ? (
+                          <Link href={`/users/${comment.userId}`}>
+                            <Image
+                              src={
+                                comment.avatar || "/images/default-avatar.svg"
+                              }
+                              alt={comment.name || "User"}
+                              width={40}
+                              height={40}
+                              className="rounded-full cursor-pointer hover:ring-2 hover:ring-orange-500 transition-all"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = "/images/default-avatar.svg";
+                              }}
+                            />
+                          </Link>
+                        ) : (
                           <Image
                             src={comment.avatar || "/images/default-avatar.svg"}
-                            alt={comment.name}
+                            alt={comment.name || "User"}
                             width={40}
                             height={40}
-                            className="rounded-full cursor-pointer hover:ring-2 hover:ring-orange-500 transition-all"
+                            className="rounded-full"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
                               target.src = "/images/default-avatar.svg";
                             }}
                           />
-                        </Link>
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 mb-1">
-                          <Link
-                            href={`/users/${comment.userId}`}
-                            className="font-medium text-gray-900 text-sm md:text-base hover:text-orange-600 transition-colors"
-                          >
-                            {comment.name}
-                          </Link>
+                          {comment.userId ? (
+                            <Link
+                              href={`/users/${comment.userId}`}
+                              className="font-medium text-gray-900 text-sm md:text-base hover:text-orange-600 transition-colors"
+                            >
+                              {comment.name || "Anonymous"}
+                            </Link>
+                          ) : (
+                            <span className="font-medium text-gray-900 text-sm md:text-base">
+                              {comment.name || "Anonymous"}
+                            </span>
+                          )}
                           <span className="text-xs md:text-sm text-gray-500">
-                            {formatRelativeTime(comment.date_created || "")}
+                            {comment.date_created
+                              ? formatRelativeTime(comment.date_created)
+                              : "Recently"}
                           </span>
                         </div>
                         <p className="text-gray-700 leading-relaxed text-sm md:text-base break-words">

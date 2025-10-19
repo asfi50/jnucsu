@@ -20,7 +20,7 @@ function getBlogCoverImage(
     }
     // If it's a Directus asset ID, construct the asset URL
     return `${
-      process.env.NEXT_PUBLIC_SERVER_BASE_URL || "http://localhost:8055"
+      process.env.NEXT_PUBLIC_SERVER_BASE_URL || "http://localhost:3000"
     }/assets/${thumbnail}`;
   }
 

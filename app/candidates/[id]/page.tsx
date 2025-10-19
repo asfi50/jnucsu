@@ -92,9 +92,6 @@ export default async function CandidateProfilePage({
     notFound();
   }
 
-  // Convert to StudentLeader format for the component
-  // const leader = candidateData;
-
   // Generate structured data for the candidate
   const candidateStructuredData = generateStructuredData({
     type: "Person",
