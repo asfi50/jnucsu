@@ -27,8 +27,6 @@ export async function POST(request: NextRequest) {
     // 3. Store the token with expiration
     // 4. Send email with reset link
 
-    console.log(`Password reset requested for email: ${email}`);
-
     return NextResponse.json(
       {
         message:

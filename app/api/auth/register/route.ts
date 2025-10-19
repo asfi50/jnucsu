@@ -1,14 +1,36 @@
 import { config } from "@/config";
 import { signJWT } from "@/lib/jwt";
+import { verifyRecaptcha } from "@/lib/utils/recaptcha";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
-    const { fullName, email, password } = await request.json();
+    const { fullName, email, password, recaptchaToken } = await request.json();
 
+    // Validate required fields
     if (!fullName || !email || !password) {
       return NextResponse.json(
         { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    // Verify reCAPTCHA token
+    if (!recaptchaToken) {
+      return NextResponse.json(
+        { error: "reCAPTCHA verification required" },
+        { status: 400 }
+      );
+    }
+
+    const isRecaptchaValid = await verifyRecaptcha(
+      recaptchaToken,
+      "register",
+      0.5
+    );
+    if (!isRecaptchaValid) {
+      return NextResponse.json(
+        { error: "reCAPTCHA verification failed. Please try again." },
         { status: 400 }
       );
     }
@@ -72,7 +94,7 @@ export async function POST(request: Request) {
         userId: data.data.id,
         profileId: profileData.data.id,
       },
-      "1d"
+      "7d"
     );
 
     return NextResponse.json(

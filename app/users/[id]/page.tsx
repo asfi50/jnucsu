@@ -7,6 +7,7 @@ import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { useAuth } from "@/context/auth-context";
+import UserProfileSkeleton from "@/components/shared/UserProfileSkeleton";
 import {
   Mail,
   Phone,
@@ -52,18 +53,7 @@ export default function PublicUserProfilePage() {
   }, [userId]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        <div className="flex items-center justify-center py-32">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-500 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading profile...</p>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
+    return <UserProfileSkeleton />;
   }
 
   return (
@@ -78,11 +68,15 @@ export default function PublicUserProfilePage() {
                 <div className="flex items-center space-x-6">
                   <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100">
                     <Image
-                      src={profileData?.avatar || "/default-avatar.png"}
+                      src={profileData?.avatar || "/images/default-avatar.svg"}
                       alt={profileData?.name || "User Avatar"}
                       width={96}
                       height={96}
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = "/images/default-avatar.svg";
+                      }}
                     />
                   </div>
                   <div>

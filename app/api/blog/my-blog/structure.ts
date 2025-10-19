@@ -11,7 +11,7 @@ export function mapApiResponseToBlogPost(
     status: apiResponse.status,
     category: apiResponse.category.text,
     tags: apiResponse.tags,
-    thumbnail: apiResponse.thumbnail,
+    thumbnail: apiResponse.thumbnail || "",
     createdAt: apiResponse.date_created,
     updatedAt: apiResponse.date_updated,
     publishedAt: apiResponse.date_published,

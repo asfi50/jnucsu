@@ -3,37 +3,59 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronUp, MessageCircle } from "lucide-react";
-import { StudentLeader } from "@/lib/types";
 import { useState } from "react";
 import { useAuth } from "@/context/auth-context";
+import useUserEngagement from "@/hooks/use-user-engagement";
 import LoginModal from "@/components/ui/LoginModal";
+import { useToast } from "@/components/ui/ToastProvider";
+import { TopCandidate } from "@/app/api/candidate/top/route";
 
 interface CompactCandidateCardProps {
-  candidate: StudentLeader;
+  candidate: TopCandidate;
 }
 
 export default function CompactCandidateCard({
   candidate,
 }: CompactCandidateCardProps) {
-  const [votes, setVotes] = useState(candidate.votes);
-  const [hasVoted, setHasVoted] = useState(false);
+  const [votes, setVotes] = useState(candidate.profileVotes);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const { isAuthenticated } = useAuth();
+  const { toggleVote, userVotes } = useUserEngagement();
+  const { showToast } = useToast();
 
-  const handleVote = () => {
+  // Check if user has voted for this candidate
+  const hasVoted = () => userVotes.includes(candidate.id);
+
+  const handleVote = async (e: React.MouseEvent) => {
+    e.preventDefault();
+
     if (!isAuthenticated) {
       setShowLoginModal(true);
       return;
     }
 
-    if (hasVoted) {
-      // Remove vote
-      setVotes(votes - 1);
-      setHasVoted(false);
-    } else {
-      // Add vote
-      setVotes(votes + 1);
-      setHasVoted(true);
+    try {
+      const newVoteState = await toggleVote(candidate.id);
+
+      // Update votes count based on the new state
+      if (newVoteState) {
+        setVotes(votes + 1);
+      } else {
+        setVotes(votes - 1);
+      }
+
+      showToast({
+        message: newVoteState ? "Vote added!" : "Vote removed!",
+        type: "success",
+        title: "",
+      });
+    } catch (error) {
+      console.error("Error toggling vote:", error);
+      showToast({
+        message: "Failed to update vote. Please try again.",
+        type: "error",
+        title: "",
+      });
     }
   };
 
@@ -53,11 +75,15 @@ export default function CompactCandidateCard({
               <div className="flex-shrink-0">
                 <div className="w-16 h-16 rounded-full overflow-hidden ring-2 ring-gray-100">
                   <Image
-                    src={candidate.avatar}
+                    src={candidate.image || "/images/default-avatar.svg"}
                     alt={candidate.name}
                     width={64}
                     height={64}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = "/images/default-avatar.svg";
+                    }}
                   />
                 </div>
               </div>
@@ -68,23 +94,22 @@ export default function CompactCandidateCard({
                   {candidate.name}
                 </h3>
                 <p className="text-orange-600 font-medium text-sm truncate">
-                  {candidate.title.replace(" - JnUCSU", "")}
+                  {candidate.position
+                    ? candidate.position.replace(" - JnUCSU", "")
+                    : "Position"}
                 </p>
 
                 {/* Action Buttons */}
                 <div className="flex items-center space-x-4 mt-2">
                   <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleVote();
-                    }}
+                    onClick={handleVote}
                     className={`flex items-center space-x-1 text-sm transition-colors ${
-                      hasVoted
+                      hasVoted()
                         ? "text-orange-600 bg-orange-50 font-medium"
                         : "text-gray-600 hover:text-orange-600 hover:bg-orange-50"
                     } px-2 py-1 rounded`}
                     title={
-                      hasVoted ? "Click to remove vote" : "Click to upvote"
+                      hasVoted() ? "Click to remove vote" : "Click to upvote"
                     }
                   >
                     <ChevronUp className="w-4 h-4" />
@@ -99,7 +124,7 @@ export default function CompactCandidateCard({
                     className="flex items-center space-x-1 text-sm text-gray-600 hover:text-orange-600 transition-colors px-2 py-1 rounded hover:bg-orange-50"
                   >
                     <MessageCircle className="w-4 h-4" />
-                    <span>{candidate.comments.length}</span>
+                    <span>{candidate.profileComments}</span>
                   </button>
                 </div>
               </div>

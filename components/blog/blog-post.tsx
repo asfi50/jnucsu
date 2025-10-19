@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
@@ -8,6 +8,7 @@ import Footer from "@/components/layout/Footer";
 import LoginModal from "@/components/ui/LoginModal";
 import { formatRelativeTime } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
+import useUserEngagement from "@/hooks/use-user-engagement";
 import {
   ArrowLeft,
   Heart,
@@ -26,9 +27,10 @@ import {
 import { useToast } from "../ui/ToastProvider";
 import useAxios from "@/hooks/use-axios";
 import { BlogComment, BlogPost } from "@/lib/types/blogs.types";
-import Loader from "@/components/ui/Loader";
 import { generateStructuredData } from "@/lib/seo";
 import { useRouter } from "next/navigation";
+import BlogPostSkeleton from "./BlogPostSkeleton";
+import ProductionMarkdownViewer from "@/components/ui/ProductionMarkdownViewer";
 
 interface BlogPostClientWithFetchProps {
   blogId: string;
@@ -41,29 +43,47 @@ export default function BlogPostClientWithFetch({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [likes, setLikes] = useState(0);
-  const [hasLiked, setHasLiked] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [comments, setComments] = useState<BlogComment[]>([]);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const hasFetchedRef = useRef(false);
+  const currentBlogIdRef = useRef<string>("");
   const {
     isAuthenticated,
     userProfile,
     user,
     loading: authLoading,
   } = useAuth();
+  const { toggleReaction, userReactions } = useUserEngagement();
   const { showToast } = useToast();
   const axios = useAxios();
   const router = useRouter();
 
-  // Fetch blog post data
+  // Check if user has reacted to this blog
+  const hasLiked = post ? userReactions.includes(post.id) : false;
+
+  // Fetch blog post data - only once per blog post
   useEffect(() => {
     if (authLoading) return;
+
+    // Reset fetch flag when blogId changes
+    if (currentBlogIdRef.current !== blogId) {
+      hasFetchedRef.current = false;
+      currentBlogIdRef.current = blogId;
+      setPost(null);
+      setLoading(true);
+      setError(null);
+    }
+
+    if (hasFetchedRef.current) return;
+
     const fetchBlogPost = async () => {
       try {
         setLoading(true);
+        hasFetchedRef.current = true;
 
         const response = await fetch(
-          `/api/blog/${blogId}?user=${userProfile?.id}`
+          `/api/blog/${blogId}?user=${userProfile?.id || ""}`
         );
 
         if (!response.ok) {
@@ -73,7 +93,6 @@ export default function BlogPostClientWithFetch({
         const blogData = await response.json();
         setPost(blogData);
         setLikes(blogData.likes || 0);
-        setHasLiked(blogData.is_reacted || false);
         setComments(blogData.comments || []);
 
         // Update page title and meta tags dynamically
@@ -123,37 +142,33 @@ export default function BlogPostClientWithFetch({
   }, [blogId, authLoading, userProfile?.id]);
 
   const handleLike = async () => {
-    if (!isAuthenticated || !user) {
+    if (!isAuthenticated || !user || !post) {
       setShowLoginModal(true);
       return;
     }
 
-    if (!hasLiked) {
-      setLikes(likes + 1);
-      setHasLiked(true);
-      try {
-        await axios.post(`/api/blog/reaction`, {
-          blogId: post?.id,
-          reactionType: "like",
-        });
-        setHasLiked(true);
-      } catch {
-        setLikes(likes - 1);
-        setHasLiked(false);
-      }
-    } else {
-      setLikes(likes - 1);
-      setHasLiked(false);
-      try {
-        await axios.post(`/api/blog/reaction`, {
-          blogId: post?.id,
-          reactionType: "unlike",
-        });
-        setHasLiked(false);
-      } catch {
+    try {
+      const newReactionState = await toggleReaction(post.id);
+
+      // Update likes count based on the new state
+      if (newReactionState) {
         setLikes(likes + 1);
-        setHasLiked(true);
+      } else {
+        setLikes(likes - 1);
       }
+
+      showToast({
+        message: newReactionState ? "Post liked!" : "Like removed!",
+        type: "success",
+        title: "",
+      });
+    } catch (error) {
+      console.error("Error toggling reaction:", error);
+      showToast({
+        message: "Failed to update reaction. Please try again.",
+        type: "error",
+        title: "",
+      });
     }
   };
 
@@ -269,18 +284,7 @@ export default function BlogPostClientWithFetch({
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center">
-            <Loader />
-            <p className="text-gray-600 mt-4">Loading blog post...</p>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
+    return <BlogPostSkeleton />;
   }
 
   if (error || !post) {
@@ -473,9 +477,13 @@ export default function BlogPostClientWithFetch({
 
           {/* Article Content */}
           <div className="prose prose-lg max-w-none">
-            <div className="text-gray-700 leading-relaxed space-y-6 whitespace-pre-wrap">
-              {post.content}
-            </div>
+            <ProductionMarkdownViewer
+              content={post.content}
+              showControls={false}
+              initialTheme="light"
+              initialFontSize="medium"
+              className="blog-content"
+            />
           </div>
 
           {/* Article Footer */}

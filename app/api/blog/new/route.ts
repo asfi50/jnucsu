@@ -15,7 +15,16 @@ export async function POST(request: Request) {
   }
   try {
     const body = await request.json();
-    const { title, content, category, thumbnail } = body;
+    const {
+      title,
+      content,
+      category,
+      thumbnail,
+      excerpt,
+      tags,
+      status = "draft",
+    } = body;
+
     if (!title || !content || !category) {
       return NextResponse.json(
         { message: "Title, content, and category are required" },
@@ -47,14 +56,16 @@ export async function POST(request: Request) {
       }
     }
 
+    // Step 1: Create the main blog entry
     const blogData = {
-      user: info.profileId,
-      user_created: info.userId,
-      ...body,
-      thumbnail: thumbnailUrl, // Use the uploaded URL instead of base64
+      title,
+      author: info.profileId,
+      status: "draft", // Main blog status is always draft initially
+      views: 0,
+      is_featured: false,
     };
 
-    const res = await fetch(`${config.serverBaseUrl}/items/blog`, {
+    const blogRes = await fetch(`${config.serverBaseUrl}/items/blogs`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -62,17 +73,69 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify(blogData),
     });
-    if (!res.ok) {
+
+    if (!blogRes.ok) {
       return NextResponse.json(
-        { error: "Failed to create blog post", details: await res.text() },
-        { status: res.status }
+        { error: "Failed to create blog entry", details: await blogRes.text() },
+        { status: blogRes.status }
       );
     }
-    const { data } = await res.json();
+
+    const { data: blogEntry } = await blogRes.json();
+
+    // Step 2: Create the blog version
+    const versionData = {
+      blog: blogEntry.id,
+      title,
+      excerpt: excerpt || "",
+      content,
+      thumbnail: thumbnailUrl,
+      status: status === "pending" ? "pending" : "draft", // Support draft or pending
+      category: parseInt(category),
+      tags: tags || [],
+      created_by: info.profileId,
+      submitted_at: status === "pending" ? new Date().toISOString() : null,
+    };
+
+    const versionRes = await fetch(
+      `${config.serverBaseUrl}/items/blog_versions`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${config.adminToken}`,
+        },
+        body: JSON.stringify(versionData),
+      }
+    );
+
+    if (!versionRes.ok) {
+      // Cleanup: delete the blog entry if version creation fails
+      await fetch(`${config.serverBaseUrl}/items/blogs/${blogEntry.id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${config.adminToken}`,
+        },
+      });
+
+      return NextResponse.json(
+        {
+          error: "Failed to create blog version",
+          details: await versionRes.text(),
+        },
+        { status: versionRes.status }
+      );
+    }
+
+    const { data: versionEntry } = await versionRes.json();
+
     return NextResponse.json(
       {
         message: "Blog post created successfully",
-        title: data.title,
+        blogId: blogEntry.id,
+        versionId: versionEntry.id,
+        title: versionEntry.title,
+        status: versionEntry.status,
       },
       { status: 201 }
     );

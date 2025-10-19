@@ -28,74 +28,47 @@ import Button from "@/components/ui/Button";
 import { useToast } from "@/components/ui/ToastProvider";
 import { useAuth } from "@/context/auth-context";
 import useAxios from "@/hooks/use-axios";
-import LoadingSpinner from "@/components/shared/loading-spinner";
-
-export interface CandidateProfile {
-  id: string;
-  userId: string;
-  position: string;
-  biography: string;
-  manifesto: string;
-  experience: string;
-  achievements: string;
-  phone: string;
-  email: string;
-  address: string;
-  studentId: string;
-  department: string;
-  semester: string;
-  isParticipating: boolean;
-  status: "draft" | "pending" | "approved" | "rejected";
-  createdAt: string;
-  updatedAt: string;
-  approvedAt?: string;
-  votes: number;
-  views: number;
-  rejectionReason?: string;
-  moderatorNotes?: string;
-  facebook?: string;
-  linkedin?: string;
-  twitter?: string;
-  instagram?: string;
-  website?: string;
-}
+import { CandidateProfile } from "@/lib/types/profile.types";
+import { useData } from "@/context/data-context";
+import MyCandidateProfileSkeleton from "@/components/candidates/MyCandidateProfileSkeleton";
+import CandidateVersionControl from "@/components/candidates/CandidateVersionControl";
 
 const MyCandidateProfilePage = () => {
   const [profile, setProfile] = useState<CandidateProfile | null>(null);
-  const [loading, setLoading] = useState(true);
   const { showToast } = useToast();
-  const { user, userProfile } = useAuth();
+  const { userProfile } = useAuth();
   const axios = useAxios();
+  const {
+    candidateProfile,
+    candidateProfileLoading,
+    candidateProfileError,
+    refreshCandidateProfile: refreshProfile,
+  } = useData();
 
   useEffect(() => {
-    if (!user) {
-      setLoading(false);
-      return;
+    if (candidateProfile) {
+      setProfile(candidateProfile);
+    } else if (!candidateProfileLoading && !candidateProfileError) {
+      // If loading is complete and no error, but no profile found
+      setProfile(null);
     }
-    const fetchProfile = async () => {
-      setLoading(true);
-      try {
-        await axios
-          .get("/api/profile/candidate")
-          .then((response) => {
-            setProfile(response.data);
-          })
-          .catch((error) => {
-            showToast({
-              type: "error",
-              title: "Error",
-              message:
-                error.response?.data?.message || "Failed to load profile.",
-            });
-          });
-      } catch (error) {
-        console.error("Error fetching candidate profile:", error);
-      } finally {
-        setLoading(false);
+  }, [candidateProfile, candidateProfileLoading, candidateProfileError]);
+
+  // Effect to refresh data when component mounts or when coming from submit-candidate
+  useEffect(() => {
+    const refreshData = async () => {
+      // Check if we're coming from submit-candidate page
+      const referrer = document.referrer;
+      if (referrer && referrer.includes("/submit-candidate")) {
+        // Small delay to ensure the database is updated
+        setTimeout(() => {
+          refreshProfile();
+        }, 1000);
       }
     };
-    fetchProfile();
-  }, [axios, showToast, user]);
+
+    refreshData();
+  }, [refreshProfile]);
 
   const getStatusIcon = (status: CandidateProfile["status"]) => {
     switch (status) {
@@ -151,7 +124,12 @@ const MyCandidateProfilePage = () => {
         isParticipating: newParticipationStatus,
       });
       setProfile((prev) =>
-        prev ? { ...prev, isParticipating: newParticipationStatus } : null
+        prev
+          ? {
+              ...prev,
+              isParticipating: newParticipationStatus,
+            }
+          : null
       );
 
       showToast({
@@ -185,6 +163,8 @@ const MyCandidateProfilePage = () => {
       await axios.delete(`/api/candidate/application/${profile?.id}`);
 
       setProfile(null);
+      // Also refresh the context to reflect the deletion
+      await refreshProfile();
       showToast({
         type: "success",
         title: "Profile Deleted",
@@ -199,15 +179,33 @@ const MyCandidateProfilePage = () => {
     }
   };
 
-  if (loading) {
+  if (candidateProfileLoading) {
     return (
       <ProtectedRoute>
-        <LoadingSpinner />
+        <MyCandidateProfileSkeleton />
       </ProtectedRoute>
     );
   }
 
-  if (!profile) {
+  if (candidateProfileError) {
+    return (
+      <ProtectedRoute>
+        <div className="min-h-screen bg-gray-50 flex flex-col">
+          <Header />
+          <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-16">
+            <div className="max-w-2xl w-full text-center">
+              <AlertTriangle className="w-20 h-20 text-red-400 mx-auto mb-6" />
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Error Loading Profile
+              </h1>
+            </div>
+          </div>
+        </div>
+      </ProtectedRoute>
+    );
+  }
+
+  if (!candidateProfileLoading && !candidateProfileError && !candidateProfile) {
     return (
       <ProtectedRoute>
         <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -240,443 +238,454 @@ const MyCandidateProfilePage = () => {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50">
-        <Header />
+      {profile && (
+        <div className="min-h-screen bg-gray-50">
+          <Header />
 
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Page Header */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  My Candidate Profile
-                </h1>
-                <p className="text-gray-600">
-                  Manage your candidate profile and track your election
-                  campaign.
-                </p>
-              </div>
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {/* Page Header */}
+            <div className="mb-8">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                    My Candidate Profile
+                  </h1>
+                  <p className="text-gray-600">
+                    Manage your candidate profile and track your election
+                    campaign.
+                  </p>
+                </div>
 
-              <div className="flex items-center space-x-4">
-                {profile.status === "approved" && (
-                  <Link href={`/candidates/${profile.id}`}>
-                    <Button
-                      variant="outline"
-                      className="flex items-center space-x-2"
-                    >
-                      <Eye className="w-4 h-4" />
-                      <span>View Public Profile</span>
-                    </Button>
-                  </Link>
-                )}
+                <div className="flex items-center space-x-4">
+                  {profile.status === "approved" && (
+                    <Link href={`/candidates/${profile.id}`}>
+                      <Button
+                        variant="outline"
+                        className="flex items-center space-x-2"
+                      >
+                        <Eye className="w-4 h-4" />
+                        <span>View Public Profile</span>
+                      </Button>
+                    </Link>
+                  )}
 
-                {(profile.status === "draft" ||
-                  profile.status === "rejected") && (
                   <Link href="/submit-candidate">
                     <Button className="flex items-center space-x-2">
                       <Edit className="w-4 h-4" />
-                      <span>Edit Profile</span>
+                      <span>
+                        {profile.status === "draft" ||
+                        profile.status === "rejected"
+                          ? "Complete Profile"
+                          : "Edit Profile"}
+                      </span>
                     </Button>
                   </Link>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Status Card */}
-          <div
-            className={`bg-white rounded-lg border-2 p-6 mb-8 ${getStatusColor(
-              profile.status
-            )}`}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                {getStatusIcon(profile.status)}
-                <div>
-                  <h3 className="text-lg font-semibold">
-                    {getStatusText(profile.status)}
-                  </h3>
-                  <p className="text-sm opacity-75">
-                    {profile.status === "approved" &&
-                      profile.approvedAt &&
-                      `Approved on ${new Date(
-                        profile.approvedAt
-                      ).toLocaleDateString()}`}
-                    {profile.status === "pending" &&
-                      "Your profile is under review by the moderation team."}
-                    {profile.status === "draft" &&
-                      "Complete and submit your profile for review."}
-                    {profile.status === "rejected" &&
-                      "Your profile was rejected. Please review the feedback and resubmit."}
-                  </p>
                 </div>
               </div>
+            </div>
 
-              {profile.status === "approved" && (
-                <div className="text-right">
-                  <p className="text-2xl font-bold">{profile.votes}</p>
-                  <p className="text-sm opacity-75">votes received</p>
+            {/* Status Card */}
+            <div
+              className={`bg-white rounded-lg border-2 p-6 mb-8 ${getStatusColor(
+                profile.status
+              )}`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  {getStatusIcon(profile.status)}
+                  <div>
+                    <h3 className="text-lg font-semibold">
+                      {getStatusText(profile.status)}
+                    </h3>
+                    <p className="text-sm opacity-75">
+                      {profile.status === "approved" &&
+                        profile.approvedAt &&
+                        `Approved on ${new Date(
+                          profile.approvedAt
+                        ).toLocaleDateString()}`}
+                      {profile.status === "pending" &&
+                        "Your profile is under review by the moderation team."}
+                      {profile.status === "draft" &&
+                        "Complete and submit your profile for review."}
+                      {profile.status === "rejected" &&
+                        "Your profile was rejected. Please review the feedback and resubmit."}
+                    </p>
+                  </div>
+                </div>
+
+                {profile.status === "approved" && (
+                  <div className="text-right">
+                    <p className="text-2xl font-bold">{profile.votes}</p>
+                    <p className="text-sm opacity-75">votes received</p>
+                  </div>
+                )}
+              </div>
+
+              {profile.status === "rejected" && profile.rejectionReason && (
+                <div className="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
+                  <h4 className="font-medium text-red-900 mb-2">
+                    Rejection Reason:
+                  </h4>
+                  <p className="text-red-800">{profile.rejectionReason}</p>
                 </div>
               )}
             </div>
 
-            {profile.status === "rejected" && profile.rejectionReason && (
-              <div className="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
-                <h4 className="font-medium text-red-900 mb-2">
-                  Rejection Reason:
-                </h4>
-                <p className="text-red-800">{profile.rejectionReason}</p>
+            {/* Version Control */}
+            <CandidateVersionControl
+              profileId={userProfile?.id || ""}
+              onRefresh={refreshProfile}
+            />
+
+            {/* Stats Cards */}
+            {profile.status === "approved" && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="bg-white p-6 rounded-lg border border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">
+                        Profile Views
+                      </p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {profile.views.toLocaleString()}
+                      </p>
+                    </div>
+                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <Eye className="w-6 h-6 text-blue-600" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-lg border border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">
+                        Votes Received
+                      </p>
+                      <p className="text-2xl font-bold text-green-600">
+                        {profile.votes}
+                      </p>
+                    </div>
+                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                      <Award className="w-6 h-6 text-green-600" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-lg border border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">
+                        Days Active
+                      </p>
+                      <p className="text-2xl font-bold text-orange-600">
+                        {Math.ceil(
+                          (Date.now() -
+                            new Date(profile.approvedAt!).getTime()) /
+                            (1000 * 60 * 60 * 24)
+                        )}
+                      </p>
+                    </div>
+                    <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                      <Calendar className="w-6 h-6 text-orange-600" />
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
-          </div>
 
-          {/* Stats Cards */}
-          {profile.status === "approved" && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-white p-6 rounded-lg border border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">
-                      Profile Views
-                    </p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {profile.views.toLocaleString()}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Eye className="w-6 h-6 text-blue-600" />
-                  </div>
-                </div>
-              </div>
+            {/* Profile Information */}
+            <div className="space-y-8">
+              {/* Personal Information */}
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+                  <User className="w-5 h-5 mr-2 text-orange-500" />
+                  Personal Information
+                </h2>
 
-              <div className="bg-white p-6 rounded-lg border border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">
-                      Votes Received
-                    </p>
-                    <p className="text-2xl font-bold text-green-600">
-                      {profile.votes}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                    <Award className="w-6 h-6 text-green-600" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white p-6 rounded-lg border border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">
-                      Days Active
-                    </p>
-                    <p className="text-2xl font-bold text-orange-600">
-                      {Math.ceil(
-                        (Date.now() - new Date(profile.approvedAt!).getTime()) /
-                          (1000 * 60 * 60 * 24)
-                      )}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <Calendar className="w-6 h-6 text-orange-600" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Profile Information */}
-          <div className="space-y-8">
-            {/* Personal Information */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-                <User className="w-5 h-5 mr-2 text-orange-500" />
-                Personal Information
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Full Name
-                  </label>
-                  <p className="text-gray-900">{userProfile?.name}</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Email
-                  </label>
-                  <p className="text-gray-900 flex items-center">
-                    <Mail className="w-4 h-4 mr-2 text-gray-400" />
-                    {userProfile?.email}
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Phone
-                  </label>
-                  <p className="text-gray-900 flex items-center">
-                    <Phone className="w-4 h-4 mr-2 text-gray-400" />
-                    {profile.phone}
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Student ID
-                  </label>
-                  <p className="text-gray-900">{profile.studentId}</p>
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Address
-                  </label>
-                  <p className="text-gray-900 flex items-start">
-                    <MapPin className="w-4 h-4 mr-2 text-gray-400 mt-0.5" />
-                    {profile.address}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Academic Information */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-                <Calendar className="w-5 h-5 mr-2 text-orange-500" />
-                Academic Information
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Department
-                  </label>
-                  <p className="text-gray-900">{profile.department}</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Current Semester
-                  </label>
-                  <p className="text-gray-900">{profile.semester}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Election Information */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-                <Award className="w-5 h-5 mr-2 text-orange-500" />
-                Election Information
-              </h2>
-
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Position
-                  </label>
-                  <p className="text-gray-900 font-medium">
-                    {profile.position}
-                  </p>
-                </div>
-
-                <div className="flex items-center justify-between">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Participation Status
+                      Full Name
                     </label>
-                    <p
-                      className={`font-medium ${
-                        profile.isParticipating
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }`}
-                    >
-                      {profile.isParticipating
-                        ? "Actively Participating"
-                        : "Not Participating"}
-                    </p>
-                    {!profile.isParticipating && (
-                      <p className="text-sm text-red-600 mt-1">
-                        ⚠️ Your candidate profile is hidden from public view
-                      </p>
-                    )}
+                    <p className="text-gray-900">{userProfile?.name}</p>
                   </div>
 
-                  {profile.isParticipating ? (
-                    <div className="text-right">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Email
+                    </label>
+                    <p className="text-gray-900 flex items-center">
+                      <Mail className="w-4 h-4 mr-2 text-gray-400" />
+                      {userProfile?.email}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Phone
+                    </label>
+                    <p className="text-gray-900 flex items-center">
+                      <Phone className="w-4 h-4 mr-2 text-gray-400" />
+                      {profile.phone}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Student ID
+                    </label>
+                    <p className="text-gray-900">{profile.studentId}</p>
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Address
+                    </label>
+                    <p className="text-gray-900 flex items-start">
+                      <MapPin className="w-4 h-4 mr-2 text-gray-400 mt-0.5" />
+                      {profile.address}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Academic Information */}
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+                  <Calendar className="w-5 h-5 mr-2 text-orange-500" />
+                  Academic Information
+                </h2>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Department
+                    </label>
+                    <p className="text-gray-900">{profile.department}</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Current Semester
+                    </label>
+                    <p className="text-gray-900">{profile.semester}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Election Information */}
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+                  <Award className="w-5 h-5 mr-2 text-orange-500" />
+                  Election Information
+                </h2>
+
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Position
+                    </label>
+                    <p className="text-gray-900 font-medium">
+                      {profile.position}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Participation Status
+                      </label>
+                      <p
+                        className={`font-medium ${
+                          profile.isParticipating
+                            ? "text-green-600"
+                            : "text-red-600"
+                        }`}
+                      >
+                        {profile.isParticipating
+                          ? "Actively Participating"
+                          : "Not Participating"}
+                      </p>
+                      {!profile.isParticipating && (
+                        <p className="text-sm text-red-600 mt-1">
+                          ⚠️ Your candidate profile is hidden from public view
+                        </p>
+                      )}
+                    </div>
+
+                    {profile.isParticipating ? (
+                      <div className="text-right">
+                        <Button
+                          variant="outline"
+                          onClick={handleToggleParticipation}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          Mark as Not Participating
+                        </Button>
+                        <p className="text-xs text-gray-500 mt-1 max-w-xs">
+                          Disabling will hide your profile from public
+                        </p>
+                      </div>
+                    ) : (
                       <Button
                         variant="outline"
                         onClick={handleToggleParticipation}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="text-green-600 hover:text-green-700"
+                        disabled={profile.status !== "approved"}
                       >
-                        Mark as Not Participating
+                        Resume Participation
                       </Button>
-                      <p className="text-xs text-gray-500 mt-1 max-w-xs">
-                        Disabling will hide your profile from public
-                      </p>
-                    </div>
-                  ) : (
-                    <Button
-                      variant="outline"
-                      onClick={handleToggleParticipation}
-                      className="text-green-600 hover:text-green-700"
-                      disabled={profile.status !== "approved"}
-                    >
-                      Resume Participation
-                    </Button>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Profile Content */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">
-                Profile Content
-              </h2>
-
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Biography
-                  </label>
-                  <p className="text-gray-900 whitespace-pre-wrap">
-                    {profile.biography}
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Election Manifesto
-                  </label>
-                  <p className="text-gray-900 whitespace-pre-wrap">
-                    {profile.manifesto}
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Experience & Qualifications
-                  </label>
-                  <p className="text-gray-900 whitespace-pre-wrap">
-                    {profile.experience}
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Achievements & Recognition
-                  </label>
-                  <p className="text-gray-900 whitespace-pre-wrap">
-                    {profile.achievements}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Social Links */}
-            {(profile.facebook ||
-              profile.linkedin ||
-              profile.twitter ||
-              profile.instagram ||
-              profile.website) && (
+              {/* Profile Content */}
               <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <h2 className="text-xl font-semibold text-gray-900 mb-6">
-                  Social Links & Website
+                  Profile Content
                 </h2>
-                <div className="flex flex-wrap gap-3">
-                  {profile.facebook && (
-                    <a
-                      href={profile.facebook}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:border-blue-500 hover:text-blue-500 transition-colors"
-                    >
-                      <Facebook className="w-4 h-4" />
-                      <span>Facebook</span>
-                    </a>
-                  )}
-                  {profile.linkedin && (
-                    <a
-                      href={profile.linkedin}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:border-blue-600 hover:text-blue-600 transition-colors"
-                    >
-                      <Linkedin className="w-4 h-4" />
-                      <span>LinkedIn</span>
-                    </a>
-                  )}
-                  {profile.twitter && (
-                    <a
-                      href={profile.twitter}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:border-sky-500 hover:text-sky-500 transition-colors"
-                    >
-                      <Twitter className="w-4 h-4" />
-                      <span>Twitter</span>
-                    </a>
-                  )}
-                  {profile.instagram && (
-                    <a
-                      href={profile.instagram}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:border-pink-500 hover:text-pink-500 transition-colors"
-                    >
-                      <Instagram className="w-4 h-4" />
-                      <span>Instagram</span>
-                    </a>
-                  )}
-                  {profile.website && (
-                    <a
-                      href={profile.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:border-orange-500 hover:text-orange-500 transition-colors"
-                    >
-                      <Globe className="w-4 h-4" />
-                      <span>Website</span>
-                    </a>
-                  )}
+
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Biography
+                    </label>
+                    <p className="text-gray-900 whitespace-pre-wrap">
+                      {profile.biography}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Election Manifesto
+                    </label>
+                    <p className="text-gray-900 whitespace-pre-wrap">
+                      {profile.manifesto}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Experience & Qualifications
+                    </label>
+                    <p className="text-gray-900 whitespace-pre-wrap">
+                      {profile.experience}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Achievements & Recognition
+                    </label>
+                    <p className="text-gray-900 whitespace-pre-wrap">
+                      {profile.achievements}
+                    </p>
+                  </div>
                 </div>
               </div>
-            )}
 
-            {/* Profile Management */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">
-                Profile Management
-              </h2>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-gray-900">Danger Zone</p>
-                  <p className="text-sm text-gray-600">
-                    Permanently delete your candidate profile and all associated
-                    data.
-                  </p>
+              {/* Social Links */}
+              {(profile.facebook ||
+                profile.linkedin ||
+                profile.twitter ||
+                profile.instagram ||
+                profile.website) && (
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-6">
+                    Social Links & Website
+                  </h2>
+                  <div className="flex flex-wrap gap-3">
+                    {profile.facebook && (
+                      <a
+                        href={profile.facebook}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:border-blue-500 hover:text-blue-500 transition-colors"
+                      >
+                        <Facebook className="w-4 h-4" />
+                        <span>Facebook</span>
+                      </a>
+                    )}
+                    {profile.linkedin && (
+                      <a
+                        href={profile.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:border-blue-600 hover:text-blue-600 transition-colors"
+                      >
+                        <Linkedin className="w-4 h-4" />
+                        <span>LinkedIn</span>
+                      </a>
+                    )}
+                    {profile.twitter && (
+                      <a
+                        href={profile.twitter}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:border-sky-500 hover:text-sky-500 transition-colors"
+                      >
+                        <Twitter className="w-4 h-4" />
+                        <span>Twitter</span>
+                      </a>
+                    )}
+                    {profile.instagram && (
+                      <a
+                        href={profile.instagram}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:border-pink-500 hover:text-pink-500 transition-colors"
+                      >
+                        <Instagram className="w-4 h-4" />
+                        <span>Instagram</span>
+                      </a>
+                    )}
+                    {profile.website && (
+                      <a
+                        href={profile.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:border-orange-500 hover:text-orange-500 transition-colors"
+                      >
+                        <Globe className="w-4 h-4" />
+                        <span>Website</span>
+                      </a>
+                    )}
+                  </div>
                 </div>
+              )}
 
-                <Button
-                  variant="outline"
-                  onClick={handleDeleteProfile}
-                  className="text-red-600 hover:text-red-700 hover:border-red-300"
-                >
-                  Delete Profile
-                </Button>
+              {/* Profile Management */}
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">
+                  Profile Management
+                </h2>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-gray-900">Danger Zone</p>
+                    <p className="text-sm text-gray-600">
+                      Permanently delete your candidate profile and all
+                      associated data.
+                    </p>
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    onClick={handleDeleteProfile}
+                    className="text-red-600 hover:text-red-700 hover:border-red-300"
+                  >
+                    Delete Profile
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <Footer />
-      </div>
+          <Footer />
+        </div>
+      )}
     </ProtectedRoute>
   );
 };

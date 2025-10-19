@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { StudentLeader } from '@/lib/types';
-import CompactCandidateCard from './CompactCandidateCard';
-import { Users, ArrowRight } from 'lucide-react';
-import Link from 'next/link';
+import { TopCandidate } from "@/app/api/candidate/top/route";
+import CompactCandidateCard from "./CompactCandidateCard";
+import { Users, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 interface NewCandidatesProps {
-  candidates: StudentLeader[];
+  candidates: TopCandidate[];
 }
 
 export default function NewCandidates({ candidates }: NewCandidatesProps) {
@@ -21,7 +21,7 @@ export default function NewCandidates({ candidates }: NewCandidatesProps) {
           Recently Joined
         </span>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {candidates.map((candidate) => (
           <CompactCandidateCard key={candidate.id} candidate={candidate} />
@@ -30,7 +30,10 @@ export default function NewCandidates({ candidates }: NewCandidatesProps) {
 
       {/* View all candidates button */}
       <div className="mt-6 text-center">
-        <Link href="/candidates" className="inline-flex items-center space-x-2 text-orange-600 hover:text-orange-700 font-medium transition-colors group">
+        <Link
+          href="/candidates"
+          className="inline-flex items-center space-x-2 text-orange-600 hover:text-orange-700 font-medium transition-colors group"
+        >
           <span>View all candidates</span>
           <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
         </Link>

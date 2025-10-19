@@ -98,7 +98,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/blog/write"
+                  href="/submit-blog"
                   className="text-gray-400 hover:text-orange-400 transition-colors duration-200 text-sm"
                 >
                   Write Article

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
@@ -8,7 +8,6 @@ import QRCode from "@/components/candidates/QRCode";
 import Footer from "@/components/layout/Footer";
 import LoginModal from "@/components/ui/LoginModal";
 import { formatRelativeTime } from "@/lib/utils";
-import { StudentLeader } from "@/lib/types";
 import { useAuth } from "@/context/auth-context";
 import {
   ChevronUp,
@@ -31,9 +30,17 @@ import {
   Lock,
   Sparkles,
 } from "lucide-react";
+import {
+  Comment,
+  CommentProfile,
+  ElectionCandidate,
+  WorkGalleryItem,
+} from "@/lib/types/candidate.profile.types";
+import ProductionMarkdownViewer from "../ui/ProductionMarkdownViewer";
+import useAxios from "@/hooks/use-axios";
 
 interface CandidateProfileClientProps {
-  leader: StudentLeader;
+  leader: ElectionCandidate;
 }
 
 export default function CandidateProfileClient({
@@ -42,72 +49,23 @@ export default function CandidateProfileClient({
   const [votes, setVotes] = useState(leader.votes);
   const [hasVoted, setHasVoted] = useState(false);
   const [newComment, setNewComment] = useState("");
-  const [comments, setComments] = useState(leader.comments);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const { isAuthenticated } = useAuth();
-
-  // Mock blog posts for candidate
-  const [blogs] = useState([
-    {
-      id: "1",
-      title: "My Vision for Student Welfare",
-      excerpt:
-        "As a candidate, I want to share my plans for improving student welfare on campus.",
-      publishedAt: "2024-01-20T10:00:00Z",
-      tags: ["Leadership", "Welfare"],
-    },
-    {
-      id: "2",
-      title: "Building a Better Campus Community",
-      excerpt:
-        "My thoughts on creating an inclusive environment for all students.",
-      publishedAt: "2024-01-15T10:00:00Z",
-      tags: ["Community", "Inclusion"],
-    },
-  ]);
-
-  // Mock candidate's comments made across the site
-  const [candidateComments] = useState(
-    leader.candidateComments || [
-      {
-        id: "c1",
-        author: {
-          id: leader.id,
-          name: leader.name,
-          avatar: leader.avatar,
-          email: leader.email || "candidate@jnu.ac.bd",
-        },
-        content:
-          "Great initiative! I believe student welfare should always be our top priority. Looking forward to contributing to this discussion.",
-        createdAt: "2024-01-18T14:30:00Z",
-        replies: [],
-        context: {
-          type: "blog" as const,
-          title: "Improving Campus Facilities",
-          url: "/blog/5",
-        },
-      },
-      {
-        id: "c2",
-        author: {
-          id: leader.id,
-          name: leader.name,
-          avatar: leader.avatar,
-          email: leader.email || "candidate@jnu.ac.bd",
-        },
-        content:
-          "I appreciate the diverse perspectives being shared here. This is exactly the kind of dialogue we need.",
-        createdAt: "2024-01-16T09:15:00Z",
-        replies: [],
-        context: {
-          type: "candidate" as const,
-          title: "Discussion on Student Rights",
-          url: "/candidates/3",
-        },
-      },
-    ]
+  const [comments] = useState<Comment[]>(leader.comments || []);
+  const [commentProfile, setCommentProfile] = useState<CommentProfile[]>(
+    leader.commentProfile || []
   );
+  const [selectedImage, setSelectedImage] = useState<WorkGalleryItem | null>(
+    null
+  );
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const { isAuthenticated, userProfile } = useAuth();
+  const axios = useAxios();
+
+  // Debug logging
+  useEffect(() => {
+    console.log("commentProfile updated:", commentProfile);
+    console.log("commentProfile.length:", commentProfile.length);
+    console.log("leader.commentProfile initial data:", leader.commentProfile);
+  }, [commentProfile, leader.commentProfile]);
 
   const handleVote = () => {
     if (!isAuthenticated) {
@@ -135,8 +93,8 @@ export default function CandidateProfileClient({
           text: `Check out ${leader.name}'s profile for ${leader.title}`,
           url: window.location.href,
         });
-      } catch (error) {
-        console.log("Error sharing:", error);
+      } catch {
+        // Sharing cancelled or failed
       }
     } else {
       // Fallback: Copy to clipboard
@@ -176,7 +134,11 @@ export default function CandidateProfileClient({
       // Position
       pdf.setFontSize(8);
       pdf.setTextColor(255, 120, 60);
-      pdf.text(leader.title.replace(" - JnUCSU", ""), 6, 21);
+      pdf.text(
+        leader.title ? leader.title.replace(" - JnUCSU", "") : "Position",
+        6,
+        21
+      );
 
       // Details
       pdf.setFontSize(7);
@@ -211,10 +173,10 @@ export default function CandidateProfileClient({
     }
   };
 
-  const handleComment = (e: React.FormEvent) => {
+  const handleComment = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!isAuthenticated) {
+    if (!isAuthenticated || !userProfile) {
       // Show login modal instead of redirecting
       setShowLoginModal(true);
       return;
@@ -223,17 +185,23 @@ export default function CandidateProfileClient({
     if (newComment.trim()) {
       const comment = {
         id: Date.now().toString(),
-        author: {
-          id: "1",
-          name: "Anonymous User",
-          avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=anonymous",
-          email: "anonymous@jnu.ac.bd",
-        },
-        content: newComment,
-        createdAt: new Date().toISOString(),
-        replies: [],
+        content: newComment.trim(),
+        date_created: new Date().toISOString(),
+        name: userProfile.name,
+        avatar: userProfile.image,
+        userId: userProfile.id,
       };
-      setComments([comment, ...comments]);
+      setCommentProfile([comment, ...commentProfile]);
+
+      const formData = new FormData();
+      formData.append("content", newComment.trim());
+      formData.append("profileId", leader.id);
+
+      await axios.post("/api/candidate/comment", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       setNewComment("");
     }
   };
@@ -302,11 +270,15 @@ export default function CandidateProfileClient({
                     <div className="flex flex-col md:flex-row md:items-start space-y-4 md:space-y-0 md:space-x-4">
                       <div className="w-24 h-24 md:w-32 md:h-32 mx-auto md:mx-0 rounded-full overflow-hidden ring-4 ring-orange-100">
                         <Image
-                          src={leader.avatar}
+                          src={leader.avatar || "/images/default-avatar.svg"}
                           alt={leader.name}
                           width={128}
                           height={128}
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = "/images/default-avatar.svg";
+                          }}
                         />
                       </div>
                       <div className="text-center md:text-left">
@@ -314,7 +286,10 @@ export default function CandidateProfileClient({
                           {leader.name}
                         </h1>
                         <p className="text-base md:text-lg text-orange-600 font-semibold mb-3">
-                          Competing for {leader.title.replace(" - JnUCSU", "")}
+                          Competing for{" "}
+                          {leader.title
+                            ? leader.title.replace(" - JnUCSU", "")
+                            : "Position"}
                         </p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 text-sm text-gray-600">
                           <div className="flex items-center justify-center md:justify-start space-x-1">
@@ -331,7 +306,7 @@ export default function CandidateProfileClient({
                           </div>
                           <div className="flex items-center justify-center md:justify-start space-x-1">
                             <Calendar className="w-4 h-4 flex-shrink-0" />
-                            <span>Year {leader.year}</span>
+                            <span>{leader.year}</span>
                           </div>
                           <div className="flex items-center justify-center md:justify-start space-x-1">
                             <User className="w-4 h-4 flex-shrink-0" />
@@ -353,9 +328,15 @@ export default function CandidateProfileClient({
                     </div>
                   </div>
 
-                  <p className="text-gray-700 leading-relaxed mb-4">
-                    {leader.description}
-                  </p>
+                  <div className="prose prose-lg max-w-none">
+                    <ProductionMarkdownViewer
+                      content={leader.description}
+                      showControls={false}
+                      initialTheme="light"
+                      initialFontSize="medium"
+                      className="blog-content"
+                    />
+                  </div>
 
                   {/* Additional Profile Fields */}
                   {(leader.phone || leader.email || leader.address) && (
@@ -380,18 +361,6 @@ export default function CandidateProfileClient({
                       )}
                     </div>
                   )}
-
-                  {/* Tags */}
-                  <div className="flex flex-wrap gap-2">
-                    {leader.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-3 py-1 bg-orange-100 text-orange-700 text-sm rounded-full"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
                 </div>
               </div>
             </div>
@@ -404,9 +373,15 @@ export default function CandidateProfileClient({
                   Future Plans
                 </h2>
               </div>
-              <p className="text-gray-700 leading-relaxed">
-                {leader.futurePlans}
-              </p>
+              <div className="prose prose-lg max-w-none">
+                <ProductionMarkdownViewer
+                  content={leader.futurePlans}
+                  showControls={false}
+                  initialTheme="light"
+                  initialFontSize="medium"
+                  className="blog-content"
+                />
+              </div>
             </div>
 
             {/* AI Review Section */}
@@ -440,9 +415,11 @@ export default function CandidateProfileClient({
                   <p className="text-gray-700 leading-relaxed">
                     <span className="font-semibold">Vision & Planning: </span>
                     The candidate has articulated a clear vision for{" "}
-                    {leader.title.replace(" - JnUCSU", "")}, with comprehensive
-                    plans addressing student welfare, academic excellence, and
-                    campus development.
+                    {leader.title
+                      ? leader.title.replace(" - JnUCSU", "")
+                      : "the position"}
+                    , with comprehensive plans addressing student welfare,
+                    academic excellence, and campus development.
                   </p>
                 </div>
                 <div className="flex items-start space-x-2">
@@ -462,9 +439,10 @@ export default function CandidateProfileClient({
                     {leader.votes > 50 ? "highly popular" : "promising"}{" "}
                     candidate with strong credentials in {leader.department}.
                     Their{" "}
-                    {leader.year === 1 ? "fresh perspective" : "experience"} as
-                    a Year {leader.year} student brings valuable insights to the
-                    role.
+                    <span>
+                      experience as a {leader.year} student brings valuable
+                      insights to the role.
+                    </span>
                   </p>
                 </div>
                 <div className="mt-4 pt-4 border-t border-gray-200">
@@ -487,9 +465,15 @@ export default function CandidateProfileClient({
                     Achievements
                   </h2>
                 </div>
-                <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                  {leader.achievements}
-                </p>
+                <div className="prose prose-lg max-w-none">
+                  <ProductionMarkdownViewer
+                    content={leader.achievements}
+                    showControls={false}
+                    initialTheme="light"
+                    initialFontSize="medium"
+                    className="blog-content"
+                  />
+                </div>
               </div>
             )}
 
@@ -501,50 +485,119 @@ export default function CandidateProfileClient({
                   Work Gallery
                 </h2>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {leader.workGallery.map((image, index) => (
-                  <div
-                    key={index}
-                    className="relative group cursor-pointer"
-                    onClick={() => setSelectedImage(image)}
-                  >
-                    <div className="aspect-video rounded-lg overflow-hidden bg-gray-100 shadow-sm hover:shadow-md transition-shadow">
-                      <Image
-                        src={image}
-                        alt={`${leader.name}'s work sample ${index + 1}`}
-                        width={600}
-                        height={400}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                      />
+              {leader.workGallery && leader.workGallery.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {leader.workGallery.map((image, index) => (
+                    <div
+                      key={image.id || index}
+                      className="relative group cursor-pointer"
+                      onClick={() => setSelectedImage(image ?? null)}
+                    >
+                      <div className="aspect-video rounded-lg overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 shadow-sm hover:shadow-md transition-shadow relative">
+                        {/* Loading skeleton - shown until image loads */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse flex items-center justify-center">
+                          <ImageIcon className="w-8 h-8 text-gray-400" />
+                        </div>
+                        <Image
+                          src={image.url}
+                          alt={
+                            image.title ||
+                            `${leader.name}'s work sample ${index + 1}`
+                          }
+                          width={600}
+                          height={400}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300 relative z-10"
+                          onLoad={(e) => {
+                            // Hide loading skeleton when image loads
+                            const img = e.target as HTMLImageElement;
+                            const skeleton = img.parentElement?.querySelector(
+                              ".animate-pulse"
+                            ) as HTMLElement;
+                            if (skeleton) {
+                              skeleton.style.display = "none";
+                            }
+                          }}
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src =
+                              "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xNzUgMTI1SDIyNVYxNzVIMTc1VjEyNVoiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+"; // SVG placeholder
+                            // Hide loading skeleton on error too
+                            const img = e.target as HTMLImageElement;
+                            const skeleton = img.parentElement?.querySelector(
+                              ".animate-pulse"
+                            ) as HTMLElement;
+                            if (skeleton) {
+                              skeleton.style.display = "none";
+                            }
+                          }}
+                          loading={index < 2 ? "eager" : "lazy"} // Only load first 2 images eagerly
+                          placeholder="blur"
+                          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+                        />
+                      </div>
+                      {/* Hover overlay */}
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 rounded-lg flex items-center justify-center">
+                        <ImageIcon className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                      {/* Image title overlay */}
+                      {image.title && (
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3 rounded-b-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                          <p className="text-white text-sm font-medium truncate">
+                            {image.title}
+                          </p>
+                        </div>
+                      )}
                     </div>
-                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 rounded-lg flex items-center justify-center">
-                      <ImageIcon className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <ImageIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500">No gallery images available</p>
+                </div>
+              )}
             </div>
 
             {/* Image Lightbox Modal */}
             {selectedImage && (
               <div
-                className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+                className="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center backdrop-blur-sm transition-opacity duration-300 ease-in-out"
                 onClick={() => setSelectedImage(null)}
               >
                 <button
-                  className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
-                  onClick={() => setSelectedImage(null)}
+                  className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors z-10 bg-black/50 rounded-full p-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedImage(null);
+                  }}
                 >
-                  <X className="w-8 h-8" />
+                  <X className="w-6 h-6" />
                 </button>
-                <div className="relative max-w-6xl max-h-[90vh] w-full">
+                <div className="relative max-w-6xl max-h-[90vh] w-full mx-4 bg-white rounded-lg overflow-hidden">
                   <Image
-                    src={selectedImage}
-                    alt="Gallery image"
+                    src={selectedImage.url}
+                    alt={selectedImage.title || "Gallery image"}
                     width={1200}
                     height={800}
-                    className="w-full h-full object-contain"
+                    className="w-full h-full object-contain bg-white"
+                    loading="eager"
+                    priority={false}
                   />
+                  {/* Image info overlay */}
+                  {(selectedImage.title || selectedImage.description) && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-white border-t p-4">
+                      {selectedImage.title && (
+                        <h3 className="font-semibold text-gray-900 mb-1">
+                          {selectedImage.title}
+                        </h3>
+                      )}
+                      {selectedImage.description && (
+                        <p className="text-sm text-gray-600">
+                          {selectedImage.description}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -554,12 +607,12 @@ export default function CandidateProfileClient({
               <div className="flex items-center space-x-2 mb-4 md:mb-6">
                 <FileText className="w-5 h-5 text-orange-600" />
                 <h2 className="text-lg md:text-xl font-semibold text-gray-900">
-                  Blog Posts ({blogs.length})
+                  Blog Posts ({leader?.blogs?.length})
                 </h2>
               </div>
-              {blogs.length > 0 ? (
+              {(leader?.blogs?.length ?? 0) > 0 ? (
                 <div className="space-y-4">
-                  {blogs.map((blog) => (
+                  {leader?.blogs?.map((blog) => (
                     <Link key={blog.id} href={`/blog/${blog.id}`}>
                       <div className="border-b border-gray-100 pb-4 last:border-b-0 hover:bg-gray-50 transition-colors p-3 rounded-lg">
                         <h3 className="font-semibold text-gray-900 mb-1 text-sm md:text-base">
@@ -570,7 +623,7 @@ export default function CandidateProfileClient({
                         </p>
                         <div className="flex items-center space-x-4 text-xs text-gray-500">
                           <span>
-                            {new Date(blog.publishedAt).toLocaleDateString()}
+                            {new Date(blog.date_published).toLocaleDateString()}
                           </span>
                           <div className="flex gap-2">
                             {blog.tags.map((tag) => (
@@ -599,12 +652,12 @@ export default function CandidateProfileClient({
               <div className="flex items-center space-x-2 mb-4 md:mb-6">
                 <MessageCircle className="w-5 h-5 text-orange-600" />
                 <h2 className="text-lg md:text-xl font-semibold text-gray-900">
-                  {leader.name}&apos;s Comments ({candidateComments.length})
+                  {leader.name}&apos;s Comments ({comments.length})
                 </h2>
               </div>
-              {candidateComments.length > 0 ? (
+              {comments.length > 0 ? (
                 <div className="space-y-4">
-                  {candidateComments.map((comment) => (
+                  {comments.map((comment: Comment) => (
                     <div
                       key={comment.id}
                       className="border-b border-gray-100 pb-4 last:border-b-0"
@@ -612,34 +665,44 @@ export default function CandidateProfileClient({
                       <div className="flex space-x-3 md:space-x-4">
                         <div className="flex-shrink-0">
                           <Image
-                            src={comment.author.avatar}
-                            alt={comment.author.name}
+                            src={leader.avatar || "/images/default-avatar.svg"}
+                            alt={leader.name}
                             width={40}
                             height={40}
                             className="rounded-full"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = "/images/default-avatar.svg";
+                            }}
                           />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
                             <div className="flex items-center space-x-2">
                               <span className="font-medium text-gray-900 text-sm md:text-base">
-                                {comment.author.name}
+                                {leader.name}
                               </span>
                               <span className="text-xs md:text-sm text-gray-500">
                                 commented on
                               </span>
                             </div>
                             <span className="text-xs md:text-sm text-gray-500">
-                              {formatRelativeTime(comment.createdAt)}
+                              {formatRelativeTime(comment.date_created || "")}
                             </span>
                           </div>
                           {comment.context && (
                             <Link
-                              href={comment.context.url}
+                              href={
+                                comment.context === "blog"
+                                  ? `/blog/${comment.contextId}`
+                                  : comment.context === "profile"
+                                  ? `/candidates/${comment.contextId}`
+                                  : "#"
+                              }
                               className="inline-flex items-center text-xs md:text-sm text-orange-600 hover:text-orange-700 mb-2"
                             >
                               <FileText className="w-3 h-3 mr-1" />
-                              {comment.context.title}
+                              {comment.contextTitle || "View Context"}
                             </Link>
                           )}
                           <p className="text-gray-700 leading-relaxed text-sm md:text-base break-words bg-gray-50 p-3 rounded-lg">
@@ -662,7 +725,7 @@ export default function CandidateProfileClient({
               <div className="flex items-center space-x-2 mb-4 md:mb-6">
                 <MessageCircle className="w-5 h-5 text-gray-600" />
                 <h2 className="text-lg md:text-xl font-semibold text-gray-900">
-                  Comments on this Candidate ({comments.length})
+                  Comments on this Candidate ({commentProfile.length})
                 </h2>
               </div>
 
@@ -672,8 +735,11 @@ export default function CandidateProfileClient({
                   <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
                     <div className="flex-shrink-0 hidden sm:block">
                       <Image
-                        src="https://api.dicebear.com/7.x/avataaars/svg?seed=currentuser"
-                        alt="Your avatar"
+                        src={
+                          userProfile?.image ||
+                          "https://api.dicebear.com/7.x/avataaars/svg?seed=currentuser"
+                        }
+                        alt={userProfile?.name || "Current User"}
                         width={40}
                         height={40}
                         className="rounded-full"
@@ -720,33 +786,61 @@ export default function CandidateProfileClient({
 
               {/* Comments List */}
               <div className="space-y-4 md:space-y-6">
-                {comments.map((comment) => (
+                {commentProfile.map((comment) => (
                   <div
                     key={comment.id}
                     className="border-b border-gray-100 pb-4 md:pb-6 last:border-b-0"
                   >
                     <div className="flex space-x-3 md:space-x-4">
                       <div className="flex-shrink-0">
-                        <Link href={`/users/${comment.author.id}`}>
+                        {comment.userId ? (
+                          <Link href={`/users/${comment.userId}`}>
+                            <Image
+                              src={
+                                comment.avatar || "/images/default-avatar.svg"
+                              }
+                              alt={comment.name || "User"}
+                              width={40}
+                              height={40}
+                              className="rounded-full cursor-pointer hover:ring-2 hover:ring-orange-500 transition-all"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = "/images/default-avatar.svg";
+                              }}
+                            />
+                          </Link>
+                        ) : (
                           <Image
-                            src={comment.author.avatar}
-                            alt={comment.author.name}
+                            src={comment.avatar || "/images/default-avatar.svg"}
+                            alt={comment.name || "User"}
                             width={40}
                             height={40}
-                            className="rounded-full cursor-pointer hover:ring-2 hover:ring-orange-500 transition-all"
+                            className="rounded-full"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = "/images/default-avatar.svg";
+                            }}
                           />
-                        </Link>
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 mb-1">
-                          <Link
-                            href={`/users/${comment.author.id}`}
-                            className="font-medium text-gray-900 text-sm md:text-base hover:text-orange-600 transition-colors"
-                          >
-                            {comment.author.name}
-                          </Link>
+                          {comment.userId ? (
+                            <Link
+                              href={`/users/${comment.userId}`}
+                              className="font-medium text-gray-900 text-sm md:text-base hover:text-orange-600 transition-colors"
+                            >
+                              {comment.name || "Anonymous"}
+                            </Link>
+                          ) : (
+                            <span className="font-medium text-gray-900 text-sm md:text-base">
+                              {comment.name || "Anonymous"}
+                            </span>
+                          )}
                           <span className="text-xs md:text-sm text-gray-500">
-                            {formatRelativeTime(comment.createdAt)}
+                            {comment.date_created
+                              ? formatRelativeTime(comment.date_created)
+                              : "Recently"}
                           </span>
                         </div>
                         <p className="text-gray-700 leading-relaxed text-sm md:text-base break-words">
@@ -754,7 +848,7 @@ export default function CandidateProfileClient({
                         </p>
 
                         {/* Comment Replies */}
-                        {comment.replies.length > 0 && (
+                        {/* {comment.replies.length > 0 && (
                           <div className="mt-3 md:mt-4 ml-3 md:ml-4 space-y-3 md:space-y-4 border-l-2 border-gray-200 pl-3 md:pl-4">
                             {comment.replies.map((reply) => (
                               <div
@@ -764,11 +858,15 @@ export default function CandidateProfileClient({
                                 <div className="flex-shrink-0">
                                   <Link href={`/users/${reply.author.id}`}>
                                     <Image
-                                      src={reply.author.avatar}
+                                      src={reply.author.avatar || "/images/default-avatar.svg"}
                                       alt={reply.author.name}
                                       width={32}
                                       height={32}
                                       className="rounded-full cursor-pointer hover:ring-2 hover:ring-orange-500 transition-all"
+                                      onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.src = "/images/default-avatar.svg";
+                                      }}
                                     />
                                   </Link>
                                 </div>
@@ -791,13 +889,13 @@ export default function CandidateProfileClient({
                               </div>
                             ))}
                           </div>
-                        )}
+                        )} */}
                       </div>
                     </div>
                   </div>
                 ))}
 
-                {comments.length === 0 && (
+                {commentProfile.length === 0 && (
                   <div className="text-center py-8 text-gray-500">
                     <MessageCircle className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                     <p className="text-sm md:text-base">

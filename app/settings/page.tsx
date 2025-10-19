@@ -7,6 +7,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { useAuth } from "@/context/auth-context";
 import { useNotifications } from "@/context/NotificationContext";
+import SettingsPageSkeleton from "@/components/shared/SettingsPageSkeleton";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -30,14 +31,7 @@ export default function SettingsPage() {
 
   // Show loading state while checking authentication
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
+    return <SettingsPageSkeleton />;
   }
 
   // Don't render if not authenticated

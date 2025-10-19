@@ -2,15 +2,39 @@
 
 import { config } from "@/config";
 import { signJWT } from "@/lib/jwt";
+import { verifyRecaptcha } from "@/lib/utils/recaptcha";
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 
 export async function POST(request: Request) {
   try {
-    const { email, password, isRememberMe } = await request.json();
+    const { email, password, isRememberMe, recaptchaToken } =
+      await request.json();
+
+    // Validate required fields
     if (!email || !password) {
       return NextResponse.json(
         { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    // Verify reCAPTCHA token
+    if (!recaptchaToken) {
+      return NextResponse.json(
+        { error: "reCAPTCHA verification required" },
+        { status: 400 }
+      );
+    }
+
+    const isRecaptchaValid = await verifyRecaptcha(
+      recaptchaToken,
+      "login",
+      0.5
+    );
+    if (!isRecaptchaValid) {
+      return NextResponse.json(
+        { error: "reCAPTCHA verification failed. Please try again." },
         { status: 400 }
       );
     }

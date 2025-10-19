@@ -10,6 +10,7 @@ import Button from "@/components/ui/Button";
 import Loader from "@/components/ui/Loader";
 import { useToast } from "@/components/ui/ToastProvider";
 import { useAuth } from "@/context/auth-context";
+import { useRecaptcha } from "@/hooks/use-recaptcha";
 
 function RegisterForm() {
   const [formData, setFormData] = useState({
@@ -28,11 +29,11 @@ function RegisterForm() {
     confirmPassword?: string;
   }>({});
   const { showToast } = useToast();
-  const { signInWithGoogle } = useAuth();
+  const { signInWithGoogle, register } = useAuth();
+  const { executeRecaptchaAction } = useRecaptcha();
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnTo = searchParams.get("returnTo") || "/";
-  const { setAccessToken, setUser } = useAuth();
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
@@ -73,36 +74,35 @@ function RegisterForm() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          fullName: formData.name,
-          email: formData.email,
-          password: formData.password,
-        }),
-      });
-      const data = await res.json();
-
-      setAccessToken(data?.data?.access_token || null);
-      setUser({
-        id: data?.data?.user?.id,
-        profileId: data?.data?.user?.profileId,
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Failed to register user");
+      // Execute reCAPTCHA
+      const recaptchaToken = await executeRecaptchaAction("register");
+      if (!recaptchaToken) {
+        showToast({
+          type: "error",
+          title: "Security Check Failed",
+          message: "Please try again. reCAPTCHA verification is required.",
+        });
+        return;
       }
-      router.push(returnTo);
+
+      const success = await register(
+        formData.name,
+        formData.email,
+        formData.password,
+        recaptchaToken
+      );
+
+      if (!success) {
+        throw new Error("Failed to register user");
+      }
 
       showToast({
         type: "success",
         title: "Account Created Successfully!",
         message: "Welcome to JnUCSU. Please check your email for verification.",
       });
+
+      router.push(returnTo);
     } catch (error) {
       console.error("Registration error:", error);
       showToast({

@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
 export default function OAuthHandler() {
-  const { setAccessToken, setUser } = useAuth();
+  const { setAccessToken, setUser, setIsAuthenticated } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -44,6 +44,7 @@ export default function OAuthHandler() {
               image: userData.image,
               profileId: userData.profileId,
             });
+            setIsAuthenticated(true);
 
             // Clean up URL parameters
             const url = new URL(window.location.href);
@@ -83,7 +84,7 @@ export default function OAuthHandler() {
     };
 
     handleOAuthCallback();
-  }, [searchParams, setAccessToken, setUser, router]);
+  }, [searchParams, setAccessToken, setUser, setIsAuthenticated, router]);
 
   // This component doesn't render anything
   return null;

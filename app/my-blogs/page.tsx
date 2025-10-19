@@ -19,13 +19,16 @@ import Button from "@/components/ui/Button";
 import { useToast } from "@/components/ui/ToastProvider";
 import { useData } from "@/context/data-context";
 import { MyBlogPost } from "@/lib/types/blogs.types";
+import MyBlogsSkeleton from "@/components/blog/MyBlogsSkeleton";
+import { useBlogStatus } from "@/hooks/use-blog-status";
 
 const MyBlogsPage = () => {
-  const { blogs, blogsLoading } = useData();
+  const { blogs, blogsLoading, refreshBlogs, setBlogs } = useData();
   const [filter, setFilter] = useState<
     "all" | "draft" | "pending" | "published" | "rejected"
   >("all");
   const { showToast } = useToast();
+  const { submitForReview, loading: blogStatusLoading } = useBlogStatus();
 
   const filteredBlogs =
     filter === "all" ? blogs : blogs?.filter((blog) => blog.status === filter);
@@ -60,7 +63,7 @@ const MyBlogsPage = () => {
     }
   };
 
-  const handleDelete = async (blogId: string) => {
+  const handleDelete = async (blog: MyBlogPost) => {
     if (
       !confirm(
         "Are you sure you want to delete this blog post? This action cannot be undone."
@@ -70,11 +73,19 @@ const MyBlogsPage = () => {
     }
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log("Deleting blog:", blogId); // Use the parameter to avoid unused warning
+      // Only allow deletion if blog is draft
+      if (blog.status !== "draft") {
+        showToast({
+          type: "error",
+          title: "Cannot Delete",
+          message: "Only draft blogs can be deleted.",
+        });
+        return;
+      }
 
-      // setBlogs((prev) => prev.filter((blog) => blog.id !== blogId));
+      // Simulate API call for now - will implement proper deletion API later
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       showToast({
         type: "success",
         title: "Blog Deleted",
@@ -89,34 +100,54 @@ const MyBlogsPage = () => {
     }
   };
 
-  const handlePublish = async (blogId: string) => {
+  const handlePublish = async (blog: MyBlogPost) => {
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log("Publishing blog:", blogId); // Use the parameter to avoid unused warning
+      // Optimistic update - immediately update UI
+      if (setBlogs && blogs) {
+        setBlogs((prevBlogs) =>
+          prevBlogs
+            ? prevBlogs.map((b) =>
+                b.id === blog.id
+                  ? {
+                      ...b,
+                      status: "pending" as const,
+                      updatedAt: new Date().toISOString(),
+                    }
+                  : b
+              )
+            : prevBlogs
+        );
+      }
 
-      // setBlogs((prev) =>
-      //   prev.map((blog) =>
-      //     blog.id === blogId
-      //       ? {
-      //           ...blog,
-      //           status: "pending" as const,
-      //           updatedAt: new Date().toISOString(),
-      //         }
-      //       : blog
-      //   )
-      // );
+      // Use currentVersionId if available, otherwise use blog id
+      const versionId = blog.currentVersionId || blog.id;
+
+      // Call the real API to submit blog for review
+      await submitForReview(versionId);
+
+      // Refresh blogs to get updated status from server (to ensure consistency)
+      if (refreshBlogs) {
+        await refreshBlogs();
+      }
 
       showToast({
         type: "success",
         title: "Blog Submitted",
         message: "Your blog post has been submitted for review.",
       });
-    } catch {
+    } catch (error) {
+      // Revert optimistic update on error
+      if (refreshBlogs) {
+        await refreshBlogs();
+      }
+
       showToast({
         type: "error",
         title: "Submission Failed",
-        message: "Failed to submit the blog post. Please try again.",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to submit the blog post. Please try again.",
       });
     }
   };
@@ -124,12 +155,7 @@ const MyBlogsPage = () => {
   if (blogsLoading) {
     return (
       <ProtectedRoute>
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-500"></div>
-            <p className="mt-4 text-gray-600">Loading your blogs...</p>
-          </div>
-        </div>
+        <MyBlogsSkeleton />
       </ProtectedRoute>
     );
   }
@@ -309,7 +335,7 @@ const MyBlogsPage = () => {
                           {blog.title}
                         </h3>
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-all duration-200 ${getStatusColor(
                             blog.status
                           )}`}
                         >
@@ -359,18 +385,52 @@ const MyBlogsPage = () => {
                     </div>
 
                     <div className="flex items-center space-x-2 ml-6">
+                      {blog.status === "pending" && (
+                        <div className="flex items-center space-x-2 text-yellow-600">
+                          <Clock className="w-4 h-4 animate-pulse" />
+                          <span className="text-sm font-medium">
+                            Under Review
+                          </span>
+                        </div>
+                      )}
+
+                      {blog.status === "published" && (
+                        <div className="flex items-center space-x-2 text-green-600">
+                          <CheckCircle className="w-4 h-4" />
+                          <span className="text-sm font-medium">Published</span>
+                        </div>
+                      )}
+
+                      {blog.status === "rejected" && (
+                        <div className="flex items-center space-x-2 text-red-600">
+                          <XCircle className="w-4 h-4" />
+                          <span className="text-sm font-medium">Rejected</span>
+                        </div>
+                      )}
+
                       {blog.status === "draft" && (
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handlePublish(blog.id)}
+                          onClick={() => handlePublish(blog)}
+                          disabled={blogStatusLoading}
+                          className="flex items-center space-x-2"
                         >
-                          Submit for Review
+                          {blogStatusLoading && (
+                            <div className="w-3 h-3 border border-gray-300 border-t-transparent rounded-full animate-spin"></div>
+                          )}
+                          <span>
+                            {blogStatusLoading
+                              ? "Submitting..."
+                              : "Submit for Review"}
+                          </span>
                         </Button>
                       )}
 
+                      {/* Edit button for draft, rejected, and published blogs */}
                       {(blog.status === "draft" ||
-                        blog.status === "rejected") && (
+                        blog.status === "rejected" ||
+                        blog.status === "published") && (
                         <Link href={`/submit-blog?edit=${blog.id}`}>
                           <Button variant="outline" size="sm">
                             <Edit className="w-4 h-4" />
@@ -389,7 +449,7 @@ const MyBlogsPage = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleDelete(blog.id)}
+                        onClick={() => handleDelete(blog)}
                         className="text-red-600 hover:text-red-700 hover:border-red-300"
                       >
                         <Trash2 className="w-4 h-4" />

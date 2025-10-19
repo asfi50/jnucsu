@@ -24,9 +24,9 @@ export async function POST(req: Request) {
 
     const commentData = {
       content,
-      blog: blogId,
+      blogs: blogId, // Updated to use 'blogs' field as per new schema
       user: info.profileId,
-      user_created: info.userId,
+      status: "published",
     };
 
     const res = await fetch(`${config.serverBaseUrl}/items/comment`, {

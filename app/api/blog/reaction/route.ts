@@ -2,6 +2,27 @@ import { config } from "@/config";
 import { VerifyAuthToken } from "@/middleware/verify-token";
 import { NextResponse } from "next/server";
 
+// Helper function to check existing reactions
+async function checkExistingReaction(blogId: string, userId: string) {
+  const res = await fetch(
+    `${config.serverBaseUrl}/items/reaction?filter[blogs][_eq]=${blogId}&filter[user][_eq]=${userId}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${config.adminToken}`,
+      },
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error(`Failed to check existing reaction: ${res.status}`);
+  }
+
+  const { data: existingReactions } = await res.json();
+  return existingReactions;
+}
+
 export async function POST(req: Request) {
   const authResult = await VerifyAuthToken(req);
   if (authResult instanceof Response) return authResult;
@@ -21,8 +42,38 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
+
+    // Validate reaction type
+    if (!["like", "unlike"].includes(reactionType)) {
+      return NextResponse.json(
+        { message: "Invalid reaction type. Must be 'like' or 'unlike'" },
+        { status: 400 }
+      );
+    }
     if (reactionType === "like") {
-      console.log("like reaction received");
+      // Check if user already has a reaction on this blog
+      try {
+        const existingReactions = await checkExistingReaction(
+          blogId,
+          info.profileId
+        );
+
+        // If user already has a reaction on this blog, return error
+        if (existingReactions.length > 0) {
+          return NextResponse.json(
+            { message: "You have already reacted to this blog" },
+            { status: 400 }
+          );
+        }
+      } catch (error) {
+        return NextResponse.json(
+          {
+            message: "Failed to check existing reaction",
+            details: error instanceof Error ? error.message : String(error),
+          },
+          { status: 500 }
+        );
+      } // Proceed with creating the reaction
       const res = await fetch(`${config.serverBaseUrl}/items/reaction`, {
         method: "POST",
         headers: {
@@ -30,12 +81,13 @@ export async function POST(req: Request) {
           Authorization: `Bearer ${config.adminToken}`,
         },
         body: JSON.stringify({
-          blog: blogId,
+          blogs: blogId, // Updated to use 'blogs' field as per new schema
           user: info.profileId,
-          user_created: info.userId,
-          reaction_type: reactionType,
+          value: "like", // Use 'value' field instead of 'reaction_type'
+          status: "published",
         }),
       });
+
       if (!res.ok) {
         let errorData;
         try {
@@ -51,6 +103,7 @@ export async function POST(req: Request) {
           { status: res.status }
         );
       }
+
       // Successfully created reaction, response may or may not have JSON content
       try {
         await res.json();
@@ -58,32 +111,19 @@ export async function POST(req: Request) {
         // Ignore JSON parsing errors for successful responses
       }
     } else if (reactionType === "unlike") {
-      const res = await fetch(
-        `${config.serverBaseUrl}/items/reaction?filter[blog][_eq]=${blogId}&filter[user][_eq]=${info.profileId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${config.adminToken}`,
-          },
-        }
-      );
-      if (!res.ok) {
-        let errorData;
-        try {
-          errorData = await res.json();
-        } catch {
-          errorData = "Unknown error";
-        }
+      let existingReactions;
+      try {
+        existingReactions = await checkExistingReaction(blogId, info.profileId);
+      } catch (error) {
         return NextResponse.json(
           {
             message: "Failed to fetch existing reaction",
-            details: errorData,
+            details: error instanceof Error ? error.message : String(error),
           },
-          { status: res.status }
+          { status: 500 }
         );
       }
-      const { data: existingReactions } = await res.json();
+
       if (existingReactions.length === 0) {
         return NextResponse.json(
           { message: "No existing reaction to remove" },
@@ -116,7 +156,6 @@ export async function POST(req: Request) {
           { status: deleteRes.status }
         );
       }
-      // DELETE responses typically don't have JSON content, so we don't parse them
     }
 
     return NextResponse.json({ message: "Success" }, { status: 200 });

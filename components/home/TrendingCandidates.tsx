@@ -6,6 +6,8 @@ import { ChevronUp, Flame } from "lucide-react";
 import { StudentLeader } from "@/lib/types";
 import { useState } from "react";
 import { useAuth } from "@/context/auth-context";
+import useUserEngagement from "@/hooks/use-user-engagement";
+import { useToast } from "@/components/ui/ToastProvider";
 import LoginModal from "@/components/ui/LoginModal";
 
 interface TrendingCandidatesProps {
@@ -37,24 +39,44 @@ interface TrendingCardProps {
 
 function TrendingCard({ candidate }: TrendingCardProps) {
   const [votes, setVotes] = useState(candidate.votes);
-  const [hasVoted, setHasVoted] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const { isAuthenticated } = useAuth();
+  const { toggleVote, userVotes } = useUserEngagement();
+  const { showToast } = useToast();
 
-  const handleVote = () => {
+  // Check if user has voted for this candidate
+  const hasVoted = userVotes.includes(candidate.id);
+
+  const handleVote = async (e: React.MouseEvent) => {
+    e.preventDefault();
+
     if (!isAuthenticated) {
       setShowLoginModal(true);
       return;
     }
 
-    if (hasVoted) {
-      // Remove vote
-      setVotes(votes - 1);
-      setHasVoted(false);
-    } else {
-      // Add vote
-      setVotes(votes + 1);
-      setHasVoted(true);
+    try {
+      const newVoteState = await toggleVote(candidate.id);
+
+      // Update votes count based on the new state
+      if (newVoteState) {
+        setVotes(votes + 1);
+      } else {
+        setVotes(votes - 1);
+      }
+
+      showToast({
+        message: newVoteState ? "Vote added!" : "Vote removed!",
+        type: "success",
+        title: "",
+      });
+    } catch (error) {
+      console.error("Error toggling vote:", error);
+      showToast({
+        message: "Failed to update vote. Please try again.",
+        type: "error",
+        title: "",
+      });
     }
   };
 
@@ -77,11 +99,15 @@ function TrendingCard({ candidate }: TrendingCardProps) {
             <div className="relative mb-3">
               <div className="w-20 h-20 mx-auto rounded-full overflow-hidden ring-2 ring-orange-100">
                 <Image
-                  src={candidate.avatar}
+                  src={candidate.avatar || "/images/default-avatar.svg"}
                   alt={candidate.name}
                   width={80}
                   height={80}
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = "/images/default-avatar.svg";
+                  }}
                 />
               </div>
             </div>
@@ -92,15 +118,14 @@ function TrendingCard({ candidate }: TrendingCardProps) {
                 {candidate.name}
               </h3>
               <p className="text-xs text-orange-600 font-medium mb-3 truncate">
-                {candidate.title.replace(" - JnUCSU", "")}
+                {candidate.title
+                  ? candidate.title.replace(" - JnUCSU", "")
+                  : "Position"}
               </p>
 
               {/* Vote Count */}
               <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleVote();
-                }}
+                onClick={handleVote}
                 className={`flex items-center justify-center space-x-1 text-sm w-full transition-colors ${
                   hasVoted
                     ? "text-orange-600 bg-orange-50"

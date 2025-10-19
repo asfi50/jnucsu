@@ -9,9 +9,11 @@ import {
   combineKeywords,
 } from "@/lib/seo";
 import { AuthProvider } from "@/context/auth-context";
-import { DataProvider } from "@/context/data-context";
+import { ServerDataProvider } from "@/components/providers/ServerDataProvider";
+import { ReCaptchaProvider } from "@/context/recaptcha-context";
 import { Suspense } from "react";
 import OAuthHandler from "@/components/auth/OAuthHandler";
+import { fetchServerSideData } from "@/lib/data/server-data";
 
 // Using system fonts instead of Google Fonts for better reliability
 const fontVariables =
@@ -26,11 +28,14 @@ export const metadata: Metadata = generateMetadata({
   url: "/",
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Fetch server-side data
+  const { positions, departments, categories, panels } =
+    await fetchServerSideData();
   // Generate structured data for the organization
   const organizationStructuredData = generateStructuredData({
     type: "Organization",
@@ -104,19 +109,26 @@ export default function RootLayout({
           content="width=device-width, initial-scale=1, maximum-scale=5"
         />
       </head>
-      <body className="antialiased">
-        <AuthProvider>
-          <DataProvider>
-            <NotificationProvider>
-              <ToastProvider>
-                <Suspense fallback={null}>
-                  <OAuthHandler />
-                </Suspense>
-                {children}
-              </ToastProvider>
-            </NotificationProvider>
-          </DataProvider>
-        </AuthProvider>
+      <body className="antialiased min-h-screen font-sans bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+        <ReCaptchaProvider>
+          <AuthProvider>
+            <ServerDataProvider
+              initialPositions={positions}
+              initialDepartments={departments}
+              initialCategories={categories}
+              initialPanels={panels}
+            >
+              <NotificationProvider>
+                <ToastProvider>
+                  <Suspense fallback={null}>
+                    <OAuthHandler />
+                  </Suspense>
+                  {children}
+                </ToastProvider>
+              </NotificationProvider>
+            </ServerDataProvider>
+          </AuthProvider>
+        </ReCaptchaProvider>
       </body>
     </html>
   );
