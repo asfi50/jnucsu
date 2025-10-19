@@ -69,7 +69,7 @@ export async function GET() {
     const { data: profiles } = await profilesRes.json();
 
     if (!profiles || profiles.length === 0) {
-      return [];
+      return NextResponse.json([], { status: 200 });
     }
     const CalculateScores = (res: {
       profileVotes: number;

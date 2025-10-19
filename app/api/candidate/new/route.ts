@@ -1,6 +1,16 @@
 import { config } from "@/config";
 import { NextResponse } from "next/server";
 
+export interface NewCandidateData {
+  id: string;
+  name: string;
+  image: string | null;
+  department: string | null;
+  profileComments: number;
+  profileVotes: number;
+  position: string;
+}
+
 interface ResCandidateData {
   department: { name: string } | null;
   comments: Array<{ id: string }>;

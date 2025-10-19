@@ -2,7 +2,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import CallToActionBanner from "@/components/ui/CallToActionBanner";
 import CandidatesPageClient from "@/components/candidates/CandidatesPageClient";
-import { CandidateItem } from "@/app/api/candidate/format";
+import { Candidate } from "@/app/api/candidate/route";
 import {
   generateMetadata,
   generateStructuredData,
@@ -34,7 +34,7 @@ export const metadata: Metadata = generateMetadata({
 });
 
 // Server-side data fetching
-async function fetchCandidates(): Promise<CandidateItem[]> {
+async function fetchCandidates(): Promise<Candidate[]> {
   try {
     const response = await fetch(`${config.clientUrl}/api/candidate`, {
       cache: "no-store", // Always fetch fresh data
@@ -103,10 +103,10 @@ export default async function CandidatesPage() {
       mainEntity: candidates.map((candidate) => ({
         "@type": "Person",
         name: candidate.name || "Unknown",
-        jobTitle: candidate.title || "Candidate",
-        description: candidate.description || "Student candidate",
+        jobTitle: candidate.position || "Candidate",
+        description: candidate.about || "Student candidate",
         url: `/candidates/${candidate.id}`,
-        image: candidate.avatar || "",
+        image: candidate.image || "",
       })),
     },
   });
