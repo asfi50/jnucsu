@@ -58,7 +58,7 @@ export async function GET() {
     const { data: profiles } = await profilesRes.json();
 
     if (!profiles || profiles.length === 0) {
-      return [];
+      return NextResponse.json([], { status: 200 });
     }
     const CalculateScores = (res: {
       profileVotes: number;
@@ -117,14 +117,15 @@ export async function GET() {
         profileVotes,
       };
     });
-    results
+
+    const topResults = results
       .sort(
         (a: { totalScore: number }, b: { totalScore: number }) =>
           b.totalScore - a.totalScore
       )
       .slice(0, 10);
 
-    return NextResponse.json(results, { status: 200 });
+    return NextResponse.json(topResults, { status: 200 });
   } catch (error) {
     console.error("Error fetching top candidates:", error);
     return NextResponse.json(
