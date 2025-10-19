@@ -28,12 +28,11 @@ export async function GET(request: Request) {
       "academic_year",
       "about",
       "links",
-      "website",
-      "gallery",
+      "gallery.*",
       "date_created",
       "date_updated",
-      "reacted.blog",
-      "voted.candidate_page.profile.id",
+      "reacted.blogs",
+      "voted.*",
     ];
     const res = await fetch(
       `${config.serverBaseUrl}/items/profile/${
@@ -59,7 +58,6 @@ export async function GET(request: Request) {
     return NextResponse.json(mapApiResponseToUserProfile(data), {
       status: 200,
     });
-    return NextResponse.json(data, { status: 200 });
   } catch (error) {
     console.error("Error fetching user data:", error);
     return NextResponse.json(

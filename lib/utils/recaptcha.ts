@@ -60,9 +60,6 @@ export async function verifyRecaptcha(
       return false;
     }
 
-    console.log(
-      `reCAPTCHA verification successful. Action: ${data.action}, Score: ${data.score}`
-    );
     return true;
   } catch (error) {
     console.error("Error verifying reCAPTCHA:", error);

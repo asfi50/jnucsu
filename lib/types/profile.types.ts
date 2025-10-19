@@ -20,6 +20,8 @@ export interface UserProfile {
   };
   workGallery?: GalleryItem[];
   votes?: number;
+  reacted: string[]; // Array of blog IDs the user has reacted to
+  voted: string[]; // Array of candidate profile IDs the user has voted for
   createdAt: string;
   updatedAt: string;
 }
@@ -123,6 +125,7 @@ export interface CandidateProfile {
   id: string;
   userId: string;
   position: string;
+  panel?: string;
   biography: string;
   manifesto: string;
   experience: string;

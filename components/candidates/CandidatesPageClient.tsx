@@ -2,13 +2,13 @@
 
 import { useState, useMemo, useEffect } from "react";
 import CandidateCard from "@/components/home/CandidateCard";
-import { CandidateItem } from "@/app/api/candidate/format";
 import { Search } from "lucide-react";
 import { useServerData } from "@/hooks/use-server-data";
 import Fuse from "fuse.js";
+import { Candidate } from "@/app/api/candidate/route";
 
 interface CandidatesPageClientProps {
-  candidates: CandidateItem[];
+  candidates: Candidate[];
 }
 
 export default function CandidatesPageClient({
@@ -52,7 +52,7 @@ export default function CandidatesPageClient({
 
   // Filter and sort candidates with fuzzy search
   const filteredAndSortedCandidates = useMemo(() => {
-    let filtered: CandidateItem[];
+    let filtered: Candidate[];
 
     // Apply fuzzy search if there's a search term
     if (debouncedSearchTerm.trim()) {
@@ -77,7 +77,7 @@ export default function CandidatesPageClient({
         case "department":
           return (a.department || "").localeCompare(b.department || "");
         case "position":
-          return (a.title || "").localeCompare(b.title || "");
+          return (a.position || "").localeCompare(b.position || "");
         default:
           return 0;
       }

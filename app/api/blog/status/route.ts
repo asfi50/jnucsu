@@ -78,6 +78,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       message: "Blog submitted for review successfully",
       status: "pending",
+      versionId,
     });
   } catch (error) {
     return NextResponse.json(
@@ -230,9 +231,8 @@ export async function GET(request: Request) {
       "blog.id",
       "blog.title",
       "blog.author.id",
-      "blog.author.first_name",
-      "blog.author.last_name",
-      "blog.author.email",
+      "blog.author.name",
+      "blog.author.user.email",
       "category.id",
       "category.name",
       "tags",
@@ -266,9 +266,9 @@ export async function GET(request: Request) {
           author: {
             id: string;
             name: string;
-            first_name?: string;
-            last_name?: string;
-            email?: string;
+            user?: {
+              email?: string;
+            };
             image?: string;
           };
         };
@@ -292,8 +292,8 @@ export async function GET(request: Request) {
         submittedAt: version.submitted_at,
         author: {
           id: version.blog.author.id,
-          name: `${version.blog.author.first_name} ${version.blog.author.last_name}`,
-          email: version.blog.author.email,
+          name: version.blog.author.name,
+          email: version.blog.author.user?.email,
         },
         category: version.category
           ? {
@@ -313,6 +313,251 @@ export async function GET(request: Request) {
     return NextResponse.json(
       {
         error: "Failed to fetch pending blogs",
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 }
+    );
+  }
+}
+
+// Withdraw from review (Author only) or Update status
+export async function PUT(request: Request) {
+  const authResult = await VerifyAuthToken(request);
+  if (authResult instanceof Response) return authResult;
+  const { info } = authResult;
+
+  try {
+    const { versionId, action } = await request.json();
+
+    if (!versionId || !action) {
+      return NextResponse.json(
+        { message: "Version ID and action are required" },
+        { status: 400 }
+      );
+    }
+
+    // Verify the user owns this blog version
+    const versionRes = await fetch(
+      `${config.serverBaseUrl}/items/blog_versions/${versionId}?fields=blog.author.id,status,title`,
+      {
+        headers: {
+          Authorization: `Bearer ${config.adminToken}`,
+        },
+      }
+    );
+
+    if (!versionRes.ok) {
+      return NextResponse.json(
+        { message: "Blog version not found" },
+        { status: 404 }
+      );
+    }
+
+    const { data: versionData } = await versionRes.json();
+
+    if (versionData.blog.author.id !== info.profileId) {
+      return NextResponse.json(
+        { message: "You can only update your own blog status" },
+        { status: 403 }
+      );
+    }
+
+    let updateData: {
+      status: string;
+      submitted_at?: string | null;
+      reviewed_at?: string | null;
+      rejection_reason?: string | null;
+    } = {
+      status: "",
+    };
+    let statusCheck = "";
+    let newStatus = "";
+
+    switch (action) {
+      case "withdraw":
+        statusCheck = "pending";
+        newStatus = "draft";
+        updateData = {
+          status: newStatus,
+          submitted_at: null,
+          reviewed_at: null,
+        };
+        break;
+
+      case "resubmit":
+        statusCheck = "rejected";
+        newStatus = "pending";
+        updateData = {
+          status: newStatus,
+          submitted_at: new Date().toISOString(),
+          reviewed_at: null,
+          rejection_reason: null,
+        };
+        break;
+
+      case "convert_to_draft":
+        statusCheck = "rejected";
+        newStatus = "draft";
+        updateData = {
+          status: newStatus,
+          submitted_at: null,
+          reviewed_at: null,
+          rejection_reason: null,
+        };
+        break;
+
+      default:
+        return NextResponse.json(
+          {
+            message:
+              "Invalid action. Must be 'withdraw', 'resubmit', or 'convert_to_draft'",
+          },
+          { status: 400 }
+        );
+    }
+
+    if (versionData.status !== statusCheck) {
+      return NextResponse.json(
+        { message: `Only ${statusCheck} versions can be ${action}ed` },
+        { status: 400 }
+      );
+    }
+
+    // Update status
+    const updateRes = await fetch(
+      `${config.serverBaseUrl}/items/blog_versions/${versionId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${config.adminToken}`,
+        },
+        body: JSON.stringify(updateData),
+      }
+    );
+
+    if (!updateRes.ok) {
+      return NextResponse.json(
+        { error: `Failed to ${action} blog` },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      message: `Blog ${action}ed successfully`,
+      status: newStatus,
+    });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error: `Failed to update blog status`,
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 }
+    );
+  }
+}
+
+// Delete blog version (Author only) - Only for drafts
+export async function DELETE(request: Request) {
+  const authResult = await VerifyAuthToken(request);
+  if (authResult instanceof Response) return authResult;
+  const { info } = authResult;
+
+  try {
+    const { searchParams } = new URL(request.url);
+    const versionId = searchParams.get("versionId");
+
+    if (!versionId) {
+      return NextResponse.json(
+        { message: "Version ID is required" },
+        { status: 400 }
+      );
+    }
+
+    // Verify the user owns this blog version
+    const versionRes = await fetch(
+      `${config.serverBaseUrl}/items/blog_versions/${versionId}?fields=blog.author.id,blog.id,status,title`,
+      {
+        headers: {
+          Authorization: `Bearer ${config.adminToken}`,
+        },
+      }
+    );
+
+    if (!versionRes.ok) {
+      return NextResponse.json(
+        { message: "Blog version not found" },
+        { status: 404 }
+      );
+    }
+
+    const { data: versionData } = await versionRes.json();
+
+    if (versionData.blog.author.id !== info.profileId) {
+      return NextResponse.json(
+        { message: "You can only delete your own blog versions" },
+        { status: 403 }
+      );
+    }
+
+    if (versionData.status !== "draft") {
+      return NextResponse.json(
+        { message: "Only draft versions can be deleted" },
+        { status: 400 }
+      );
+    }
+
+    // Delete the version
+    const deleteRes = await fetch(
+      `${config.serverBaseUrl}/items/blog_versions/${versionId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${config.adminToken}`,
+        },
+      }
+    );
+
+    if (!deleteRes.ok) {
+      return NextResponse.json(
+        { error: "Failed to delete blog version" },
+        { status: 500 }
+      );
+    }
+
+    // Check if this was the only version, if so, delete the main blog too
+    const remainingVersionsRes = await fetch(
+      `${config.serverBaseUrl}/items/blog_versions?filter[blog][_eq]=${versionData.blog.id}&limit=1`,
+      {
+        headers: {
+          Authorization: `Bearer ${config.adminToken}`,
+        },
+      }
+    );
+
+    const remainingVersions = await remainingVersionsRes.json();
+
+    if (remainingVersions.data.length === 0) {
+      // Delete main blog if no versions remain
+      await fetch(
+        `${config.serverBaseUrl}/items/blogs/${versionData.blog.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${config.adminToken}`,
+          },
+        }
+      );
+    }
+
+    return NextResponse.json({
+      message: "Blog version deleted successfully",
+    });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error: "Failed to delete blog version",
         details: error instanceof Error ? error.message : String(error),
       },
       { status: 500 }

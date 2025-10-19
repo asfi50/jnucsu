@@ -8,6 +8,7 @@ import Footer from "@/components/layout/Footer";
 import LoginModal from "@/components/ui/LoginModal";
 import { formatRelativeTime } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
+import useUserEngagement from "@/hooks/use-user-engagement";
 import {
   ArrowLeft,
   Heart,
@@ -42,7 +43,6 @@ export default function BlogPostClientWithFetch({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [likes, setLikes] = useState(0);
-  const [hasLiked, setHasLiked] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [comments, setComments] = useState<BlogComment[]>([]);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -54,9 +54,13 @@ export default function BlogPostClientWithFetch({
     user,
     loading: authLoading,
   } = useAuth();
+  const { toggleReaction, userReactions } = useUserEngagement();
   const { showToast } = useToast();
   const axios = useAxios();
   const router = useRouter();
+
+  // Check if user has reacted to this blog
+  const hasLiked = post ? userReactions.includes(post.id) : false;
 
   // Fetch blog post data - only once per blog post
   useEffect(() => {
@@ -89,7 +93,6 @@ export default function BlogPostClientWithFetch({
         const blogData = await response.json();
         setPost(blogData);
         setLikes(blogData.likes || 0);
-        setHasLiked(blogData.is_reacted || false);
         setComments(blogData.comments || []);
 
         // Update page title and meta tags dynamically
@@ -139,37 +142,33 @@ export default function BlogPostClientWithFetch({
   }, [blogId, authLoading, userProfile?.id]);
 
   const handleLike = async () => {
-    if (!isAuthenticated || !user) {
+    if (!isAuthenticated || !user || !post) {
       setShowLoginModal(true);
       return;
     }
 
-    if (!hasLiked) {
-      setLikes(likes + 1);
-      setHasLiked(true);
-      try {
-        await axios.post(`/api/blog/reaction`, {
-          blogId: post?.id,
-          reactionType: "like",
-        });
-        setHasLiked(true);
-      } catch {
-        setLikes(likes - 1);
-        setHasLiked(false);
-      }
-    } else {
-      setLikes(likes - 1);
-      setHasLiked(false);
-      try {
-        await axios.post(`/api/blog/reaction`, {
-          blogId: post?.id,
-          reactionType: "unlike",
-        });
-        setHasLiked(false);
-      } catch {
+    try {
+      const newReactionState = await toggleReaction(post.id);
+
+      // Update likes count based on the new state
+      if (newReactionState) {
         setLikes(likes + 1);
-        setHasLiked(true);
+      } else {
+        setLikes(likes - 1);
       }
+
+      showToast({
+        message: newReactionState ? "Post liked!" : "Like removed!",
+        type: "success",
+        title: "",
+      });
+    } catch (error) {
+      console.error("Error toggling reaction:", error);
+      showToast({
+        message: "Failed to update reaction. Please try again.",
+        type: "error",
+        title: "",
+      });
     }
   };
 

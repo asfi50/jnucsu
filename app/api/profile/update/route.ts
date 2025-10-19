@@ -34,17 +34,14 @@ export async function POST(req: Request) {
     }
 
     const payload = {
-      ...data,
+      name: data.name || "",
+      phone: data.phone || "",
+      address: data.address || "",
+      about: data.about || "",
       image: imageUrl, // Use the uploaded image URL or existing one
       student_id: data.studentId || null,
       academic_year: data.year || null,
       department: data.did ? data.did : null,
-      facebook: data.links?.facebook || null,
-      linkedin: data.links?.linkedin || null,
-      instagram: data.links?.instagram || null,
-      twitter: data.links?.twitter || null,
-      website: data.links?.website || null,
-      // Remove the newImageData from the payload
       newImageData: undefined,
     };
 
@@ -62,7 +59,10 @@ export async function POST(req: Request) {
     const result = await response.json();
     if (!response.ok) {
       return NextResponse.json(
-        { error: result.errors?.[0]?.message || "Failed to update profile" },
+        {
+          error: result.errors?.[0]?.message || "Failed to update profile",
+          details: result.errors,
+        },
         { status: response.status }
       );
     }

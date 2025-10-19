@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 // Helper function to check existing reactions
 async function checkExistingReaction(blogId: string, userId: string) {
   const res = await fetch(
-    `${config.serverBaseUrl}/items/reaction?filter[blog][_eq]=${blogId}&filter[user][_eq]=${userId}`,
+    `${config.serverBaseUrl}/items/reaction?filter[blogs][_eq]=${blogId}&filter[user][_eq]=${userId}`,
     {
       method: "GET",
       headers: {
@@ -81,10 +81,10 @@ export async function POST(req: Request) {
           Authorization: `Bearer ${config.adminToken}`,
         },
         body: JSON.stringify({
-          blog: blogId,
+          blogs: blogId, // Updated to use 'blogs' field as per new schema
           user: info.profileId,
-          user_created: info.userId,
-          reaction_type: reactionType,
+          value: "like", // Use 'value' field instead of 'reaction_type'
+          status: "published",
         }),
       });
 

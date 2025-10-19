@@ -26,10 +26,10 @@ function GalleryFormat(data) {
  * @returns {import('../../../lib/types/profile.types').UserProfile}
  */
 function mapApiResponseToUserProfile(data) {
-  const reacted = data.reacted ? data.reacted.map((item) => item.blog) : [];
-  const voted = data.voted
-    ? data.voted.map((item) => item.candidate_page.profile.id)
-    : [];
+  const reacted = data.reacted ? data.reacted.map((item) => item.blogs) : [];
+  // For voted, we need to find candidate_page ID using the profile ID from vote.candidate
+  // This is complex, so for now we'll store the vote record and handle it in the component
+  const voted = data.voted ? data.voted.map((item) => item.candidate) : [];
 
   return {
     id: data.id,

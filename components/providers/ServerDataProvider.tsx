@@ -2,7 +2,7 @@
 
 import { DataProvider } from "@/context/data-context";
 import { ReactNode } from "react";
-import { Department, Position } from "@/context/data-context";
+import { Department, Position, Panel } from "@/context/data-context";
 import { Category } from "@/lib/types";
 
 interface ServerDataProviderProps {
@@ -10,6 +10,7 @@ interface ServerDataProviderProps {
   initialPositions: Position[] | null;
   initialDepartments: Department[] | null;
   initialCategories: Category[] | null;
+  initialPanels: Panel[] | null;
 }
 
 /**
@@ -20,12 +21,14 @@ export function ServerDataProvider({
   initialPositions,
   initialDepartments,
   initialCategories,
+  initialPanels,
 }: ServerDataProviderProps) {
   return (
     <DataProvider
       initialPositions={initialPositions}
       initialDepartments={initialDepartments}
       initialCategories={initialCategories}
+      initialPanels={initialPanels}
     >
       {children}
     </DataProvider>

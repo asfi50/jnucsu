@@ -293,14 +293,6 @@ const SubmitBlogPage = () => {
       // Create preview URL from compressed file
       const previewUrl = URL.createObjectURL(compressedFile);
       setThumbnailPreview(previewUrl);
-
-      console.log(
-        `Original size: ${(file.size / 1024 / 1024).toFixed(
-          2
-        )}MB, Compressed size: ${(compressedFile.size / 1024 / 1024).toFixed(
-          2
-        )}MB`
-      );
     } catch (error) {
       console.error("Image compression failed:", error);
       setErrors((prev) => ({

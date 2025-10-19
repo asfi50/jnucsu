@@ -8,6 +8,7 @@ import Footer from "@/components/layout/Footer";
 import LoginModal from "@/components/ui/LoginModal";
 import { formatRelativeTime } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
+import useUserEngagement from "@/hooks/use-user-engagement";
 import {
   ArrowLeft,
   Heart,
@@ -33,29 +34,44 @@ interface BlogPostClientProps {
 
 export default function BlogPostClient({ post }: BlogPostClientProps) {
   const [likes, setLikes] = useState(post.likes);
-  const [hasLiked, setHasLiked] = useState(post.is_reacted || false);
   const [newComment, setNewComment] = useState("");
   const [comments, setComments] = useState<BlogComment[]>([
     ...(post.comments ? post.comments : []),
   ]);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const { isAuthenticated, userProfile } = useAuth();
+  const { hasReacted, toggleReaction } = useUserEngagement();
   const { showToast } = useToast();
   const axios = useAxios();
 
-  const handleLike = () => {
+  const handleLike = async () => {
     if (!isAuthenticated) {
-      // Show login modal instead of redirecting
       setShowLoginModal(true);
       return;
     }
 
-    if (!hasLiked) {
-      setLikes(likes + 1);
-      setHasLiked(true);
-    } else {
-      setLikes(likes - 1);
-      setHasLiked(false);
+    try {
+      const newReactionState = await toggleReaction(post.id);
+
+      // Update likes count based on the new state
+      if (newReactionState) {
+        setLikes(likes + 1);
+      } else {
+        setLikes(likes - 1);
+      }
+
+      showToast({
+        message: newReactionState ? "Post liked!" : "Like removed!",
+        type: "success",
+        title: "",
+      });
+    } catch (error) {
+      console.error("Error toggling reaction:", error);
+      showToast({
+        message: "Failed to update reaction. Please try again.",
+        type: "error",
+        title: "",
+      });
     }
   };
 
@@ -176,15 +192,17 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
         {/* Article Header */}
         <header className="mb-8">
           {/* Featured Image */}
-          <div className="relative aspect-video rounded-lg overflow-hidden mb-6">
-            <Image
-              src={post.coverImage}
-              alt={post.title}
-              fill
-              className="object-cover"
-              priority
-            />
-          </div>
+          {post.coverImage && (
+            <div className="relative aspect-video rounded-lg overflow-hidden mb-6">
+              <Image
+                src={post.coverImage}
+                alt={post.title}
+                fill
+                className="object-cover"
+                priority
+              />
+            </div>
+          )}
 
           {/* Tags */}
           <div className="flex flex-wrap gap-2 mb-4">
@@ -257,13 +275,15 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
               <button
                 onClick={handleLike}
                 className={`flex items-center space-x-1 py-2 rounded-lg transition-colors ${
-                  hasLiked
+                  hasReacted(post.id)
                     ? "bg-red-50 text-red-600"
                     : "hover:bg-gray-100 text-gray-600"
                 }`}
               >
                 <Heart
-                  className={`w-4 h-4 ${hasLiked ? "fill-current" : ""}`}
+                  className={`w-4 h-4 ${
+                    hasReacted(post.id) ? "fill-current" : ""
+                  }`}
                 />
                 <span className="font-medium">{likes}</span>
               </button>

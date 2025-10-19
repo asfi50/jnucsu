@@ -31,6 +31,7 @@ import useAxios from "@/hooks/use-axios";
 import { CandidateProfile } from "@/lib/types/profile.types";
 import { useData } from "@/context/data-context";
 import MyCandidateProfileSkeleton from "@/components/candidates/MyCandidateProfileSkeleton";
+import CandidateVersionControl from "@/components/candidates/CandidateVersionControl";
 
 const MyCandidateProfilePage = () => {
   const [profile, setProfile] = useState<CandidateProfile | null>(null);
@@ -52,6 +53,22 @@ const MyCandidateProfilePage = () => {
       setProfile(null);
     }
   }, [candidateProfile, candidateProfileLoading, candidateProfileError]);
+
+  // Effect to refresh data when component mounts or when coming from submit-candidate
+  useEffect(() => {
+    const refreshData = async () => {
+      // Check if we're coming from submit-candidate page
+      const referrer = document.referrer;
+      if (referrer && referrer.includes("/submit-candidate")) {
+        // Small delay to ensure the database is updated
+        setTimeout(() => {
+          refreshProfile();
+        }, 1000);
+      }
+    };
+
+    refreshData();
+  }, [refreshProfile]);
 
   const getStatusIcon = (status: CandidateProfile["status"]) => {
     switch (status) {
@@ -313,6 +330,12 @@ const MyCandidateProfilePage = () => {
                 </div>
               )}
             </div>
+
+            {/* Version Control */}
+            <CandidateVersionControl
+              profileId={userProfile?.id || ""}
+              onRefresh={refreshProfile}
+            />
 
             {/* Stats Cards */}
             {profile.status === "approved" && (

@@ -15,8 +15,7 @@ export default async function DevelopersPage() {
     if (res.ok) {
       developers = await res.json();
     }
-  } catch (error) {
-    console.log("Failed to fetch developers during build:", error);
+  } catch {
     // Fallback to empty array - developers will be loaded client-side if needed
   }
 

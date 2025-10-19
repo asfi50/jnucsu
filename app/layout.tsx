@@ -34,7 +34,8 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   // Fetch server-side data
-  const { positions, departments, categories } = await fetchServerSideData();
+  const { positions, departments, categories, panels } =
+    await fetchServerSideData();
   // Generate structured data for the organization
   const organizationStructuredData = generateStructuredData({
     type: "Organization",
@@ -115,6 +116,7 @@ export default async function RootLayout({
               initialPositions={positions}
               initialDepartments={departments}
               initialCategories={categories}
+              initialPanels={panels}
             >
               <NotificationProvider>
                 <ToastProvider>

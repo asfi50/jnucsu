@@ -4,6 +4,7 @@ import { twMerge } from "tailwind-merge";
 // Only export image-compression (client-side safe)
 export * from "./image-compression";
 export * from "./blog-conversion";
+export * from "./image-fallback";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -45,28 +46,19 @@ export function formatRelativeTime(date: string): string {
 }
 
 export function generateAvatar(name: string): string {
-  // Use Unsplash for more realistic professional photos
+  // Using DiceBear API for more reliable avatar generation
   const seed = encodeURIComponent(name.replace(/\s+/g, ""));
-  return `https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face&q=80&auto=format&seed=${seed}`;
+  return `https://api.dicebear.com/7.x/initials/svg?seed=${seed}&backgroundColor=4f46e5&textColor=ffffff`;
 }
 
 export function generateCandidateImage(
   name: string,
   index: number = 0
 ): string {
-  // Professional headshot images from Unsplash
-  const imageIds = [
-    "photo-1472099645785-5658abf4ff4e", // Professional male
-    "photo-1494790108755-2616b612b47c", // Professional female
-    "photo-1507003211169-0a1dd7228f2d", // Professional male
-    "photo-1438761681033-6461ffad8d80", // Professional female
-    "photo-1500648767791-00dcc994a43e", // Professional male
-    "photo-1544725176-7c40e5a71c5e", // Professional female
-  ];
-
-  const imageId = imageIds[index % imageIds.length];
-  const seed = encodeURIComponent(name.replace(/\s+/g, ""));
-  return `https://images.unsplash.com/${imageId}?w=400&h=400&fit=crop&crop=face&q=80&auto=format&seed=${seed}`;
+  const displayText = name || `Candidate ${index + 1}`;
+  const seed = encodeURIComponent(displayText.replace(/\s+/g, ""));
+  // Using DiceBear API for consistent and reliable image generation
+  return `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&backgroundColor=4f46e5`;
 }
 
 export function generateQRCode(url: string): string {
@@ -82,7 +74,8 @@ export function generatePlaceholderImage(
   text?: string
 ): string {
   const displayText = text || `${width}x${height}`;
-  return `https://via.placeholder.com/${width}x${height}/4f46e5/ffffff?text=${encodeURIComponent(
+  // Using Picsum for reliable placeholder images with fallback
+  return `https://picsum.photos/${width}/${height}?random=${encodeURIComponent(
     displayText
   )}`;
 }

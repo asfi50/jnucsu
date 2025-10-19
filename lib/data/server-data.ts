@@ -1,11 +1,12 @@
 import { config } from "@/config";
-import { Department, Position } from "@/context/data-context";
+import { Department, Position, Panel } from "@/context/data-context";
 import { Category } from "@/lib/types";
 
 interface ServerData {
   positions: Position[];
   departments: Department[];
   categories: Category[];
+  panels: Panel[];
 }
 
 /**
@@ -28,21 +29,15 @@ export async function fetchServerSideData(): Promise<ServerData> {
       ]);
     };
 
-    const [positionsResponse, departmentsResponse, categoriesResponse] =
-      await Promise.allSettled([
-        fetchWithTimeout(
-          `${config.serverBaseUrl}/items/positions?sort=order&fields=id,name,order,allocated_slots`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${config.adminToken}`,
-            },
-            // Cache for 5 minutes to improve performance
-            next: { revalidate: 300 },
-          }
-        ),
-        fetchWithTimeout(`${config.serverBaseUrl}/items/department`, {
+    const [
+      positionsResponse,
+      departmentsResponse,
+      categoriesResponse,
+      panelsResponse,
+    ] = await Promise.allSettled([
+      fetchWithTimeout(
+        `${config.serverBaseUrl}/items/positions?sort=order&fields=id,name,order,allocated_slots`,
+        {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -50,24 +45,47 @@ export async function fetchServerSideData(): Promise<ServerData> {
           },
           // Cache for 5 minutes to improve performance
           next: { revalidate: 300 },
-        }),
-        fetchWithTimeout(
-          `${config.serverBaseUrl}/items/category?fields=id,text`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${config.adminToken}`,
-            },
-            // Cache for 5 minutes to improve performance
-            next: { revalidate: 300 },
-          }
-        ),
-      ]);
+        }
+      ),
+      fetchWithTimeout(`${config.serverBaseUrl}/items/department`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${config.adminToken}`,
+        },
+        // Cache for 5 minutes to improve performance
+        next: { revalidate: 300 },
+      }),
+      fetchWithTimeout(
+        `${config.serverBaseUrl}/items/category?fields=id,text`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${config.adminToken}`,
+          },
+          // Cache for 5 minutes to improve performance
+          next: { revalidate: 300 },
+        }
+      ),
+      fetchWithTimeout(
+        `${config.serverBaseUrl}/items/panel?fields=id,name&filter[status][_eq]=published`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${config.adminToken}`,
+          },
+          // Cache for 5 minutes to improve performance
+          next: { revalidate: 300 },
+        }
+      ),
+    ]);
 
     let positions: Position[] = [];
     let departments: Department[] = [];
     let categories: Category[] = [];
+    let panels: Panel[] = [];
 
     // Process positions response
     if (
@@ -129,10 +147,28 @@ export async function fetchServerSideData(): Promise<ServerData> {
       );
     }
 
+    // Process panels response
+    if (panelsResponse.status === "fulfilled" && panelsResponse.value.ok) {
+      try {
+        const panelsData = await panelsResponse.value.json();
+        panels = panelsData.data || [];
+      } catch (error) {
+        console.error("Error parsing panels data:", error);
+      }
+    } else {
+      console.error(
+        "Failed to fetch panels:",
+        panelsResponse.status === "rejected"
+          ? panelsResponse.reason
+          : panelsResponse.value.status
+      );
+    }
+
     return {
       positions,
       departments,
       categories,
+      panels,
     };
   } catch (error) {
     console.error("Error fetching server-side data:", error);
@@ -141,6 +177,7 @@ export async function fetchServerSideData(): Promise<ServerData> {
       positions: [],
       departments: [],
       categories: [],
+      panels: [],
     };
   }
 }
@@ -150,16 +187,22 @@ export async function fetchServerSideData(): Promise<ServerData> {
  */
 export async function fetchClientSideData(): Promise<ServerData> {
   try {
-    const [positionsResponse, departmentsResponse, categoriesResponse] =
-      await Promise.all([
-        fetch("/api/positions"),
-        fetch("/api/departments"),
-        fetch("/api/categories"),
-      ]);
+    const [
+      positionsResponse,
+      departmentsResponse,
+      categoriesResponse,
+      panelsResponse,
+    ] = await Promise.all([
+      fetch("/api/positions"),
+      fetch("/api/departments"),
+      fetch("/api/categories"),
+      fetch("/api/panel"),
+    ]);
 
     let positions: Position[] = [];
     let departments: Department[] = [];
     let categories: Category[] = [];
+    let panels: Panel[] = [];
 
     if (positionsResponse.ok) {
       positions = await positionsResponse.json();
@@ -173,10 +216,15 @@ export async function fetchClientSideData(): Promise<ServerData> {
       categories = await categoriesResponse.json();
     }
 
+    if (panelsResponse.ok) {
+      panels = await panelsResponse.json();
+    }
+
     return {
       positions,
       departments,
       categories,
+      panels,
     };
   } catch (error) {
     console.error("Error fetching client-side data:", error);
@@ -184,6 +232,7 @@ export async function fetchClientSideData(): Promise<ServerData> {
       positions: [],
       departments: [],
       categories: [],
+      panels: [],
     };
   }
 }

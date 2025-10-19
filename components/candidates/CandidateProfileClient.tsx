@@ -84,8 +84,8 @@ export default function CandidateProfileClient({
           text: `Check out ${leader.name}'s profile for ${leader.title}`,
           url: window.location.href,
         });
-      } catch (error) {
-        console.log("Error sharing:", error);
+      } catch {
+        // Sharing cancelled or failed
       }
     } else {
       // Fallback: Copy to clipboard
@@ -125,7 +125,11 @@ export default function CandidateProfileClient({
       // Position
       pdf.setFontSize(8);
       pdf.setTextColor(255, 120, 60);
-      pdf.text(leader.title.replace(" - JnUCSU", ""), 6, 21);
+      pdf.text(
+        leader.title ? leader.title.replace(" - JnUCSU", "") : "Position",
+        6,
+        21
+      );
 
       // Details
       pdf.setFontSize(7);
@@ -263,7 +267,10 @@ export default function CandidateProfileClient({
                           {leader.name}
                         </h1>
                         <p className="text-base md:text-lg text-orange-600 font-semibold mb-3">
-                          Competing for {leader.title.replace(" - JnUCSU", "")}
+                          Competing for{" "}
+                          {leader.title
+                            ? leader.title.replace(" - JnUCSU", "")
+                            : "Position"}
                         </p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 text-sm text-gray-600">
                           <div className="flex items-center justify-center md:justify-start space-x-1">
@@ -389,9 +396,11 @@ export default function CandidateProfileClient({
                   <p className="text-gray-700 leading-relaxed">
                     <span className="font-semibold">Vision & Planning: </span>
                     The candidate has articulated a clear vision for{" "}
-                    {leader.title.replace(" - JnUCSU", "")}, with comprehensive
-                    plans addressing student welfare, academic excellence, and
-                    campus development.
+                    {leader.title
+                      ? leader.title.replace(" - JnUCSU", "")
+                      : "the position"}
+                    , with comprehensive plans addressing student welfare,
+                    academic excellence, and campus development.
                   </p>
                 </div>
                 <div className="flex items-start space-x-2">

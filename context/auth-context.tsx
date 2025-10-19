@@ -49,6 +49,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
   userProfile: UserProfile | null;
+  setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -280,6 +281,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAuthenticated,
     setIsAuthenticated,
     userProfile,
+    setUserProfile,
   };
 
   return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>;

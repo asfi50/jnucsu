@@ -71,7 +71,6 @@ export async function POST(request: Request) {
     }
 
     const userId = decodedToken.id;
-    console.log("User ID:", userId);
     const profileResponse = await fetch(
       `${config.serverBaseUrl}/items/profile?filter[user][_eq]=${userId}`,
       {

@@ -5,35 +5,37 @@ export function mapApiResponseToCandidateProfile(
   apiResponse: any
 ): CandidateProfile {
   const profile = apiResponse.profile || {};
-  const user = apiResponse.user || {};
+  const user = profile.user || {};
+  const candidateData = apiResponse;
 
   return {
-    id: apiResponse.id,
+    id: candidateData.id,
     userId: profile.id,
-    position: apiResponse.position.name,
-    biography: apiResponse.biography,
-    manifesto: apiResponse.manifesto,
-    experience: apiResponse.experience,
-    achievements: apiResponse.achievements,
-    phone: profile.phone,
-    email: user.email,
-    address: profile.address,
-    studentId: profile.student_id,
-    department: profile.department.name,
+    position: candidateData.position?.name || "Unknown",
+    panel: candidateData.panel?.name || undefined,
+    biography: candidateData.biography || "",
+    manifesto: candidateData.manifesto || "",
+    experience: candidateData.experience || "",
+    achievements: candidateData.achievements || "",
+    phone: profile.phone || "",
+    email: user.email || "",
+    address: profile.address || "",
+    studentId: profile.student_id || "",
+    department: profile.department?.name || "Unknown",
     semester: profile.semester || profile.academic_year || "",
-    isParticipating: apiResponse.isParticipating,
-    status: apiResponse.status,
-    createdAt: apiResponse.date_created,
-    updatedAt: apiResponse.date_updated || apiResponse.date_created,
-    approvedAt: apiResponse.approved_at || undefined,
+    isParticipating: candidateData.isParticipating || false,
+    status: candidateData.status || "draft",
+    createdAt: candidateData.date_created,
+    updatedAt: candidateData.date_updated || candidateData.date_created,
+    approvedAt: candidateData.approved_at || undefined,
     votes: 0, // need to setup api and map votes
     views: 0, // Set to 0 or map if available in your API
-    rejectionReason: apiResponse.rejectionReason || undefined,
-    moderatorNotes: apiResponse.moderatorNotes || undefined,
-    facebook: profile.facebook || undefined,
-    linkedin: profile.linkedin || undefined,
-    twitter: profile.twitter || undefined,
-    instagram: profile.instagram || undefined,
-    website: profile.website || undefined,
+    rejectionReason: candidateData.rejectionReason || undefined,
+    moderatorNotes: candidateData.moderatorNotes || undefined,
+    facebook: profile.links?.facebook || undefined,
+    linkedin: profile.links?.linkedin || undefined,
+    twitter: profile.links?.twitter || undefined,
+    instagram: profile.links?.instagram || undefined,
+    website: profile.links?.website || undefined,
   };
 }

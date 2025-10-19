@@ -18,6 +18,14 @@ export interface ElectionCandidate {
   phone?: string;
   email?: string;
   address?: string;
+  semester?: string;
+  links?: {
+    facebook?: string;
+    instagram?: string;
+    linkedin?: string;
+    website?: string;
+    twitter?: string;
+  };
   achievements?: string;
   candidateComments?: Comment[];
   blogs?: BlogItem[];

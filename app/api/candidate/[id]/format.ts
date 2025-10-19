@@ -1,62 +1,10 @@
 import { ElectionCandidate } from "@/lib/types/candidate.profile.types";
 
-export function formatCandidateApiResponse(data: {
-  candidate?: {
-    position?: { name: string };
-    biography?: string;
-    manifesto?: string;
-    achievements?: string;
-  }[];
-  blog_comments?: {
-    id: string;
-    content: string;
-    date_created: string;
-    blog?: { id: string; title: string };
-  }[];
-  profile_comments?: {
-    id: string;
-    content: string;
-    date_created: string;
-    profile?: { id: string; name: string };
-  }[];
-  id: string;
-  name: string;
-  image: string;
-  department?: { name: string };
-  academic_year?: string;
-  student_id?: string;
-  about?: string;
-  gallery?: {
-    id: string;
-    title: string;
-    description: string;
-    url: string;
-    directus_files_id?: { id: string };
-  }[];
-  blogs?: {
-    id: string;
-    title: string;
-    excerpt: string;
-    date_published?: string;
-    tags?: string[];
-    status: string;
-  }[];
-  comments?: {
-    id: string;
-    content: string;
-    date_created: string;
-    user: { name: string; image: string; id: string };
-  }[];
-}): ElectionCandidate {
-  const candidateInfo =
-    Array.isArray(data.candidate) && data.candidate.length > 0
-      ? data.candidate[0]
-      : {};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function formatCandidateApiResponse(data: any): ElectionCandidate {
+  const candidateInfo = data.candidate_profile || {};
   const blogComments = Array.isArray(data.blog_comments)
     ? data.blog_comments
-    : [];
-  const profileComments = Array.isArray(data.profile_comments)
-    ? data.profile_comments
     : [];
   const this_profileComments = Array.isArray(data.comments)
     ? data.comments
@@ -69,25 +17,15 @@ export function formatCandidateApiResponse(data: {
       content: comment.content,
       date_created: comment.date_created,
       context: "blog" as const,
-      contextId: comment.blog?.id,
-      contextTitle: comment.blog?.title,
-    });
-  }
-  for (const comment of profileComments) {
-    allComments.push({
-      id: comment.id,
-      content: comment.content,
-      date_created: comment.date_created,
-      context: "profile" as const,
-      contextId: comment.profile?.id,
-      contextTitle: comment.profile?.name,
+      contextId: comment.blogs?.id,
+      contextTitle: comment.blogs?.title,
     });
   }
 
   return {
     id: data.id,
     name: data.name,
-    title: candidateInfo.position?.name || "",
+    title: candidateInfo.position?.name || "Candidate",
     description: candidateInfo.biography || data.about || "",
     avatar: data.image,
     university: "Jagannath University",
@@ -111,33 +49,29 @@ export function formatCandidateApiResponse(data: {
           })
         )
       : [],
-    votes: 0, // Not present in response
-    tags: [], // Not present in response
-    createdAt: "", // Not present in response
-    updatedAt: "", // Not present in response
-    phone: undefined, // Not present in response
-    email: undefined, // Not present in response
-    address: undefined, // Not present in response
+    votes: 0,
+    tags: [],
+    createdAt: "",
+    updatedAt: "",
+    phone: data.phone || undefined,
+    email: undefined,
+    address: data.address || undefined,
+    semester: data.semester || undefined,
+    links: data.links || undefined,
     achievements: candidateInfo.achievements || "",
-    candidateComments: [], // Skipped as requested
+    candidateComments: [],
     blogs: Array.isArray(data.blogs)
       ? data.blogs
-          .filter((blog: { status: string }) => blog.status === "published")
-          .map(
-            (blog: {
-              id: string;
-              title: string;
-              excerpt: string;
-              date_published?: string;
-              tags?: string[];
-            }) => ({
-              id: blog.id,
-              title: blog.title,
-              excerpt: blog.excerpt,
-              date_published: blog.date_published || "",
-              tags: blog.tags || [],
-            })
-          )
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .filter((blog: any) => blog.status === "published")
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .map((blog: any) => ({
+            id: blog.id,
+            title: blog.title,
+            excerpt: blog.current_published_version?.excerpt || "",
+            date_published: blog.current_published_version?.approved_at || "",
+            tags: blog.current_published_version?.tags || [],
+          }))
       : [],
     comments: allComments?.sort(
       (a, b) =>

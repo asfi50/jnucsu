@@ -1,3 +1,4 @@
+import { config } from "@/config";
 import { BlogPageApiResponse, BlogPost } from "@/lib/types/blogs.types";
 import { generateAvatar, generatePlaceholderImage } from "@/lib/utils";
 
@@ -15,9 +16,7 @@ function getBlogCoverImage(
     }
     // If it's a relative path, construct the full URL
     if (thumbnail.startsWith("/")) {
-      return `${
-        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
-      }${thumbnail}`;
+      return `${config.clientUrl || "http://localhost:3000"}${thumbnail}`;
     }
     // If it's a Directus asset ID, construct the asset URL
     return `${
