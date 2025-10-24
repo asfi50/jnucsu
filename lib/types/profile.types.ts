@@ -80,6 +80,7 @@ export interface PublicProfile {
     linkedin?: string;
     instagram?: string;
     website?: string;
+    twitter?: string;
   };
   blogs?: PublicProfileBlog[];
 }
