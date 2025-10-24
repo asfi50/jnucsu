@@ -5,6 +5,7 @@ import { GalleryItem } from "@/lib/types/profile.types";
 import useAxios from "@/hooks/use-axios";
 import { useToast } from "@/components/ui/ToastProvider";
 import imageCompression from "browser-image-compression";
+import { useAuth } from "@/context/auth-context";
 
 // Modal component
 interface ModalProps {
@@ -73,13 +74,14 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
 
 interface GalleryProps {
   gallery?: GalleryItem[];
-  onGalleryUpdate?: () => void; // Callback to refresh profile data
+  onGalleryUpdate?: () => void;
 }
 
 const Gallery: React.FC<GalleryProps> = ({ gallery = [], onGalleryUpdate }) => {
   const [showAddGallery, setShowAddGallery] = useState(false);
   const [showEditGallery, setShowEditGallery] = useState(false);
   const [editingItem, setEditingItem] = useState<string | null>(null);
+  const { setUserProfile } = useAuth();
   const [newGalleryItem, setNewGalleryItem] = useState({
     title: "",
     description: "",
@@ -289,6 +291,20 @@ const Gallery: React.FC<GalleryProps> = ({ gallery = [], onGalleryUpdate }) => {
         previewUrl: "",
       });
       setShowAddGallery(false);
+      const { data } = response;
+      const newItem: GalleryItem = {
+        id: data.id,
+        url: data.url,
+        title: data.title,
+        description: data.description,
+      };
+      setUserProfile((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          workGallery: [...(prev.workGallery || []), newItem],
+        };
+      });
 
       // Reset form and close modal
       setNewGalleryItem({
@@ -835,7 +851,7 @@ const Gallery: React.FC<GalleryProps> = ({ gallery = [], onGalleryUpdate }) => {
                     </p>
                   </div>
 
-                  <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute top-2 right-2 flex space-x-1  transition-opacity">
                     <button
                       onClick={() => handleEditGalleryItem(item)}
                       disabled={submitLoading}

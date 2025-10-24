@@ -1,12 +1,12 @@
 "use client";
 
-import { TopCandidate } from "@/app/api/candidate/top/route";
+import { NewCandidateData } from "@/app/api/candidate/new/route";
 import CompactCandidateCard from "./CompactCandidateCard";
 import { Users, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 interface NewCandidatesProps {
-  candidates: TopCandidate[];
+  candidates: NewCandidateData[];
 }
 
 export default function NewCandidates({ candidates }: NewCandidatesProps) {

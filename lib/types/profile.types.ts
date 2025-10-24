@@ -13,9 +13,9 @@ export interface UserProfile {
   about?: string;
   links: {
     facebook?: string;
-    twitter?: string;
     linkedin?: string;
     instagram?: string;
+    twitter?: string;
     website?: string;
   };
   workGallery?: GalleryItem[];
@@ -77,10 +77,10 @@ export interface PublicProfile {
   avatar?: string;
   links?: {
     facebook?: string;
-    twitter?: string;
     linkedin?: string;
     instagram?: string;
     website?: string;
+    twitter?: string;
   };
   blogs?: PublicProfileBlog[];
 }
@@ -106,7 +106,6 @@ export interface PublicProfileApiResponse {
   website?: string;
   links?: {
     facebook?: string;
-    twitter?: string;
     linkedin?: string;
     instagram?: string;
     website?: string;
@@ -147,7 +146,7 @@ export interface CandidateProfile {
   moderatorNotes?: string;
   facebook?: string;
   linkedin?: string;
-  twitter?: string;
   instagram?: string;
   website?: string;
+  twitter?: string;
 }

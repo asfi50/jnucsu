@@ -6,6 +6,8 @@ export interface ElectionCandidate {
   avatar: string;
   university: string;
   department: string;
+  panel: string;
+  panelId: string;
   year: string;
   studentId: string;
   futurePlans: string; // manifesto

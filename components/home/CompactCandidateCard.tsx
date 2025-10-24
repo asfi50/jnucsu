@@ -9,9 +9,13 @@ import useUserEngagement from "@/hooks/use-user-engagement";
 import LoginModal from "@/components/ui/LoginModal";
 import { useToast } from "@/components/ui/ToastProvider";
 import { TopCandidate } from "@/app/api/candidate/top/route";
+import { NewCandidateData } from "@/app/api/candidate/new/route";
+
+// Union type for flexibility
+type CandidateData = TopCandidate | NewCandidateData;
 
 interface CompactCandidateCardProps {
-  candidate: TopCandidate;
+  candidate: CandidateData;
 }
 
 export default function CompactCandidateCard({

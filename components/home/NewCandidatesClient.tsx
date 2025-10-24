@@ -1,19 +1,20 @@
 "use client";
 
-import { useNewCandidates } from "@/hooks/use-candidates";
 import NewCandidates from "@/components/home/NewCandidates";
-import { TopCandidate } from "@/app/api/candidate/top/route";
+import { NewCandidateData } from "@/app/api/candidate/new/route";
 
 interface NewCandidatesClientProps {
-  fallbackData?: TopCandidate[];
+  initialData?: NewCandidateData[];
 }
 
 export default function NewCandidatesClient({
-  fallbackData = [],
+  initialData,
 }: NewCandidatesClientProps) {
-  const { candidates, loading, error } = useNewCandidates(4);
+  // Primary data source is server-side initialData
+  const candidates = initialData || [];
 
-  if (loading) {
+  // Show loading state only if no initial data
+  if (!initialData) {
     return (
       <section>
         <h2 className="text-2xl font-bold text-gray-900 mb-6">
@@ -38,9 +39,6 @@ export default function NewCandidatesClient({
     );
   }
 
-  if (error) {
-    return <NewCandidates candidates={fallbackData.slice(0, 4)} />;
-  }
-
-  return <NewCandidates candidates={candidates} />;
+  // If no candidates, don't render anything (handled by NewCandidates component)
+  return <NewCandidates candidates={candidates.slice(0, 4)} />;
 }

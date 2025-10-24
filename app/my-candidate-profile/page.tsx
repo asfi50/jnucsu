@@ -242,41 +242,47 @@ const MyCandidateProfilePage = () => {
         <div className="min-h-screen bg-gray-50">
           <Header />
 
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
             {/* Page Header */}
             <div className="mb-8">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
                     My Candidate Profile
                   </h1>
-                  <p className="text-gray-600">
+                  <p className="text-sm sm:text-base text-gray-600">
                     Manage your candidate profile and track your election
                     campaign.
                   </p>
                 </div>
 
-                <div className="flex items-center space-x-4">
+                <div className="flex justify-between items-center gap-5">
                   {profile.status === "approved" && (
-                    <Link href={`/candidates/${profile.id}`}>
+                    <Link
+                      className="w-full"
+                      href={`/candidates/${profile.userId}`}
+                    >
                       <Button
                         variant="outline"
-                        className="flex items-center space-x-2"
+                        className="flex items-center justify-center space-x-2 w-full sm:w-auto text-sm sm:text-base py-2 px-3"
                       >
                         <Eye className="w-4 h-4" />
-                        <span>View Public Profile</span>
+                        <span className="hidden sm:inline">
+                          View Public Profile
+                        </span>
+                        <span className="sm:hidden">View Public</span>
                       </Button>
                     </Link>
                   )}
 
-                  <Link href="/submit-candidate">
-                    <Button className="flex items-center space-x-2">
+                  <Link className="w-full lg:w-fit" href="/submit-candidate">
+                    <Button className="flex items-center justify-center space-x-2 w-full sm:w-auto text-sm sm:text-base py-2 px-3">
                       <Edit className="w-4 h-4" />
                       <span>
                         {profile.status === "draft" ||
                         profile.status === "rejected"
-                          ? "Complete Profile"
-                          : "Edit Profile"}
+                          ? "Complete"
+                          : "Edit"}
                       </span>
                     </Button>
                   </Link>
@@ -339,46 +345,58 @@ const MyCandidateProfilePage = () => {
 
             {/* Stats Cards */}
             {profile.status === "approved" && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="bg-white p-6 rounded-lg border border-gray-200">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">
-                        Profile Views
+              <div className="grid grid-cols-3 gap-2 sm:gap-4 md:gap-6 mb-8">
+                <div className="bg-white p-3 sm:p-4 md:p-6 rounded-lg border border-gray-200 relative overflow-hidden">
+                  {/* Background Icon for Mobile */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-5 sm:hidden">
+                    <Eye className="w-16 h-16 text-blue-600" />
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between relative z-10">
+                    <div className="mb-2 sm:mb-0 text-center sm:text-left">
+                      <p className="text-sm sm:text-sm font-medium text-gray-600">
+                        Views
                       </p>
-                      <p className="text-2xl font-bold text-gray-900">
+                      <p className="text-2xl sm:text-xl md:text-2xl font-bold text-gray-900">
                         {profile.views.toLocaleString()}
                       </p>
                     </div>
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <Eye className="w-6 h-6 text-blue-600" />
+                    <div className="hidden sm:flex w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-blue-100 rounded-lg items-center justify-center">
+                      <Eye className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-blue-600" />
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-lg border border-gray-200">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">
-                        Votes Received
+                <div className="bg-white p-3 sm:p-4 md:p-6 rounded-lg border border-gray-200 relative overflow-hidden">
+                  {/* Background Icon for Mobile */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-5 sm:hidden">
+                    <Award className="w-16 h-16 text-green-600" />
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between relative z-10">
+                    <div className="mb-2 sm:mb-0 text-center sm:text-left">
+                      <p className="text-sm sm:text-sm font-medium text-gray-600">
+                        Votes
                       </p>
-                      <p className="text-2xl font-bold text-green-600">
+                      <p className="text-2xl sm:text-xl md:text-2xl font-bold text-green-600">
                         {profile.votes}
                       </p>
                     </div>
-                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                      <Award className="w-6 h-6 text-green-600" />
+                    <div className="hidden sm:flex w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-green-100 rounded-lg items-center justify-center">
+                      <Award className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-green-600" />
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-lg border border-gray-200">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">
-                        Days Active
+                <div className="bg-white p-3 sm:p-4 md:p-6 rounded-lg border border-gray-200 relative overflow-hidden">
+                  {/* Background Icon for Mobile */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-5 sm:hidden">
+                    <Calendar className="w-16 h-16 text-orange-600" />
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between relative z-10">
+                    <div className="mb-2 sm:mb-0 text-center sm:text-left">
+                      <p className="text-sm sm:text-sm font-medium text-gray-600">
+                        Days
                       </p>
-                      <p className="text-2xl font-bold text-orange-600">
+                      <p className="text-2xl sm:text-xl md:text-2xl font-bold text-orange-600">
                         {Math.ceil(
                           (Date.now() -
                             new Date(profile.approvedAt!).getTime()) /
@@ -386,8 +404,8 @@ const MyCandidateProfilePage = () => {
                         )}
                       </p>
                     </div>
-                    <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                      <Calendar className="w-6 h-6 text-orange-600" />
+                    <div className="hidden sm:flex w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-orange-100 rounded-lg items-center justify-center">
+                      <Calendar className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-orange-600" />
                     </div>
                   </div>
                 </div>
@@ -397,9 +415,9 @@ const MyCandidateProfilePage = () => {
             {/* Profile Information */}
             <div className="space-y-8">
               {/* Personal Information */}
-              <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-                  <User className="w-5 h-5 mr-2 text-orange-500" />
+              <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6 flex items-center">
+                  <User className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-orange-500" />
                   Personal Information
                 </h2>
 
@@ -451,9 +469,9 @@ const MyCandidateProfilePage = () => {
               </div>
 
               {/* Academic Information */}
-              <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-                  <Calendar className="w-5 h-5 mr-2 text-orange-500" />
+              <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6 flex items-center">
+                  <Calendar className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-orange-500" />
                   Academic Information
                 </h2>
 
@@ -475,9 +493,9 @@ const MyCandidateProfilePage = () => {
               </div>
 
               {/* Election Information */}
-              <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-                  <Award className="w-5 h-5 mr-2 text-orange-500" />
+              <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6 flex items-center">
+                  <Award className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-orange-500" />
                   Election Information
                 </h2>
 
@@ -491,8 +509,8 @@ const MyCandidateProfilePage = () => {
                     </p>
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <div>
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                    <div className="flex-1">
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Participation Status
                       </label>
@@ -514,36 +532,41 @@ const MyCandidateProfilePage = () => {
                       )}
                     </div>
 
-                    {profile.isParticipating ? (
-                      <div className="text-right">
+                    <div className="flex-shrink-0">
+                      {profile.isParticipating ? (
+                        <div className="text-left sm:text-right">
+                          <Button
+                            variant="outline"
+                            onClick={handleToggleParticipation}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 text-sm py-2 px-3 w-full sm:w-auto"
+                          >
+                            <span className="sm:hidden">Not Participating</span>
+                            <span className="hidden sm:inline">
+                              Mark as Not Participating
+                            </span>
+                          </Button>
+                          <p className="text-xs text-gray-500 mt-1 sm:max-w-xs">
+                            Disabling will hide your profile from public
+                          </p>
+                        </div>
+                      ) : (
                         <Button
                           variant="outline"
                           onClick={handleToggleParticipation}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          className="text-green-600 hover:text-green-700 text-sm py-2 px-3 w-full sm:w-auto"
+                          disabled={profile.status !== "approved"}
                         >
-                          Mark as Not Participating
+                          Resume Participation
                         </Button>
-                        <p className="text-xs text-gray-500 mt-1 max-w-xs">
-                          Disabling will hide your profile from public
-                        </p>
-                      </div>
-                    ) : (
-                      <Button
-                        variant="outline"
-                        onClick={handleToggleParticipation}
-                        className="text-green-600 hover:text-green-700"
-                        disabled={profile.status !== "approved"}
-                      >
-                        Resume Participation
-                      </Button>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Profile Content */}
-              <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">
+              <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">
                   Profile Content
                 </h2>
 
@@ -592,20 +615,21 @@ const MyCandidateProfilePage = () => {
                 profile.twitter ||
                 profile.instagram ||
                 profile.website) && (
-                <div className="bg-white rounded-lg border border-gray-200 p-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6">
+                <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+                  <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">
                     Social Links & Website
                   </h2>
-                  <div className="flex flex-wrap gap-3">
+                  <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-3">
                     {profile.facebook && (
                       <a
                         href={profile.facebook}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:border-blue-500 hover:text-blue-500 transition-colors"
+                        className="flex items-center justify-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 border border-gray-300 rounded-lg hover:border-blue-500 hover:text-blue-500 transition-colors text-sm sm:text-base"
                       >
                         <Facebook className="w-4 h-4" />
-                        <span>Facebook</span>
+                        <span className="hidden sm:inline">Facebook</span>
+                        <span className="sm:hidden">FB</span>
                       </a>
                     )}
                     {profile.linkedin && (
@@ -613,10 +637,11 @@ const MyCandidateProfilePage = () => {
                         href={profile.linkedin}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:border-blue-600 hover:text-blue-600 transition-colors"
+                        className="flex items-center justify-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 border border-gray-300 rounded-lg hover:border-blue-600 hover:text-blue-600 transition-colors text-sm sm:text-base"
                       >
                         <Linkedin className="w-4 h-4" />
-                        <span>LinkedIn</span>
+                        <span className="hidden sm:inline">LinkedIn</span>
+                        <span className="sm:hidden">LI</span>
                       </a>
                     )}
                     {profile.twitter && (
@@ -624,10 +649,11 @@ const MyCandidateProfilePage = () => {
                         href={profile.twitter}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:border-sky-500 hover:text-sky-500 transition-colors"
+                        className="flex items-center justify-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 border border-gray-300 rounded-lg hover:border-sky-500 hover:text-sky-500 transition-colors text-sm sm:text-base"
                       >
                         <Twitter className="w-4 h-4" />
-                        <span>Twitter</span>
+                        <span className="hidden sm:inline">Twitter</span>
+                        <span className="sm:hidden">TW</span>
                       </a>
                     )}
                     {profile.instagram && (
@@ -635,10 +661,11 @@ const MyCandidateProfilePage = () => {
                         href={profile.instagram}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:border-pink-500 hover:text-pink-500 transition-colors"
+                        className="flex items-center justify-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 border border-gray-300 rounded-lg hover:border-pink-500 hover:text-pink-500 transition-colors text-sm sm:text-base"
                       >
                         <Instagram className="w-4 h-4" />
-                        <span>Instagram</span>
+                        <span className="hidden sm:inline">Instagram</span>
+                        <span className="sm:hidden">IG</span>
                       </a>
                     )}
                     {profile.website && (
@@ -646,7 +673,7 @@ const MyCandidateProfilePage = () => {
                         href={profile.website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:border-orange-500 hover:text-orange-500 transition-colors"
+                        className="flex items-center justify-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 border border-gray-300 rounded-lg hover:border-orange-500 hover:text-orange-500 transition-colors text-sm sm:text-base col-span-2 sm:col-span-1"
                       >
                         <Globe className="w-4 h-4" />
                         <span>Website</span>
@@ -657,12 +684,12 @@ const MyCandidateProfilePage = () => {
               )}
 
               {/* Profile Management */}
-              <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">
+              <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">
                   Profile Management
                 </h2>
 
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
                     <p className="font-medium text-gray-900">Danger Zone</p>
                     <p className="text-sm text-gray-600">
@@ -674,7 +701,7 @@ const MyCandidateProfilePage = () => {
                   <Button
                     variant="outline"
                     onClick={handleDeleteProfile}
-                    className="text-red-600 hover:text-red-700 hover:border-red-300"
+                    className="text-red-600 hover:text-red-700 hover:border-red-300 text-sm py-2 px-3 w-full sm:w-auto"
                   >
                     Delete Profile
                   </Button>

@@ -20,16 +20,31 @@ export async function GET(
       }
     );
 
-    const data = await res.json();
     if (!res.ok) {
-      console.error("Failed to fetch application data:", data);
       return NextResponse.json(
-        { message: "Failed to fetch application data", error: res.statusText },
+        {
+          message: "Failed to fetch application data",
+        },
         { status: res.status }
       );
     }
+    const { data } = await res.json();
 
-    const formattedData = formatCandidateApiResponse(data.data);
+    const views = data.views || 0;
+    const updatedViews = views + 1;
+
+    await fetch(`${config.serverBaseUrl}/items/profile/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${config.adminToken}`,
+      },
+      body: JSON.stringify({
+        views: updatedViews,
+      }),
+    });
+
+    const formattedData = formatCandidateApiResponse(data);
     return NextResponse.json(formattedData, { status: 200 });
   } catch (error) {
     console.error("Error fetching user data:", error);

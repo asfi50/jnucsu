@@ -266,8 +266,8 @@ export default function CandidateProfileClient({
 
                 {/* Candidate Info */}
                 <div className="flex-1 w-full">
-                  <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-4">
-                    <div className="flex flex-col md:flex-row md:items-start space-y-4 md:space-y-0 md:space-x-4">
+                  <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-4 ">
+                    <div className="flex flex-col md:flex-row md:items-start space-y-4 md:space-y-0 md:space-x-4 lg:items-center">
                       <div className="w-24 h-24 md:w-32 md:h-32 mx-auto md:mx-0 rounded-full overflow-hidden ring-4 ring-orange-100">
                         <Image
                           src={leader.avatar || "/images/default-avatar.svg"}
@@ -285,13 +285,23 @@ export default function CandidateProfileClient({
                         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">
                           {leader.name}
                         </h1>
-                        <p className="text-base md:text-lg text-orange-600 font-semibold mb-3">
+                        <p className="text-base md:text-base text-orange-600 font-semibold ">
                           Competing for{" "}
                           {leader.title
                             ? leader.title.replace(" - JnUCSU", "")
                             : "Position"}
                         </p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 text-sm text-gray-600">
+                        <Link
+                          href={`/panel/${leader.panelId}`}
+                          className="mb-3 inline-block px-2 py-1 rounded bg-orange-100 text-orange-700 font-semibold transition-colors hover:bg-orange-200"
+                        >
+                          {leader.panel && (
+                            <>
+                              <span className="text-sm">{leader.panel}</span>
+                            </>
+                          )}
+                        </Link>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 text-sm text-gray-600 mt-3">
                           <div className="flex items-center justify-center md:justify-start space-x-1">
                             <GraduationCap className="w-4 h-4 flex-shrink-0" />
                             <span className="truncate">
@@ -369,7 +379,7 @@ export default function CandidateProfileClient({
             <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
               <div className="flex items-center space-x-2 mb-4">
                 <Target className="w-5 h-5 text-orange-600" />
-                <h2 className="text-lg md:text-xl font-semibold text-gray-900">
+                <h2 className="text-base md:text-xl font-semibold text-gray-900">
                   Future Plans
                 </h2>
               </div>
@@ -391,7 +401,7 @@ export default function CandidateProfileClient({
                   <Sparkles className="w-5 h-5 text-orange-600" />
                 </div>
                 <div>
-                  <h2 className="text-lg md:text-xl font-semibold text-gray-900">
+                  <h2 className="text-base md:text-xl font-semibold text-gray-900">
                     AI Performance Review
                   </h2>
                   <p className="text-sm text-gray-600">
@@ -461,7 +471,7 @@ export default function CandidateProfileClient({
               <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
                 <div className="flex items-center space-x-2 mb-4">
                   <Award className="w-5 h-5 text-orange-600" />
-                  <h2 className="text-lg md:text-xl font-semibold text-gray-900">
+                  <h2 className="text-base md:text-xl font-semibold text-gray-900">
                     Achievements
                   </h2>
                 </div>
@@ -481,7 +491,7 @@ export default function CandidateProfileClient({
             <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
               <div className="flex items-center space-x-2 mb-4 md:mb-6">
                 <ImageIcon className="w-5 h-5 text-orange-600" />
-                <h2 className="text-lg md:text-xl font-semibold text-gray-900">
+                <h2 className="text-base md:text-xl font-semibold text-gray-900">
                   Work Gallery
                 </h2>
               </div>
@@ -606,7 +616,7 @@ export default function CandidateProfileClient({
             <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
               <div className="flex items-center space-x-2 mb-4 md:mb-6">
                 <FileText className="w-5 h-5 text-orange-600" />
-                <h2 className="text-lg md:text-xl font-semibold text-gray-900">
+                <h2 className="text-base md:text-xl font-semibold text-gray-900">
                   Blog Posts ({leader?.blogs?.length})
                 </h2>
               </div>
@@ -651,7 +661,7 @@ export default function CandidateProfileClient({
             <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
               <div className="flex items-center space-x-2 mb-4 md:mb-6">
                 <MessageCircle className="w-5 h-5 text-orange-600" />
-                <h2 className="text-lg md:text-xl font-semibold text-gray-900">
+                <h2 className="text-base md:text-xl font-semibold text-gray-900">
                   {leader.name}&apos;s Comments ({comments.length})
                 </h2>
               </div>
@@ -724,7 +734,7 @@ export default function CandidateProfileClient({
             <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
               <div className="flex items-center space-x-2 mb-4 md:mb-6">
                 <MessageCircle className="w-5 h-5 text-gray-600" />
-                <h2 className="text-lg md:text-xl font-semibold text-gray-900">
+                <h2 className="text-base md:text-xl font-semibold text-gray-900">
                   Comments on this Candidate ({commentProfile.length})
                 </h2>
               </div>
@@ -948,7 +958,7 @@ export default function CandidateProfileClient({
                 url={
                   typeof window !== "undefined"
                     ? `${window.location.origin}/candidates/${leader.id}`
-                    : `https://jnucsu.vercel.app/candidates/${leader.id}`
+                    : `https://jnucsu.com/candidates/${leader.id}`
                 }
                 title={`${leader.name}'s profile`}
                 size={160}
@@ -964,7 +974,7 @@ export default function CandidateProfileClient({
 
             {/* Quick Stats */}
             <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
-              <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-4">
+              <h3 className="text-base md:text-base font-semibold text-gray-900 mb-4">
                 Quick Stats
               </h3>
               <div className="space-y-3 md:space-y-4">

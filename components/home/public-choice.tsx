@@ -3,6 +3,7 @@
 import { PanelMember } from "@/app/api/panel/public-choice/route";
 import { Users, Crown, Award, TrendingUp } from "lucide-react";
 import Image from "next/image";
+import { useState, useEffect } from "react";
 
 // Enhanced skeleton component for loading state
 function PanelMemberSkeleton() {
@@ -34,6 +35,37 @@ export default function TrendingPanelMembers({
   initialData?: PanelMember[];
   isLoading?: boolean;
 }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+
+  // Calculate slides - show 2 cards on large devices, 1 on mobile, but slide 1 at a time
+  const totalSlides = initialData?.length || 0;
+  const maxVisibleCardsDesktop = 2; // Show 2 cards on large devices
+  const maxSlideIndex = Math.max(0, totalSlides - maxVisibleCardsDesktop);
+
+  // Auto-slide functionality
+  useEffect(() => {
+    if (
+      !initialData?.length ||
+      isLoading ||
+      isHovered ||
+      totalSlides <= maxVisibleCardsDesktop
+    )
+      return;
+
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev >= maxSlideIndex ? 0 : prev + 1));
+    }, 4000); // Change every 4 seconds
+
+    return () => clearInterval(interval);
+  }, [initialData?.length, isLoading, isHovered, totalSlides, maxSlideIndex]);
+
+  // Manual click to next
+  const handleCardClick = () => {
+    if (!initialData?.length || totalSlides <= maxVisibleCardsDesktop) return;
+    setCurrentIndex((prev) => (prev >= maxSlideIndex ? 0 : prev + 1));
+  };
+
   return (
     <section className="space-y-6">
       {/* Section Header */}
@@ -51,144 +83,185 @@ export default function TrendingPanelMembers({
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="relative overflow-hidden">
         {isLoading ? (
           // Enhanced skeleton loading state
-          Array.from({ length: 3 }).map((_, index) => (
-            <PanelMemberSkeleton key={`skeleton-${index}`} />
-          ))
+          <div className="space-y-4">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <PanelMemberSkeleton key={`skeleton-${index}`} />
+            ))}
+          </div>
         ) : initialData?.length ? (
-          // Enhanced card design for actual data
-          initialData.map((member, index) => {
-            // Generate rank-based styling
-            const isTopRank = index === 0;
-            const isSecondRank = index === 1;
-            const isThirdRank = index === 2;
-
-            const getRankIcon = () => {
-              if (isTopRank)
-                return <Crown className="w-4 h-4 text-yellow-500" />;
-              if (isSecondRank)
-                return <Award className="w-4 h-4 text-gray-400" />;
-              if (isThirdRank)
-                return <Award className="w-4 h-4 text-orange-400" />;
-              return <TrendingUp className="w-4 h-4 text-gray-400" />;
-            };
-
-            const getRankColor = () => {
-              if (isTopRank)
-                return "from-yellow-50 to-orange-50 border-yellow-200";
-              if (isSecondRank)
-                return "from-gray-50 to-slate-50 border-gray-200";
-              if (isThirdRank)
-                return "from-orange-50 to-amber-50 border-orange-200";
-              return "from-white to-gray-50 border-gray-100";
-            };
-
-            return (
+          // Carousel container
+          <div
+            className="relative h-32 cursor-pointer"
+            onClick={handleCardClick}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            {/* Carousel slides */}
+            <div className="relative w-full h-full overflow-hidden">
               <div
-                key={member.id}
-                className={`bg-gradient-to-br ${getRankColor()} rounded-xl shadow-sm border hover:shadow-md transition-all duration-200 p-6 group cursor-pointer`}
+                className="flex transition-transform duration-700 ease-in-out h-full transform"
+                style={{
+                  transform: `translateX(-${currentIndex * 50}%)`, // 50% movement on large screens to show 2 cards
+                }}
               >
-                <div className="flex items-center space-x-4">
-                  {/* Rank Badge */}
-                  <div className="flex flex-col items-center space-y-1">
+                {initialData.map((member, memberIndex) => {
+                  const actualIndex = memberIndex;
+
+                  // Generate rank-based styling
+                  const isTopRank = actualIndex === 0;
+                  const isSecondRank = actualIndex === 1;
+                  const isThirdRank = actualIndex === 2;
+
+                  const getRankIcon = () => {
+                    if (isTopRank)
+                      return <Crown className="w-4 h-4 text-yellow-500" />;
+                    if (isSecondRank)
+                      return <Award className="w-4 h-4 text-gray-400" />;
+                    if (isThirdRank)
+                      return <Award className="w-4 h-4 text-orange-400" />;
+                    return <TrendingUp className="w-4 h-4 text-gray-400" />;
+                  };
+
+                  const getRankColor = () => {
+                    if (isTopRank)
+                      return "from-yellow-50 to-orange-50 border-yellow-200";
+                    if (isSecondRank)
+                      return "from-gray-50 to-slate-50 border-gray-200";
+                    if (isThirdRank)
+                      return "from-orange-50 to-amber-50 border-orange-200";
+                    return "from-white to-gray-50 border-gray-100";
+                  };
+
+                  return (
                     <div
-                      className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                        isTopRank
-                          ? "bg-yellow-100 text-yellow-600"
-                          : isSecondRank
-                          ? "bg-gray-100 text-gray-600"
-                          : isThirdRank
-                          ? "bg-orange-100 text-orange-600"
-                          : "bg-gray-50 text-gray-500"
-                      }`}
+                      key={member.id}
+                      className="flex-shrink-0 h-full w-full lg:w-1/2 px-2 first:pl-0 last:pr-0"
                     >
-                      {getRankIcon()}
-                    </div>
-                    <span
-                      className={`text-xs font-bold ${
-                        isTopRank
-                          ? "text-yellow-600"
-                          : isSecondRank
-                          ? "text-gray-600"
-                          : isThirdRank
-                          ? "text-orange-600"
-                          : "text-gray-500"
-                      }`}
-                    >
-                      #{index + 1}
-                    </span>
-                  </div>
+                      <div
+                        className={`bg-gradient-to-br ${getRankColor()} rounded-xl shadow-sm border hover:shadow-md transition-all duration-200 p-6 group h-32`}
+                      >
+                        <div className="flex items-center space-x-4 h-full">
+                          {/* Rank Badge */}
+                          <div className="flex flex-col items-center space-y-1">
+                            <div
+                              className={`flex items-center justify-center w-8 h-8 rounded-full ${
+                                isTopRank
+                                  ? "bg-yellow-100 text-yellow-600"
+                                  : isSecondRank
+                                  ? "bg-gray-100 text-gray-600"
+                                  : isThirdRank
+                                  ? "bg-orange-100 text-orange-600"
+                                  : "bg-gray-50 text-gray-500"
+                              }`}
+                            >
+                              {getRankIcon()}
+                            </div>
+                            <span
+                              className={`text-xs font-bold ${
+                                isTopRank
+                                  ? "text-yellow-600"
+                                  : isSecondRank
+                                  ? "text-gray-600"
+                                  : isThirdRank
+                                  ? "text-orange-600"
+                                  : "text-gray-500"
+                              }`}
+                            >
+                              #{actualIndex + 1}
+                            </span>
+                          </div>
 
-                  {/* Avatar */}
-                  <div className="flex-shrink-0">
-                    <div className="w-14 h-14 rounded-full overflow-hidden ring-2 ring-white shadow-sm">
-                      <Image
-                        src={
-                          member.image ||
-                          `https://api.dicebear.com/7.x/avataaars/svg?seed=${member.name}`
-                        }
-                        alt={member.name}
-                        width={56}
-                        height={56}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${member.name}`;
-                        }}
-                      />
-                    </div>
-                  </div>
+                          {/* Avatar */}
+                          <div className="flex-shrink-0">
+                            <div className="w-14 h-14 rounded-full overflow-hidden ring-2 ring-white shadow-sm">
+                              <Image
+                                src={
+                                  member.image ||
+                                  `https://api.dicebear.com/7.x/avataaars/svg?seed=${member.name}`
+                                }
+                                alt={member.name}
+                                width={56}
+                                height={56}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${member.name}`;
+                                }}
+                              />
+                            </div>
+                          </div>
 
-                  {/* Member Info */}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-bold text-gray-900 group-hover:text-orange-600 transition-colors truncate">
-                      {member.name}
-                    </h3>
-                    <p className="text-orange-600 font-medium text-sm truncate mb-2">
-                      {member.position?.replace(" - JnUCSU", "") ||
-                        "Panel Member"}
-                    </p>
+                          {/* Member Info */}
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-lg font-bold text-gray-900 group-hover:text-orange-600 transition-colors truncate">
+                              {member.name}
+                            </h3>
+                            <p className="text-orange-600 font-medium text-sm truncate mb-2">
+                              {member.position?.replace(" - JnUCSU", "") ||
+                                "Panel Member"}
+                            </p>
 
-                    {/* Tags/Stats */}
-                    <div className="flex items-center space-x-3">
-                      <div className="flex items-center space-x-1 px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full">
-                        <Users className="w-3 h-3" />
-                        <span>Popular Choice</span>
-                      </div>
-                      {isTopRank && (
-                        <div className="flex items-center space-x-1 px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full">
-                          <Crown className="w-3 h-3" />
-                          <span>Top Pick</span>
+                            {/* Tags/Stats */}
+                            <div className="flex items-center space-x-3">
+                              <div className="flex items-center space-x-1 px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full">
+                                <Users className="w-3 h-3" />
+                                <span>Popular Choice</span>
+                              </div>
+                              {isTopRank && (
+                                <div className="flex items-center space-x-1 px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full">
+                                  <Crown className="w-3 h-3" />
+                                  <span>Top Pick</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Vote Count or Action Button */}
+                          <div className="flex flex-col items-center space-y-1">
+                            <div
+                              className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                                isTopRank
+                                  ? "bg-yellow-100 text-yellow-600"
+                                  : isSecondRank
+                                  ? "bg-gray-100 text-gray-600"
+                                  : isThirdRank
+                                  ? "bg-orange-100 text-orange-600"
+                                  : "bg-gray-50 text-gray-500"
+                              } group-hover:scale-105 transition-transform`}
+                            >
+                              <TrendingUp className="w-5 h-5" />
+                            </div>
+                            <span className="text-xs text-gray-500 font-medium">
+                              {member.profileVotes}
+                            </span>
+                          </div>
                         </div>
-                      )}
+                      </div>
                     </div>
-                  </div>
-
-                  {/* Vote Count or Action Button */}
-                  <div className="flex flex-col items-center space-y-1">
-                    <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        isTopRank
-                          ? "bg-yellow-100 text-yellow-600"
-                          : isSecondRank
-                          ? "bg-gray-100 text-gray-600"
-                          : isThirdRank
-                          ? "bg-orange-100 text-orange-600"
-                          : "bg-gray-50 text-gray-500"
-                      } group-hover:scale-105 transition-transform`}
-                    >
-                      <TrendingUp className="w-5 h-5" />
-                    </div>
-                    <span className="text-xs text-gray-500 font-medium">
-                      {member.profileVotes}
-                    </span>
-                  </div>
-                </div>
+                  );
+                })}
               </div>
-            );
-          })
+            </div>
+
+            {/* Subtle progress dots */}
+            {totalSlides > maxVisibleCardsDesktop && (
+              <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                {Array.from({ length: maxSlideIndex + 1 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                      index === currentIndex
+                        ? "bg-orange-500 w-6"
+                        : "bg-gray-300"
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         ) : (
           // Enhanced empty state
           <div className="text-center py-12 bg-white rounded-xl border border-gray-100 shadow-sm">

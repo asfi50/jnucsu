@@ -17,7 +17,7 @@ const UserEngagementDisplay: React.FC<UserEngagementDisplayProps> = ({
     hasVoted,
     toggleReaction,
     toggleVote,
-    refetch,
+    refreshUserEngagement,
   } = useUserEngagement();
 
   if (isLoading) {
@@ -37,7 +37,7 @@ const UserEngagementDisplay: React.FC<UserEngagementDisplayProps> = ({
         <AlertCircle className="w-4 h-4" />
         <span className="text-sm">{error}</span>
         <button
-          onClick={refetch}
+          onClick={refreshUserEngagement}
           className="text-xs underline hover:no-underline"
         >
           Retry
