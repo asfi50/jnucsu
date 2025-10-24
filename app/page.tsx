@@ -15,6 +15,7 @@ import { ArrowRight } from "lucide-react";
 import { Metadata } from "next";
 import { config } from "@/config";
 import { TopCandidate } from "./api/candidate/top/route";
+import { NewCandidateData } from "./api/candidate/new/route";
 import NewCandidatesClient from "@/components/home/NewCandidatesClient";
 import { PanelMember } from "./api/panel/public-choice/route";
 import TrendingPanelMembers from "@/components/home/public-choice";
@@ -97,8 +98,93 @@ async function getTrendingpanel(): Promise<PanelMember[] | null> {
   }
 }
 
+// Server-side function to fetch new candidates
+async function getNewCandidates(): Promise<NewCandidateData[] | null> {
+  try {
+    const response = await fetch(`${config.clientUrl}/api/candidate/new`, {
+      next: { revalidate: 300 }, // Revalidate every 5 minutes
+    });
+
+    if (!response.ok) {
+      console.error("Failed to fetch new candidates:", response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    return data as NewCandidateData[];
+  } catch (error) {
+    console.error("Error fetching new candidates:", error);
+    return null;
+  }
+}
+
+// Server-side function to fetch recent blogs
+interface RecentBlogData {
+  id: string;
+  title: string;
+  excerpt: string;
+  thumbnail: string | null;
+  author: {
+    id: string;
+    name: string;
+    avatar: string | null;
+  };
+  category: string;
+  tags: string[];
+  publishedAt: string;
+  views: number;
+  likes: number;
+  loves: number;
+  totalReactions: number;
+}
+
+async function getRecentBlogs(): Promise<RecentBlogData[] | null> {
+  try {
+    const response = await fetch(
+      `${config.clientUrl}/api/blog/recent?limit=6`,
+      {
+        next: { revalidate: 300 }, // Revalidate every 5 minutes
+      }
+    );
+
+    if (!response.ok) {
+      console.error("Failed to fetch recent blogs:", response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    return data as RecentBlogData[];
+  } catch (error) {
+    console.error("Error fetching recent blogs:", error);
+    return null;
+  }
+}
+
+// Server-side function to fetch trending blogs
+async function getTrendingBlogs(): Promise<RecentBlogData[] | null> {
+  try {
+    const response = await fetch(
+      `${config.clientUrl}/api/blog/trending?limit=2`,
+      {
+        next: { revalidate: 300 }, // Revalidate every 5 minutes
+      }
+    );
+
+    if (!response.ok) {
+      console.error("Failed to fetch trending blogs:", response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    return data as RecentBlogData[];
+  } catch (error) {
+    console.error("Error fetching trending blogs:", error);
+    return null;
+  }
+}
+
 export default async function Home() {
-  // Fetch featured blog server-side
+  // Fetch all data server-side
   let panelLoading = true;
   const featuredBlog = await getFeaturedBlog();
   const topCandidates = await getTopCandidates();
@@ -106,6 +192,9 @@ export default async function Home() {
     panelLoading = false;
     return data;
   });
+  const newCandidates = await getNewCandidates();
+  const recentBlogs = await getRecentBlogs();
+  const trendingBlogs = await getTrendingBlogs();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -143,15 +232,18 @@ export default async function Home() {
             </section>
 
             {/* New Candidates Section */}
-            <NewCandidatesClient />
+            <NewCandidatesClient initialData={newCandidates ?? undefined} />
 
             {/* Recent Articles Section */}
-            <RecentBlogsSection />
+            <RecentBlogsSection initialData={recentBlogs ?? undefined} />
           </div>
 
           {/* Sidebar */}
           <div className="space-y-8">
-            <SidebarBlogsSection initialFeaturedBlog={featuredBlog} />
+            <SidebarBlogsSection
+              initialFeaturedBlog={featuredBlog}
+              initialTrendingBlogs={trendingBlogs ?? undefined}
+            />
 
             {/* Quick Actions */}
             <section className="bg-white rounded-lg border border-gray-200 p-6">

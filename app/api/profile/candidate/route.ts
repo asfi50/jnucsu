@@ -15,9 +15,8 @@ export async function GET(req: Request) {
   }
 
   try {
-    // Fetch profile with candidate_profile relation (approved candidate)
     const profileRes = await fetch(
-      `${config.serverBaseUrl}/items/profile/${info.profileId}?fields=*,candidate_profile.*,candidate_profile.position.name,candidate_profile.panel.name,user.email,department.name`,
+      `${config.serverBaseUrl}/items/profile/${info.profileId}?fields=*,candidate_profile.*,candidate_profile.position.name,candidate_profile.panel.name,user.email,department.name,profile.profile_votes`,
       {
         method: "GET",
         headers: {

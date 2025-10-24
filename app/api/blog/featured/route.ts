@@ -45,14 +45,24 @@ export async function GET() {
     const { data } = await res.json();
 
     if (data.length === 0) {
-      return NextResponse.json({}, { status: 200 });
+      return NextResponse.json(
+        {
+          message: "No featured blog found",
+        },
+        { status: 200 }
+      );
     }
 
     const blogData = data[0];
     const version = blogData.current_published_version;
 
     if (!version) {
-      return NextResponse.json({}, { status: 200 });
+      return NextResponse.json(
+        {
+          message: "No published version found for the featured blog",
+        },
+        { status: 200 }
+      );
     }
 
     const featured = {

@@ -7,6 +7,16 @@ export function mapApiResponseToCandidateProfile(
   const profile = apiResponse.profile || {};
   const user = profile.user || {};
   const candidateData = apiResponse;
+  const today = new Date();
+
+  // Ensure approved_at is a Date object; if missing, set to today
+  if (candidateData.approved_at) {
+    if (!(candidateData.approved_at instanceof Date)) {
+      candidateData.approved_at = new Date(candidateData.approved_at);
+    }
+  } else {
+    candidateData.approved_at = today;
+  }
 
   return {
     id: candidateData.id,
@@ -28,8 +38,8 @@ export function mapApiResponseToCandidateProfile(
     createdAt: candidateData.date_created,
     updatedAt: candidateData.date_updated || candidateData.date_created,
     approvedAt: candidateData.approved_at || undefined,
-    votes: 0, // need to setup api and map votes
-    views: 0, // Set to 0 or map if available in your API
+    votes: profile.profile_votes.length || 0,
+    views: 0,
     rejectionReason: candidateData.rejectionReason || undefined,
     moderatorNotes: candidateData.moderatorNotes || undefined,
     facebook: profile.links?.facebook || undefined,

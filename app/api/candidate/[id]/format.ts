@@ -55,6 +55,8 @@ export function formatCandidateApiResponse(data: any): ElectionCandidate {
     avatar: data.image,
     university: "Jagannath University",
     department: data.department?.name || "",
+    panel: candidateInfo.panel?.name || "",
+    panelId: candidateInfo.panel?.id || "",
     year: data.academic_year || "Not specified",
     studentId: data.student_id || "",
     futurePlans: candidateInfo.manifesto || "",
@@ -65,7 +67,6 @@ export function formatCandidateApiResponse(data: any): ElectionCandidate {
             title: string;
             description: string;
             url: string;
-            directus_files_id?: { id: string };
           }) => ({
             id: item.id,
             title: item.title,

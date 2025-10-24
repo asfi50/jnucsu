@@ -1,51 +1,71 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { X, Award, PenTool } from 'lucide-react';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { X, Award, PenTool } from "lucide-react";
 
 interface CallToActionBannerProps {
-  type: 'candidate' | 'blog';
+  type: "candidate" | "blog";
   onClose?: () => void;
 }
 
-export default function CallToActionBanner({ type, onClose }: CallToActionBannerProps) {
-  const [isVisible, setIsVisible] = useState(true);
+export default function CallToActionBanner({
+  type,
+  onClose,
+}: CallToActionBannerProps) {
+  const [isVisible, setIsVisible] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    // Check if banner has been dismissed before
+    const storageKey = `cta-banner-dismissed-${type}`;
+    const isDismissed = localStorage.getItem(storageKey) === "true";
+
+    setIsVisible(!isDismissed);
+    setIsLoaded(true);
+  }, [type]);
 
   const handleClose = () => {
+    const storageKey = `cta-banner-dismissed-${type}`;
+    localStorage.setItem(storageKey, "true");
     setIsVisible(false);
+
     if (onClose) {
       onClose();
     }
   };
 
-  if (!isVisible) return null;
+  if (!isLoaded || !isVisible) return null;
 
   const candidateContent = {
     icon: Award,
     title: "Are you running for JnUCSU Election?",
-    description: "Submit your candidate profile and share your vision with the student community. Let everyone know about your plans and manifesto!",
+    description:
+      "Submit your candidate profile and share your vision with the student community. Let everyone know about your plans and manifesto!",
     buttonText: "Submit Candidate Profile",
     buttonLink: "/submit-candidate",
-    bgGradient: "from-orange-500 to-red-500"
+    bgGradient: "from-orange-500 to-red-500",
   };
 
   const blogContent = {
     icon: PenTool,
     title: "Share Your Ideas with the Community",
-    description: "Write a blog post and share your thoughts, insights, and experiences with fellow students. Your voice matters!",
+    description:
+      "Write a blog post and share your thoughts, insights, and experiences with fellow students. Your voice matters!",
     buttonText: "Write a Blog Post",
     buttonLink: "/submit-blog",
-    bgGradient: "from-orange-500 to-orange-600"
+    bgGradient: "from-orange-500 to-orange-600",
   };
 
-  const content = type === 'candidate' ? candidateContent : blogContent;
+  const content = type === "candidate" ? candidateContent : blogContent;
   const Icon = content.icon;
 
   return (
-    <div className={`relative bg-gradient-to-r ${content.bgGradient} rounded-lg shadow-lg overflow-hidden mb-8`}>
+    <div
+      className={`relative bg-gradient-to-r ${content.bgGradient} rounded-lg shadow-lg overflow-hidden mb-8`}
+    >
       <div className="absolute inset-0 bg-black opacity-10"></div>
-      
+
       <div className="relative px-6 py-8 md:px-8">
         <button
           onClick={handleClose}
